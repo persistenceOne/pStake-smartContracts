@@ -5,7 +5,7 @@ import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/v3.2.2-solc-
 
 contract uToken is ERC20 {
 
-    constructor () ERC20("uAtoms", "uAtoms") {
+    constructor () ERC20("uAtoms", "XPRT") {
         _mint(_msgSender(), 0);
     }
 
