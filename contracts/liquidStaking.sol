@@ -5,28 +5,27 @@ import "uTokens.sol";
 import "sTokens.sol";
 
 contract liquidStacking {
-    
+
     //Event to track the setting of contracts
     event SetContract(
         address indexed _contract
     );
-    
+
     //Event to track the minting of tokens
     event MintTokens(
         address indexed _from,
         uint256 _value
     );
-    
+
     //Event to track Staking
     event Staking(
         address indexed _from,
         uint256 _value
     );
-    
+
     uTokens private UTokens;
     sTokens private STokens;
-    
-    
+
     /**
      * @dev Sets the values for {utoken contract address} and {stoken contract address}
      * @param _uaddress: utoken address, _saddress: stoken address
@@ -38,24 +37,24 @@ contract liquidStacking {
        setUTokensContract(_uaddress);
        setSTokensContract(_saddress);
     }
-    
-    /** 
+
+    /**
      * @dev Set 'contract address', called from constructor
      * @param _contract: utoken contract address
-     * 
+     *
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
     function setUTokensContract(address _contract) private {
         UTokens = uTokens(_contract);
         emit SetContract(_contract);
-        
+
     }
-    
-    /** 
+
+    /**
      * @dev Set 'contract address', called from constructor
      * @param _contract: stoken contract address
-     * 
+     *
      * Emits a {SetContract} event with '_contract' set to the stoken contract address.
      *
      */
@@ -63,13 +62,13 @@ contract liquidStacking {
         STokens = sTokens(_contract);
         emit SetContract(_contract);
     }
-    
-    /** 
+
+    /**
      * @dev Mint new utokens for the provided 'address' and 'amount'
      * @param to: account address, amount: number of tokens
-     * 
+     *
      * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
-     * 
+     *
      * Requirements:
      *
      * - `amount` cannot be less than zero.
@@ -79,10 +78,10 @@ contract liquidStacking {
         require(amount>0, "Token Amount should be greater than 0");
         UTokens.mint(to, amount);
         emit MintTokens(to, amount);
-        
+
     }
-    
-    /** 
+
+    /**
      * @dev Get utoken balance for the 'address'
      * @param _address: utoken contract address
      *
@@ -90,20 +89,29 @@ contract liquidStacking {
     function getUtokenBalance(address _address) public view returns(uint256) {
         return UTokens.balanceOf(_address);
     }
-    
-    /** 
+
+    /**
      * @dev Get utoken balance for the 'address'
-     * @param _address: utoken contract address
+     * @param to: utoken contract address
      *
      */
     function getStokenBalance(address to) public view returns(uint256) {
         return STokens.balanceOf(to);
     }
-    
+
     function transferUToken(address from, address to, uint256 amount) public returns (bool) {
         return UTokens.transferFrom(from, to, amount);
     }
-    
+
+
+    function sendReward(address to, uint256 rewardPercentage) public {
+        uint256 balance = STokens.balanceOf(to);
+        // Check the supplied amount is greater than 0
+        require(balance>0, "Number of tokens should be greater than 0");
+        uint256 reward = (balance * rewardPercentage) / 100;
+        STokens.mint(to, reward);
+        emit MintTokens(to, rewardPercentage);
+    }
     
     function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
@@ -121,10 +129,5 @@ contract liquidStacking {
         require(currentUTokenBalance == verifyBalance, "Stake Unsuccessful");
         emit Staking(to, utok);
         return true;
-        
-        
     }
-    
-    }
-    
-    
+}
