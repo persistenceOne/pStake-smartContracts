@@ -6,6 +6,8 @@ import "sTokens.sol";
 
 contract liquidStacking {
 
+    using SafeMath for uint256;
+
     //Event to track the setting of contracts
     event SetContract(
         address indexed _contract
@@ -104,20 +106,12 @@ contract liquidStacking {
     }
 
 
-    function sendReward(address to, uint256 rewardPercentage) public {
-        uint256 balance = STokens.balanceOf(to);
-        // Check the supplied amount is greater than 0
-        require(balance>0, "Number of tokens should be greater than 0");
-        uint256 reward = (balance * rewardPercentage) / 100;
-        STokens.mint(to, reward);
-        emit MintTokens(to, rewardPercentage);
-    }
-    
     function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(utok>0, "Number of staked tokens should be greater than 0");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 currentUTokenBalance = UTokens.balanceOf(to);
+        uint256 utoken = utok * (10**uint256(UTokens.decimals()));
         require(currentUTokenBalance>utok, "Insuffcient balance for account");
         // Burn the uTokens as specified with the amount
         UTokens.burn(to, utok);
@@ -125,9 +119,11 @@ contract liquidStacking {
         STokens.mint(to, utok);
         // Verify the staking
         uint256 newUTokenBalance = UTokens.balanceOf(to);
-        uint256 verifyBalance = newUTokenBalance + utok;
+        uint256 verifyBalance = newUTokenBalance + utoken;
         require(currentUTokenBalance == verifyBalance, "Stake Unsuccessful");
         emit Staking(to, utok);
         return true;
     }
 }
+
+

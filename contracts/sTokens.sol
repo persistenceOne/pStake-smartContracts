@@ -19,4 +19,13 @@ contract sTokens is ERC20 {
        _burn(from, token);
        return true;
     }
+
+    function sendReward(address to, uint256 rewardPercentage) public returns (bool success){
+        uint256 balance = balanceOf(to);
+        // Check the supplied amount is greater than 0
+        require(balance>0, "Number of tokens should be greater than 0");
+        uint256 reward = (balance * rewardPercentage) / 100;
+        _mint(to, reward);
+        return true;
+    }
 }
