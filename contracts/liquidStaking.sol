@@ -104,14 +104,17 @@ contract liquidStacking {
     function transferUToken(address from, address to, uint256 amount) public returns (bool) {
         return UTokens.transferFrom(from, to, amount);
     }
+    
+    function transferSToken(address from, address to, uint256 amount, uint256 currentBlock) public returns (bool) {
+        return STokens.transferSTokens(from, to, amount, cuurentBlock);
+    }
 
 
-    function stake(address to, uint256 utok) public returns(bool) {
+    function stake(address to, uint256 utok, uint256 stakedBlock) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(utok>0, "Number of staked tokens should be greater than 0");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 currentUTokenBalance = UTokens.balanceOf(to);
-        uint256 utoken = utok * (10**uint256(UTokens.decimals()));
         require(currentUTokenBalance>utok, "Insuffcient balance for account");
         // Burn the uTokens as specified with the amount
         UTokens.burn(to, utok);
@@ -119,11 +122,11 @@ contract liquidStacking {
         STokens.mint(to, utok);
         // Verify the staking
         uint256 newUTokenBalance = UTokens.balanceOf(to);
-        uint256 verifyBalance = newUTokenBalance + utoken;
+        uint256 verifyBalance = newUTokenBalance + utok;
         require(currentUTokenBalance == verifyBalance, "Stake Unsuccessful");
+        // Set the staked Block Number
+       STokens.setStakedBlock(to, stakedBlock);
         emit Staking(to, utok);
         return true;
     }
 }
-
-
