@@ -25,6 +25,12 @@ contract liquidStacking {
         uint256 _value
     );
 
+    //Event to track Staking
+    event Unstaking(
+        address indexed _from,
+        uint256 _value
+    );
+
     uTokens private UTokens;
     sTokens private STokens;
 
@@ -36,8 +42,8 @@ contract liquidStacking {
      * construction.
      */
     constructor(address _uaddress, address _saddress) public {
-       setUTokensContract(_uaddress);
-       setSTokensContract(_saddress);
+        setUTokensContract(_uaddress);
+        setSTokensContract(_saddress);
     }
 
     /**
@@ -50,7 +56,6 @@ contract liquidStacking {
     function setUTokensContract(address _contract) private {
         UTokens = uTokens(_contract);
         emit SetContract(_contract);
-
     }
 
     /**
@@ -80,7 +85,6 @@ contract liquidStacking {
         require(amount>0, "Token Amount should be greater than 0");
         UTokens.mint(to, amount);
         emit MintTokens(to, amount);
-
     }
 
     /**
@@ -104,11 +108,10 @@ contract liquidStacking {
     function transferUToken(address from, address to, uint256 amount) public returns (bool) {
         return UTokens.transferFrom(from, to, amount);
     }
-    
-    function transferSToken(address from, address to, uint256 amount, uint256 currentBlock) public returns (bool) {
-        return STokens.transferSTokens(from, to, amount, cuurentBlock);
-    }
 
+    function transferSToken(address from, address to, uint256 amount, uint256 currentBlock) public returns (bool) {
+        return STokens.transferSTokens(from, to, amount, currentBlock);
+    }
 
     function stake(address to, uint256 utok, uint256 stakedBlock) public returns(bool) {
         // Check the supplied amount is greater than 0
@@ -125,8 +128,30 @@ contract liquidStacking {
         uint256 verifyBalance = newUTokenBalance + utok;
         require(currentUTokenBalance == verifyBalance, "Stake Unsuccessful");
         // Set the staked Block Number
-       STokens.setStakedBlock(to, stakedBlock);
+        STokens.setStakedBlock(to, stakedBlock);
         emit Staking(to, utok);
+        return true;
+    }
+
+    function unStake(address to, uint256 stok, uint256 unStakedBlock) public returns(bool) {
+        // Check the supplied amount is greater than 0
+        require(stok>0, "Number of unstaked tokens should be greater than 0");
+        // Check the current balance for sTokens is greater than the amount to be unStaked
+        uint256 currentSTokenBalance = STokens.balanceOf(to);
+        require(currentSTokenBalance>stok, "Insuffcient balance for account");
+        //calculate reward for specified address
+        STokens.calculateRewards(to, unStakedBlock);
+        // Burn the sTokens as specified with the amount
+        STokens.burn(to, stok);
+        // Mint the uTokens for the account specified
+        UTokens.mint(to, stok);
+        // Verify the unStaking
+        uint256 newSTokenBalance = STokens.balanceOf(to);
+        uint256 verifyBalance = newSTokenBalance + stok;
+        require(currentSTokenBalance == verifyBalance, "Unstake Unsuccessful");
+        // Set the unStaked Block Number
+        STokens.setStakedBlock(to, 0);
+        emit Unstaking(to, stok);
         return true;
     }
 }
