@@ -19,10 +19,4 @@ contract sTokens is ERC20 {
        _burn(from, token);
        return true;
     }
-
-    function transfer(address to, uint256 tokens) public override returns (bool success) {
-       uint256 token = tokens * (10**uint256(decimals()));
-       _transfer(_msgSender(), to, token);
-       return true;
-    }
 }
