@@ -31,13 +31,11 @@ contract liquidStacking {
         address indexed _from,
         uint256 _value
     );
-    
-   
 
     uTokens private UTokens;
     sTokens private STokens;
     
-    uint256 unstakinglockTime = 21 days;
+    uint256 unStakinglockTime = 21 days;
 
     struct locked{
         uint256 expire;
@@ -171,20 +169,22 @@ contract liquidStacking {
         STokens.calculateRewards(to, unStakedBlock);
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
+        //lock the tokens for 21 days
         locked storage user = unstakingUsers[to];
-        user.expire = block.timestamp + unstakinglockTime;
+        user.expire = block.timestamp + unStakinglockTime;
         user.amount = stok;
         emit Unstaking(to, stok);
         return true;
     }
     
     function withdrawUnstakedTokens() public {
-        require(block.timestamp>=unstakingUsers[msg.sender].expire);
+        //validating the 21 days lock-in period
+        require(block.timestamp>=unstakingUsers[msg.sender].expire, "Lock-in period of 21 days not completed.");
         locked storage userInfo = unstakingUsers[msg.sender];
         uint256 value = userInfo.amount;
         userInfo.expire = 0;
         userInfo.amount = 0;
+        //minting the tokens
         UTokens.mint(msg.sender, value);
-        
     }
 }
