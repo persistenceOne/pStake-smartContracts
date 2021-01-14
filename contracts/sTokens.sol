@@ -4,30 +4,31 @@ pragma solidity ^0.6.0;
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
 
 contract sTokens is ERC20 {
-
+    
     uint256 private rewardRate = 1;
     mapping(address => uint256) private stakedBlocks;
-
-    constructor() public ERC20("sAtoms", "XPRT") {
+    
+    constructor() public ERC20("sAtoms", "sAtoms") {
         _mint(msg.sender, 0);
     }
-
-    function setRewardRate(uint256 rate) public {
+    
+    function setRewardRate(uint256 rate) public returns (bool success) {
         rewardRate = rate;
+        return true;
     }
-
+    
     function setStakedBlock(address from, uint256 _stakedBlock) public {
         stakedBlocks[from] = _stakedBlock;
     }
-
+    
     function mint(address to, uint256 tokens) public returns (bool success) {
-        _mint(to, tokens);
-        return true;
+      _mint(to, tokens);
+      return true;
     }
 
     function burn(address from, uint256 tokens) public returns (bool success) {
-        _burn(from, tokens);
-        return true;
+       _burn(from, tokens);
+       return true;
     }
 
     function calculateRewards(address to, uint256 currentBlock) public returns (bool success){
@@ -46,7 +47,7 @@ contract sTokens is ERC20 {
         _mint(to, reward);
         return true;
     }
-
+    
     function transferSTokens(address sender, address recipient, uint256 amount, uint256 currentBlock) public returns (bool) {
         calculateRewards(sender, currentBlock);
         _transfer(sender, recipient, amount);

@@ -3,6 +3,7 @@ pragma solidity ^0.6.0;
 
 import "uTokens.sol";
 import "sTokens.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/TokenTimelock.sol";
 
 contract liquidStacking {
 
@@ -25,14 +26,25 @@ contract liquidStacking {
         uint256 _value
     );
 
-    //Event to track Staking
+    //Event to track UnStaking
     event Unstaking(
         address indexed _from,
         uint256 _value
     );
+    
+   
 
     uTokens private UTokens;
     sTokens private STokens;
+    
+    uint256 unstakinglockTime = 21 days;
+
+    struct locked{
+        uint256 expire;
+        uint256 amount;
+    }
+    
+    mapping(address => locked) unstakingUsers;
 
     /**
      * @dev Sets the values for {utoken contract address} and {stoken contract address}
@@ -68,6 +80,22 @@ contract liquidStacking {
     function setSTokensContract(address _contract) private {
         STokens = sTokens(_contract);
         emit SetContract(_contract);
+    }
+    
+     /**
+     * @dev Set 'reward rate' with Stokens for reward calculation
+     * @param rate: rate provided for Stokens, Default set to 1 percent
+     *
+     * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     *
+     * Requirements:
+     *
+     * - `amount` cannot be less than zero.
+     *
+     */
+    function setReward(uint256 rate) public returns(bool) {
+        require(rate>0, "Reward Rate should be greater than 0");
+        return STokens.setRewardRate(rate);
     }
 
     /**
@@ -143,15 +171,20 @@ contract liquidStacking {
         STokens.calculateRewards(to, unStakedBlock);
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
-        // Mint the uTokens for the account specified
-        UTokens.mint(to, stok);
-        // Verify the unStaking
-        uint256 newSTokenBalance = STokens.balanceOf(to);
-        uint256 verifyBalance = newSTokenBalance + stok;
-        require(currentSTokenBalance == verifyBalance, "Unstake Unsuccessful");
-        // Set the unStaked Block Number
-        STokens.setStakedBlock(to, 0);
+        locked storage user = unstakingUsers[to];
+        user.expire = block.timestamp + unstakinglockTime;
+        user.amount = stok;
         emit Unstaking(to, stok);
         return true;
+    }
+    
+    function withdrawUnstakedTokens() public {
+        require(block.timestamp>=unstakingUsers[msg.sender].expire);
+        locked storage userInfo = unstakingUsers[msg.sender];
+        uint256 value = userInfo.amount;
+        userInfo.expire = 0;
+        userInfo.amount = 0;
+        UTokens.mint(msg.sender, value);
+        
     }
 }
