@@ -6,18 +6,14 @@ import "sTokens.sol";
 import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/TokenTimelock.sol";
 
 contract liquidStacking {
+    
+    address owner;
 
     using SafeMath for uint256;
 
     //Event to track the setting of contracts
     event SetContract(
         address indexed _contract
-    );
-
-    //Event to track the minting of tokens
-    event MintTokens(
-        address indexed _from,
-        uint256 _value
     );
 
     //Event to track Staking
@@ -44,6 +40,12 @@ contract liquidStacking {
         uint256 amount;
     }
     
+    //modifier for only owner
+    modifier onlyOwner() {
+        require(msg.sender == owner);
+        _;
+    }
+    
     //Mapping to handle the locking period
     mapping(address => locked) unstakingUsers;
 
@@ -55,8 +57,10 @@ contract liquidStacking {
      * construction.
      */
     constructor(address _uaddress, address _saddress) public {
+        owner = msg.sender;
         setUTokensContract(_uaddress);
         setSTokensContract(_saddress);
+        
     }
 
     /**
@@ -66,7 +70,7 @@ contract liquidStacking {
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
-    function setUTokensContract(address _contract) private {
+    function setUTokensContract(address _contract) public onlyOwner {
         UTokens = uTokens(_contract);
         emit SetContract(_contract);
     }
@@ -78,25 +82,9 @@ contract liquidStacking {
      * Emits a {SetContract} event with '_contract' set to the stoken contract address.
      *
      */
-    function setSTokensContract(address _contract) private {
+    function setSTokensContract(address _contract) public onlyOwner {
         STokens = sTokens(_contract);
         emit SetContract(_contract);
-    }
-    
-     /**
-     * @dev Set 'reward rate' with Stokens for reward calculation
-     * @param rate: rate provided for Stokens, Default set to 1 percent
-     *
-     * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
-     *
-     * Requirements:
-     *
-     * - `amount` cannot be less than zero.
-     *
-     */
-    function setReward(uint256 rate) public returns(bool) {
-        require(rate>0, "Reward Rate should be greater than 0");
-        return STokens.setRewardRate(rate);
     }
 
     /**
@@ -113,7 +101,6 @@ contract liquidStacking {
     function generateUTokens(address to, uint256 amount) public {
         require(amount>0, "Token Amount should be greater than 0");
         UTokens.mint(to, amount);
-        emit MintTokens(to, amount);
     }
 
     /**
@@ -132,36 +119,6 @@ contract liquidStacking {
      */
     function getStokenBalance(address to) public view returns(uint256) {
         return STokens.balanceOf(to);
-    }
-    
-    /**
-     * @dev Transfer utokens from one address 'from' to the other address 'to' for desired 'amount'
-     * @param from: senders address to: receiveers address, amount: number of tokens
-     *
-     *
-     * Requirements:
-     *
-     * - `amount` cannot be less than zero.
-     *
-     */
-    function transferUToken(address from, address to, uint256 amount) public returns (bool) {
-        require(amount>0, "Amount should be greater than 0");
-        return UTokens.transferFrom(from, to, amount);
-    }
-    
-     /**
-     * @dev Transfer stokens from one address 'from' to the other address 'to' for desired 'amount', after calculating the rewards with 'currentBlock'
-     * @param from: senders address to: receivers address, amount: number of tokens, cuurentBlock: Current Block number to calculate the rewards
-     *
-     *
-     * Requirements:
-     *
-     * - `amount` cannot be less than zero.
-     *
-     */
-    function transferSToken(address from, address to, uint256 amount, uint256 currentBlock) public returns (bool) {
-        require(amount>0, "Amount should be greater than 0");
-        return STokens.transferSTokens(from, to, amount, currentBlock);
     }
     
      /**
@@ -195,14 +152,12 @@ contract liquidStacking {
         return true;
     }
 
-    function unStake(address to, uint256 stok, uint256 unStakedBlock) public returns(bool) {
+    function unStake(address to, uint256 stok) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(stok>0, "Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 currentSTokenBalance = STokens.balanceOf(to);
         require(currentSTokenBalance>stok, "Insuffcient balance for account");
-        //calculate reward for specified address
-        STokens.calculateRewards(to, unStakedBlock);
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
         locked storage user = unstakingUsers[to];
