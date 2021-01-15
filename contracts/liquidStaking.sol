@@ -31,17 +31,20 @@ contract liquidStacking {
         address indexed _from,
         uint256 _value
     );
-
+   
+    //Private instances of contracts to handle Utokens and Stokens
     uTokens private UTokens;
     sTokens private STokens;
     
-    uint256 unStakinglockTime = 21 days;
-
+    uint256 unstakinglockTime = 21 days;
+    
+    //Structure to handle the locking period
     struct locked{
         uint256 expire;
         uint256 amount;
     }
     
+    //Mapping to handle the locking period
     mapping(address => locked) unstakingUsers;
 
     /**
@@ -130,15 +133,48 @@ contract liquidStacking {
     function getStokenBalance(address to) public view returns(uint256) {
         return STokens.balanceOf(to);
     }
-
+    
+    /**
+     * @dev Transfer utokens from one address 'from' to the other address 'to' for desired 'amount'
+     * @param from: senders address to: receiveers address, amount: number of tokens
+     *
+     *
+     * Requirements:
+     *
+     * - `amount` cannot be less than zero.
+     *
+     */
     function transferUToken(address from, address to, uint256 amount) public returns (bool) {
+        require(amount>0, "Amount should be greater than 0");
         return UTokens.transferFrom(from, to, amount);
     }
-
+    
+     /**
+     * @dev Transfer stokens from one address 'from' to the other address 'to' for desired 'amount', after calculating the rewards with 'currentBlock'
+     * @param from: senders address to: receivers address, amount: number of tokens, cuurentBlock: Current Block number to calculate the rewards
+     *
+     *
+     * Requirements:
+     *
+     * - `amount` cannot be less than zero.
+     *
+     */
     function transferSToken(address from, address to, uint256 amount, uint256 currentBlock) public returns (bool) {
+        require(amount>0, "Amount should be greater than 0");
         return STokens.transferSTokens(from, to, amount, currentBlock);
     }
-
+    
+     /**
+     * @dev Stake utokens over the platform with address 'to' for desired 'amount', after fixing the 'stakedBlock' (Burn uTokens and Mint sTokens)
+     * @param to: user address for staking, utok: number of tokens to stake, stkaedBlock: Current Block number to be fixed as staked Block
+     *
+     *
+     * Requirements:
+     *
+     * - `utok` cannot be less than zero.
+     * - 'utok' cannot be more than balance
+     * - 'utok' plus new balance should be equal to the old balance
+     */
     function stake(address to, uint256 utok, uint256 stakedBlock) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(utok>0, "Number of staked tokens should be greater than 0");
@@ -169,22 +205,20 @@ contract liquidStacking {
         STokens.calculateRewards(to, unStakedBlock);
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
-        //lock the tokens for 21 days
         locked storage user = unstakingUsers[to];
-        user.expire = block.timestamp + unStakinglockTime;
+        user.expire = block.timestamp + unstakinglockTime;
         user.amount = stok;
         emit Unstaking(to, stok);
         return true;
     }
     
     function withdrawUnstakedTokens() public {
-        //validating the 21 days lock-in period
-        require(block.timestamp>=unstakingUsers[msg.sender].expire, "Lock-in period of 21 days not completed.");
+        require(block.timestamp>=unstakingUsers[msg.sender].expire);
         locked storage userInfo = unstakingUsers[msg.sender];
         uint256 value = userInfo.amount;
         userInfo.expire = 0;
         userInfo.amount = 0;
-        //minting the tokens
         UTokens.mint(msg.sender, value);
+        
     }
 }
