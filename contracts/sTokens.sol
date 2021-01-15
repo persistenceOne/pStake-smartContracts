@@ -31,8 +31,7 @@ contract sTokens is ERC20 {
     uint256 private rewardRate = 1;
     mapping(address => uint256) private stakedBlocks;
     
-    constructor(address _uaddress) public ERC20("sAtoms", "sAtoms") {
-        setUTokensContract(_uaddress);
+    constructor() public ERC20("sAtoms", "sAtoms") {
         owner = msg.sender;
         _mint(msg.sender, 0);
     }
