@@ -19,26 +19,13 @@ contract uTokens is ERC20 {
     }
     
     function mint(address to, uint256 tokens) public onlyOwnerOrSender returns (bool success) {
-        if (tx.origin == to || owner == to )
-        {
             _mint(to, tokens);
             return true;
-        }
-        else
-        {
-            return false;
-        }
     }
 
     function burn(address from, uint256 tokens) public onlyOwnerOrSender returns (bool success) {
-       if (tx.origin == from || owner == from) {
            _burn(from, tokens);
            return true;
-       }
-       else
-       {
-           return false;
-       }
        
     }
 }
