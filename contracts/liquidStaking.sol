@@ -36,8 +36,8 @@ contract liquidStacking {
     
     //Structure to handle the locking period
     struct locked{
-        uint256[] expire;
-        uint256[] amount;
+        uint256 expire;
+        uint256 amount;
     }
     
     //modifier for only owner
@@ -60,6 +60,7 @@ contract liquidStacking {
         owner = msg.sender;
         setUTokensContract(_uaddress);
         setSTokensContract(_saddress);
+        STokens.setUTokensContract(_uaddress);
         
     }
 
@@ -132,7 +133,7 @@ contract liquidStacking {
      * - 'utok' cannot be more than balance
      * - 'utok' plus new balance should be equal to the old balance
      */
-    function stake(address to, uint256 utok, uint256 stakedBlock) public returns(bool) {
+    function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(utok>0, "Number of staked tokens should be greater than 0");
         // Check the current balance for uTokens is greater than the amount to be staked
@@ -147,7 +148,7 @@ contract liquidStacking {
         uint256 verifyBalance = newUTokenBalance + utok;
         require(currentUTokenBalance == verifyBalance, "Stake Unsuccessful");
         // Set the staked Block Number
-        STokens.setStakedBlock(to, stakedBlock);
+        STokens.setStakedBlock(to, block.number);
         emit Staking(to, utok);
         return true;
     }
@@ -161,34 +162,19 @@ contract liquidStacking {
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
         locked storage user = unstakingUsers[to];
-        user.expire.push(block.timestamp + unstakinglockTime);
-        user.amount.push(stok);
+        user.expire = block.timestamp + unstakinglockTime;
+        user.amount = stok;
         emit Unstaking(to, stok);
         return true;
     }
-
+    
     function withdrawUnstakedTokens() public {
+        require(block.timestamp>=unstakingUsers[msg.sender].expire);
         locked storage userInfo = unstakingUsers[msg.sender];
-        //check if any tokens are present in lock-in period for specified address
-        require(userInfo.expire.length>0, "No Tokens present in Lock-in period.");
-        //added count variable to not if any tokens were minted
-        uint256 count = 0;
-        for(uint i=0; i<=userInfo.expire.length-1; i++){
-            if(block.timestamp>=userInfo.expire[i]){
-                //only mint tokens when lock-in period is over
-                UTokens.mint(msg.sender, userInfo.amount[0]);
-                count++;
-                //check the array length
-                if(i<userInfo.expire.length-1){
-                    userInfo.expire[i] = userInfo.expire[i+1];
-                    userInfo.amount[i] = userInfo.amount[i+1];
-                }
-            }
-        }
-        //popping the last element
-        if(count!=0){
-            userInfo.expire.pop();
-            userInfo.amount.pop();
-        }
+        uint256 value = userInfo.amount;
+        userInfo.expire = 0;
+        userInfo.amount = 0;
+        UTokens.mint(msg.sender, value);
+        
     }
 }

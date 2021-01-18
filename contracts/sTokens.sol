@@ -8,6 +8,8 @@ contract sTokens is ERC20 {
     
     address owner;
     
+    mapping(address=>uint256) users;
+    
     //modifier for only owner
     modifier onlyOwner() {
         require(msg.sender == owner);
@@ -36,9 +38,11 @@ contract sTokens is ERC20 {
         _mint(msg.sender, 0);
     }
     
-    function setUTokensContract(address _contract) public onlyOwner {
-        UTokens = uTokens(_contract);
-        emit SetContract(_contract);
+    function setUTokensContract(address _contract) public {
+        if (msg.sender == owner) {
+            UTokens = uTokens(_contract);
+            emit SetContract(_contract);
+        }
     }
     
     function setStakedBlock(address from, uint256 _stakedBlock) public {
@@ -51,8 +55,14 @@ contract sTokens is ERC20 {
     }
     
     function mint(address to, uint256 tokens) public returns (bool success) {
-        calculateRewards(to);
-        _mint(to, tokens);
+        if (users[to] == 1) {
+            calculateRewards(to);
+            _mint(to, tokens);
+        }
+        else {
+            users[to] = 1;
+            _mint(to, tokens);
+        }
         return true;
     }
 
