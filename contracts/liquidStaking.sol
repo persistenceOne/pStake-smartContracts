@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
-import "uTokens.sol";
-import "sTokens.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/TokenTimelock.sol";
+import "./uTokens.sol";
+import "./sTokens.sol";
+import "@openzeppelin/contracts/token/ERC20/TokenTimelock.sol";
 
 contract liquidStacking {
     
