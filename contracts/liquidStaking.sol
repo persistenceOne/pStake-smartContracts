@@ -5,7 +5,7 @@ import "./uTokens.sol";
 import "./sTokens.sol";
 import "@openzeppelin/contracts/token/ERC20/TokenTimelock.sol";
 
-contract liquidStacking {
+contract liquidStaking {
     
     address owner;
 
@@ -123,8 +123,8 @@ contract liquidStacking {
     }
     
      /**
-     * @dev Stake utokens over the platform with address 'to' for desired 'amount', after fixing the 'stakedBlock' (Burn uTokens and Mint sTokens)
-     * @param to: user address for staking, utok: number of tokens to stake, stkaedBlock: Current Block number to be fixed as staked Block
+     * @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
+     * @param to: user address for staking, utok: number of tokens to stake
      *
      *
      * Requirements:
@@ -152,7 +152,18 @@ contract liquidStacking {
         emit Staking(to, utok);
         return true;
     }
-
+    
+    /**
+     * @dev UnStake stokens over the platform with address 'to' for desired 'stok' (Burn sTokens and Mint uTokens with 21 days locking period)
+     * @param to: user address for staking, stok: number of tokens to unstake
+     *
+     *
+     * Requirements:
+     *
+     * - `stok` cannot be less than zero.
+     * - 'stok' cannot be more than balance
+     * - 'stok' plus new balance should be equal to the old balance
+     */
     function unStake(address to, uint256 stok) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(stok>0, "Number of unstaked tokens should be greater than 0");
@@ -168,6 +179,13 @@ contract liquidStacking {
         return true;
     }
     
+    /**
+     * @dev Lock the unstaked tokens for 21 days, user can withdraw the same (Mint uTokens with 21 days locking period)
+     *
+     * Requirements:
+     *
+     * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
+     */
     function withdrawUnstakedTokens() public {
         require(block.timestamp>=unstakingUsers[msg.sender].expire);
         locked storage userInfo = unstakingUsers[msg.sender];
