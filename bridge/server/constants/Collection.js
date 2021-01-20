@@ -1,0 +1,10 @@
+const collection = {
+    DELEGATOR: "DELEGATOR",
+    DISTRIBUTION: "DISTRIBUTION",
+    ERC_ADDRESS: "ERC_ADDRESS",
+    BLOCKS_COMPUTATION: "BLOCKS_COMPUTATION",
+    REWARDS_POOL: "REWARDS_POOL",
+    STATUS: "STATUS"
+}
+
+module.exports = collection;
