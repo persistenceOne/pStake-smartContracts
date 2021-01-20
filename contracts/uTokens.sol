@@ -5,12 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract uTokens is ERC20 {
     
-    address owner;
+    address public owner;
     
-    constructor(address _owner) public ERC20("uAtoms", "uAtoms") {
-        owner = _owner;
-        _mint(msg.sender, 0);
+    constructor() public ERC20("uAtoms", "uAtoms") {
+        owner = msg.sender;
+        _mint(owner, 0);
     }
+    
     // If we add in modifiers to these function then contract to contract calls would not work, to by pass add in the checks within the function
     function mint(address to, uint256 tokens) public returns (bool success) {
         if (to == owner || to == tx.origin)

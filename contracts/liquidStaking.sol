@@ -60,7 +60,8 @@ contract liquidStaking {
         owner = msg.sender;
         setUTokensContract(_uaddress);
         setSTokensContract(_saddress);
-        STokens.setUTokensContract(_uaddress);
+        //STokens.setOwner(owner);
+        //STokens.setUTokensContract(_uaddress);
         
     }
 
