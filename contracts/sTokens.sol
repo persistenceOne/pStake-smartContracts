@@ -6,7 +6,7 @@ import "./uTokens.sol";
 
 contract sTokens is ERC20 {
     
-    address owner;
+    address public owner;
     
     mapping(address=>uint256) users;
     
@@ -33,16 +33,15 @@ contract sTokens is ERC20 {
     uint256 private rewardRate = 1;
     mapping(address => uint256) private stakedBlocks;
     
-    constructor() public ERC20("sAtoms", "sAtoms") {
+    constructor(address _uaddress) public ERC20("sAtoms", "sAtoms") {
         owner = msg.sender;
+        setUTokensContract(_uaddress);
         _mint(msg.sender, 0);
     }
     
-    function setUTokensContract(address _contract) public {
-        if (msg.sender == owner) {
+    function setUTokensContract(address _contract) public onlyOwner {
             UTokens = uTokens(_contract);
             emit SetContract(_contract);
-        }
     }
     
     function setStakedBlock(address from, uint256 _stakedBlock) public {
