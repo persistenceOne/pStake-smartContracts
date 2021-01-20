@@ -13,6 +13,7 @@ const {
     expectEvent,
     expectRevert,
 } = require("@openzeppelin/test-helpers");
+const uTokens = contract.fromArtifact("uTokens");
 const sTokens = contract.fromArtifact("sTokens");
 const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
@@ -24,7 +25,8 @@ describe('sTokens', () => {
         let stokens;
         let amount = new BN(100);
         beforeEach(async function () {
-            stokens = await sTokens.new({from: from});
+            let utokens = await uTokens.new({ from: from});
+            stokens = await sTokens.new(utokens.address, {from: from,});
         });
 
         it('Constructor rejects a null account', async function () {
@@ -61,7 +63,8 @@ describe('sTokens', () => {
         let amt = new BN(50);
         let amount = new BN(100);
         beforeEach(async function () {
-            stokens = await sTokens.new({from: from});
+            let utokens = await uTokens.new({ from: from});
+            stokens = await sTokens.new(utokens.address, {from: from,});
         });
 
         it('Burn amount exceeds balance', async function () {
@@ -97,7 +100,8 @@ describe('sTokens', () => {
         let amt = new BN(50);
         let amount = new BN(100);
         beforeEach(async function () {
-            stokens = await sTokens.new({from: from});
+            let utokens = await uTokens.new({ from: from});
+            stokens = await sTokens.new(utokens.address, {from: from,});
         });
 
         it('TEST: calculateRewards', async function () {
@@ -109,6 +113,41 @@ describe('sTokens', () => {
             mintSTokens = await stokens.mint(to,amount,{from: from,});
             expectEvent(mintSTokens, "Transfer", {
                 to:to,
+                value: amount,
+            });
+        },200000);
+    });
+
+    describe("Transfer", function () {
+        let to = accounts[3];
+        let anotherAccount = accounts[4];
+        let from = accounts[1];
+        let stokens;
+        let amt = new BN(50);
+        let amount = new BN(100);
+        beforeEach(async function () {
+            let utokens = await uTokens.new({ from: from});
+            stokens = await sTokens.new(utokens.address, {from: from,});
+        });
+
+        it('Non-Owner cannot Transfer', async function () {
+            let mintSTokens = await stokens.mint(from,amount,{from: from,});
+            expectEvent(mintSTokens, "Transfer", {
+                to:from,
+                value: amount,
+            });
+            await expectRevert(stokens.transfer(anotherAccount,amt,{from: to,}), "revert");
+        },200000);
+
+        it('Only Owner can Transfer', async function () {
+            let mintSTokens = await stokens.mint(from,amount,{from: from,});
+            expectEvent(mintSTokens, "Transfer", {
+                to:from,
+                value: amount,
+            });
+            let transferTokens = await stokens.transfer(anotherAccount,amt,{from: from,});
+            expectEvent(transferTokens, "Transfer", {
+                to:anotherAccount,
                 value: amt,
             });
         },200000);
