@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 
 uTokens Contract
 * use Ownable contract
-* mint()
+* mint():
 
 three scenarios for access:
 1. admin/owner -> bridge -> Liquid Staking Contract -> mint()
@@ -18,10 +18,13 @@ require conditions:
 
 choose to include both the contract address in uTokens or give it as value directly
 
-* burn()
+* burn():
 1. staker -> stake function of Liquid Staking Contract -> burn() of uTokens
 require condition 
 1. tx.origin == staker && msg.sender == liquid staking contract
+
+* decide on the decimal places for the contract (might be using decimals of ATOM token)
+
 
 -----------------------------------------------
 
@@ -33,7 +36,9 @@ sTokens Contract
 3. use Ownable instead of custom owner obj and modifiers
 4. change the name and symbol
 5. _mint(msg.sender, 0); not required in constructor
-
+6. implement calculateRewards() as a public function with require statements and invoke an internal virtual function _calculateRewards() which will have the actual logic of transfer of value. (this point was discussed but forgot to add in the list)
+7. decide on the decimal places for the contract (might be using decimals of ATOM token)
+8. Think of making the sToken and uToken contracts derivable to other derived contracts. 
 
 
 -----------------------------------------------
