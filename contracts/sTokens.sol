@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract uTokens {
      function mint(address to, uint256 tokens) public returns (bool success) { }
 }
 
 contract sTokens is ERC20, Ownable {
-    
     
     address private liquidStakingContract;
     
@@ -30,8 +29,8 @@ contract sTokens is ERC20, Ownable {
     }
     
     function setUTokensContract(address _contract) public onlyOwner {
-            UTokens = uTokens(_contract);
-            emit SetContract(_contract);
+        UTokens = uTokens(_contract);
+        emit SetContract(_contract);
     }
     
     function setRewardRate(uint256 rate) public onlyOwner returns (bool success) {
@@ -40,24 +39,17 @@ contract sTokens is ERC20, Ownable {
     }
     
     function mint(address to, uint256 tokens) public returns (bool success) {
-        if (tx.origin == to && _msgSender() == liquidStakingContract) {
-            _mint(to, tokens);
-            return true;
-        }
-        else {
-            return false;
-        }
-        
+        require(tx.origin == to);
+        require(_msgSender() == liquidStakingContract);
+        _mint(to, tokens);
+        return true;
     }
 
     function burn(address from, uint256 tokens) public returns (bool success) {
-         if (tx.origin == from && _msgSender() == liquidStakingContract) {
-            _burn(from, tokens);
-             return true;
-         }
-         else {
-             return false;
-         }
+        require(tx.origin == from);
+        require(_msgSender() == liquidStakingContract);
+        _burn(from, tokens);
+        return true;
     }
 
     function _calculateRewards(address to) internal returns (bool success){
@@ -92,22 +84,18 @@ contract sTokens is ERC20, Ownable {
     function transfer(address recipient, uint256 amount) public override returns (bool) {
         _transfer(_msgSender(), recipient, amount);
         return true;
-        
     }
     
-    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override
-    {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-       
-            if (from == address(0) && to != address(0))
-            {
-                _calculateRewards(to);
-            }
-            else
-            {
-                _calculateRewards(from);
-            }
-       
+        if (from == address(0) && to != address(0))
+        {
+            _calculateRewards(to);
+        }
+        else
+        {
+            _calculateRewards(from);
+        }
     }
     
     //This function need to be called after deployment, only admin can call the same

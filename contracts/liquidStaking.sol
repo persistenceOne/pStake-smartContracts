@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.6.0;
+pragma solidity ^0.7.0;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract uTokens {
      function mint(address to, uint256 tokens) public returns (bool success) { }
@@ -14,9 +14,7 @@ contract sTokens {
      function mint(address to, uint256 tokens) public returns (bool success) { }
       function balanceOf(address account) public view returns (uint256) { }
       function burn(address from, uint256 tokens) public returns (bool success) { }
-    
 }
-
 
 contract liquidStaking is Ownable {
 
@@ -121,6 +119,7 @@ contract liquidStaking is Ownable {
     function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(utok>0, "Number of staked tokens should be greater than 0");
+        require(_msgSender() != address(0), "Staker address cannot be 0x");
         require(to == _msgSender(), "Staking can only be done by Staker");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 currentUTokenBalance = UTokens.balanceOf(to);
@@ -148,6 +147,8 @@ contract liquidStaking is Ownable {
      */
     function unStake(address to, uint256 stok) public returns(bool) {
         // Check the supplied amount is greater than 0
+        require(_msgSender() != address(0), "Staker address cannot be 0x");
+        require(to == _msgSender(), "Unstaking can only be done by Staker");
         require(stok>0, "Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 currentSTokenBalance = STokens.balanceOf(to);
@@ -169,12 +170,11 @@ contract liquidStaking is Ownable {
      * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
      */
     function withdrawUnstakedTokens() public {
-        require(block.timestamp>=unstakingUsers[msg.sender].expire);
-        locked storage userInfo = unstakingUsers[msg.sender];
+        require(block.timestamp>=unstakingUsers[_msgSender()].expire);
+        locked storage userInfo = unstakingUsers[_msgSender()];
         uint256 value = userInfo.amount;
         userInfo.expire = 0;
         userInfo.amount = 0;
         UTokens.mint(msg.sender, value);
-        
     }
 }
