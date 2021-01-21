@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 
-contract uTokens is ERC20 {
+contract uTokens is ERC20, Ownable {
     
-    address public owner;
+    address private stokenContract;
+    address private liquidStakingContract;
     
-    constructor() public ERC20("uAtoms", "uAtoms") {
-        owner = msg.sender;
-        _mint(owner, 0);
+    constructor() public ERC20("unstakedAtoms", "uAtoms") {
+        _setupDecimals(6);
     }
     
-    // If we add in modifiers to these function then contract to contract calls would not work, to by pass add in the checks within the function
+    
     function mint(address to, uint256 tokens) public returns (bool success) {
-        if (to == owner || to == tx.origin)
+        if ((tx.origin == owner() && _msgSender() == liquidStakingContract)  || (tx.origin == to && _msgSender() == stokenContract) || (tx.origin == to && _msgSender()==liquidStakingContract))
         {
             _mint(to, tokens);
             return true;
@@ -24,9 +25,9 @@ contract uTokens is ERC20 {
         }
     }
     
-     // If we add in modifiers to these function then contract to contract calls would not work, to by pass add in the checks within the function
+     
     function burn(address from, uint256 tokens) public returns (bool success) {
-        if (from == owner || from == tx.origin)
+        if (tx.origin == from && _msgSender()==liquidStakingContract)
         {
            _burn(from, tokens);
            return true;
@@ -35,5 +36,14 @@ contract uTokens is ERC20 {
             return false;
         }
        
+    }
+    
+    //These functions need to be called after deployment, only admin can call the same
+    function setSTokenContractAddress(address _stokenContract) public onlyOwner {
+        stokenContract = _stokenContract;
+    }
+    
+     function setLiquidStakingContractAddress(address _liquidStakingContract) public onlyOwner {
+        liquidStakingContract = _liquidStakingContract;
     }
 }

@@ -1,13 +1,24 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.0;
 
-import "./uTokens.sol";
-import "./sTokens.sol";
-import "@openzeppelin/contracts/token/ERC20/TokenTimelock.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/math/SafeMath.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 
-contract liquidStaking {
+contract uTokens {
+     function mint(address to, uint256 tokens) public returns (bool success) { }
+     function burn(address from, uint256 tokens) public returns (bool success) { }
+     function balanceOf(address account) public view returns (uint256) { }
+}
+
+contract sTokens {
+     function mint(address to, uint256 tokens) public returns (bool success) { }
+      function balanceOf(address account) public view returns (uint256) { }
+      function burn(address from, uint256 tokens) public returns (bool success) { }
     
-    address owner;
+}
+
+
+contract liquidStaking is Ownable {
 
     using SafeMath for uint256;
 
@@ -40,12 +51,6 @@ contract liquidStaking {
         uint256 amount;
     }
     
-    //modifier for only owner
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-    
     //Mapping to handle the locking period
     mapping(address => locked) unstakingUsers;
 
@@ -57,12 +62,8 @@ contract liquidStaking {
      * construction.
      */
     constructor(address _uaddress, address _saddress) public {
-        owner = msg.sender;
         setUTokensContract(_uaddress);
         setSTokensContract(_saddress);
-        //STokens.setOwner(owner);
-        //STokens.setUTokensContract(_uaddress);
-        
     }
 
     /**
@@ -102,27 +103,10 @@ contract liquidStaking {
      */
     function generateUTokens(address to, uint256 amount) public {
         require(amount>0, "Token Amount should be greater than 0");
+        require(_msgSender() == owner(), "Only owner can mint new tokens for a user.");
         UTokens.mint(to, amount);
     }
 
-    /**
-     * @dev Get utoken balance for the 'address'
-     * @param _address: utoken contract address
-     *
-     */
-    function getUtokenBalance(address _address) public view returns(uint256) {
-        return UTokens.balanceOf(_address);
-    }
-
-    /**
-     * @dev Get utoken balance for the 'address'
-     * @param to: utoken contract address
-     *
-     */
-    function getStokenBalance(address to) public view returns(uint256) {
-        return STokens.balanceOf(to);
-    }
-    
      /**
      * @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
      * @param to: user address for staking, utok: number of tokens to stake
@@ -137,19 +121,16 @@ contract liquidStaking {
     function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
         require(utok>0, "Number of staked tokens should be greater than 0");
+        require(to == _msgSender(), "Staking can only be done by Staker");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 currentUTokenBalance = UTokens.balanceOf(to);
-        require(currentUTokenBalance>utok, "Insuffcient balance for account");
+        require(currentUTokenBalance>=utok, "Insuffcient balance for account");
         // Burn the uTokens as specified with the amount
         UTokens.burn(to, utok);
         // Mint the sTokens for the account specified
         STokens.mint(to, utok);
-        // Verify the staking
-        uint256 newUTokenBalance = UTokens.balanceOf(to);
-        uint256 verifyBalance = newUTokenBalance + utok;
-        require(currentUTokenBalance == verifyBalance, "Stake Unsuccessful");
-        // Set the staked Block Number
-        STokens.setStakedBlock(to, block.number);
+       
+        //Emit Event for Staking
         emit Staking(to, utok);
         return true;
     }
@@ -170,7 +151,7 @@ contract liquidStaking {
         require(stok>0, "Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 currentSTokenBalance = STokens.balanceOf(to);
-        require(currentSTokenBalance>stok, "Insuffcient balance for account");
+        require(currentSTokenBalance>=stok, "Insuffcient balance for account");
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
         locked storage user = unstakingUsers[to];

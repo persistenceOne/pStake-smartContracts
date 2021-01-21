@@ -1,28 +1,19 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.7.0;
+pragma solidity ^0.6.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "./uTokens.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC20/ERC20.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/access/Ownable.sol";
 
-contract sTokens is ERC20 {
+contract uTokens {
+     function mint(address to, uint256 tokens) public returns (bool success) { }
+}
+
+contract sTokens is ERC20, Ownable {
     
-    address public owner;
     
-    mapping(address=>uint256) users;
+    address private liquidStakingContract;
     
-    //modifier for only owner
-    modifier onlyOwner() {
-        require(msg.sender == owner);
-        _;
-    }
-    
-    //modifier for only owner and sender
-    modifier onlyOwnerOrSender() {
-        require(tx.origin == msg.sender || msg.sender == owner);
-        _;
-    }
-    
-     //Private instances of contracts to handle Utokens and Stokens
+     //Private instance of contract to handle Utokens
     uTokens private UTokens;
     
      //Event to track the setting of contracts
@@ -30,22 +21,17 @@ contract sTokens is ERC20 {
         address indexed _contract
     );
     
-    uint256 private rewardRate = 1;
+    uint256 internal rewardRate = 1;
     mapping(address => uint256) private stakedBlocks;
     
-    constructor(address _uaddress) public ERC20("sAtoms", "sAtoms") {
-        owner = msg.sender;
+    constructor(address _uaddress) public ERC20("stackedAtoms", "sAtoms") {
+        _setupDecimals(6);
         setUTokensContract(_uaddress);
-        _mint(msg.sender, 0);
     }
     
     function setUTokensContract(address _contract) public onlyOwner {
             UTokens = uTokens(_contract);
             emit SetContract(_contract);
-    }
-    
-    function setStakedBlock(address from, uint256 _stakedBlock) public {
-        stakedBlocks[from] = _stakedBlock;
     }
     
     function setRewardRate(uint256 rate) public onlyOwner returns (bool success) {
@@ -54,35 +40,43 @@ contract sTokens is ERC20 {
     }
     
     function mint(address to, uint256 tokens) public returns (bool success) {
-        if (users[to] == 1) {
-            calculateRewards(to);
+        if (tx.origin == to && _msgSender() == liquidStakingContract) {
             _mint(to, tokens);
+            return true;
         }
         else {
-            users[to] = 1;
-            _mint(to, tokens);
+            return false;
         }
-        return true;
+        
     }
 
     function burn(address from, uint256 tokens) public returns (bool success) {
-        calculateRewards(from);
-       _burn(from, tokens);
-       return true;
+         if (tx.origin == from && _msgSender() == liquidStakingContract) {
+            _burn(from, tokens);
+             return true;
+         }
+         else {
+             return false;
+         }
     }
 
-    function calculateRewards(address to) private returns (bool success){
+    function _calculateRewards(address to) internal returns (bool success){
         uint256 balance = balanceOf(to);
+        
         // Check the supplied amount is greater than 0
         require(balance>0, "Number of tokens should be greater than 0");
+        
         // Fetch the users stakedBlock from the mapping
         uint256 stakedBlock = stakedBlocks[to];
+        
         // Get the current Block
         uint256 currentBlock = block.number;
+        
         // Check the supplied block is greater than the staked block
         require(currentBlock>stakedBlock, "Current Block should be greater than staked Block");
         uint256 rewardBlock = currentBlock - stakedBlock;
         uint256 reward = (balance * rewardRate * rewardBlock) / 100;
+        
         // Set the new stakedBlock to the current
         stakedBlocks[to] = currentBlock;
         
@@ -91,10 +85,33 @@ contract sTokens is ERC20 {
         return true;
     }
     
-    function transfer(address recipient, uint256 amount) public override onlyOwnerOrSender returns (bool) {
-        calculateRewards(msg.sender);
-        _transfer(msg.sender, recipient, amount);
+    function calculateRewards(address to) public returns (bool success) {
+        return _calculateRewards(to);
+    }
+    
+    function transfer(address recipient, uint256 amount) public override returns (bool) {
+        _transfer(_msgSender(), recipient, amount);
         return true;
         
+    }
+    
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override
+    {
+        super._beforeTokenTransfer(from, to, amount);
+       
+            if (from == address(0) && to != address(0))
+            {
+                _calculateRewards(to);
+            }
+            else
+            {
+                _calculateRewards(from);
+            }
+       
+    }
+    
+    //This function need to be called after deployment, only admin can call the same
+     function setLiquidStakingContractAddress(address _liquidStakingContract) public onlyOwner {
+        liquidStakingContract = _liquidStakingContract;
     }
 }
