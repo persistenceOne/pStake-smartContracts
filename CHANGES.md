@@ -24,6 +24,7 @@ require condition
 1. tx.origin == staker && msg.sender == liquid staking contract
 
 * decide on the decimal places for the contract (might be using decimals of ATOM token)
+* use _msgSender() instead of msg.sender, _msgData() instead of msg.data, in case of every ERC20 based contract which derives ‘Context’
 
 
 -----------------------------------------------
@@ -39,6 +40,7 @@ sTokens Contract
 6. implement calculateRewards() as a public function with require statements and invoke an internal virtual function _calculateRewards() which will have the actual logic of transfer of value. (this point was discussed but forgot to add in the list)
 7. decide on the decimal places for the contract (might be using decimals of ATOM token)
 8. Think of making the sToken and uToken contracts derivable to other derived contracts. 
+9. use _msgSender() instead of msg.sender, _msgData() instead of msg.data, in case of every ERC20 based contract which derives ‘Context’
 
 
 -----------------------------------------------
