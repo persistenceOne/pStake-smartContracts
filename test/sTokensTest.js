@@ -34,12 +34,12 @@ describe('sTokens', () => {
             });
         });
 
-        it("Non_Owner cannot set uToken contract address: ", async function () {
+        it("Non-Owner cannot set uToken contract address: ", async function () {
             await expectRevert(stokens.setUTokensContract(utokens.address,{from: to,}), "Ownable: caller is not the owner");
             // TEST SCENARIO END
         }, 200000);
 
-        it("Non_Owner cannot set liquidStaking contract address: ", async function () {
+        it("Non-Owner cannot set liquidStaking contract address: ", async function () {
             await expectRevert(stokens.setLiquidStakingContractAddress(liquidStaking.address,{from: to,}), "Ownable: caller is not the owner");
             // TEST SCENARIO END
         }, 200000);
