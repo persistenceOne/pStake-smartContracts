@@ -41,7 +41,7 @@ describe("Liquid Staking", function () {
             await stokens.setUTokensContract(utokens.address,{from: from,});
             await stokens.setLiquidStakingContractAddress(liquidStaking.address,{from: from,});
         });
-        it('generate uTokens', async function () {
+        it('Generate uTokens', async function () {
             await liquidStaking.generateUTokens(to,amount,{from: from,});
             let balance = await utokens.balanceOf(to);
             expect(balance == amount)
@@ -294,8 +294,7 @@ describe("Liquid Staking", function () {
                 _from:to,
                 _value: amt,
             });
-            console.log("stokens bal: " + await stokens.balanceOf(to))
-           let unStake = await liquidStaking.unStake(to,val,{from: to,});
+            let unStake = await liquidStaking.unStake(to,val,{from: to,});
             expectEvent(unStake, "Unstaking", {
                 _from:to,
                 _value: val,
