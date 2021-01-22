@@ -56,7 +56,7 @@ contract sTokens is ERC20, Ownable {
         uint256 balance = balanceOf(to);
         
         // Check the supplied amount is greater than 0
-        require(balance>0, "Number of tokens should be greater than 0");
+        require(balance>=0, "sTokens: Number of tokens should be greater than 0");
         
         // Fetch the users stakedBlock from the mapping
         uint256 stakedBlock = stakedBlocks[to];
@@ -65,7 +65,7 @@ contract sTokens is ERC20, Ownable {
         uint256 currentBlock = block.number;
         
         // Check the supplied block is greater than the staked block
-        require(currentBlock>stakedBlock, "Current Block should be greater than staked Block");
+        require(currentBlock>stakedBlock, "sTokens: Current Block should be greater than staked Block");
         uint256 rewardBlock = currentBlock - stakedBlock;
         uint256 reward = (balance * rewardRate * rewardBlock) / 100;
         

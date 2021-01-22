@@ -100,8 +100,8 @@ contract liquidStaking is Ownable {
      *
      */
     function generateUTokens(address to, uint256 amount) public {
-        require(amount>0, "Token Amount should be greater than 0");
-        require(_msgSender() == owner(), "Only owner can mint new tokens for a user.");
+        require(amount>0, "liquidStaking: Token Amount should be greater than 0");
+        require(_msgSender() == owner(), "liquidStaking: Only owner can mint new tokens for a user.");
         UTokens.mint(to, amount);
     }
 
@@ -118,12 +118,12 @@ contract liquidStaking is Ownable {
      */
     function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
-        require(utok>0, "Number of staked tokens should be greater than 0");
-        require(_msgSender() != address(0), "Staker address cannot be 0x");
-        require(to == _msgSender(), "Staking can only be done by Staker");
+        require(utok>0, "liquidStaking: Number of staked tokens should be greater than 0");
+        require(_msgSender() != address(0), "liquidStaking: Staker address cannot be 0x");
+        require(to == _msgSender(), "liquidStaking: Staking can only be done by Staker");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 currentUTokenBalance = UTokens.balanceOf(to);
-        require(currentUTokenBalance>=utok, "Insuffcient balance for account");
+        require(currentUTokenBalance>=utok, "liquidStaking: Insuffcient balance for account");
         // Burn the uTokens as specified with the amount
         UTokens.burn(to, utok);
         // Mint the sTokens for the account specified
@@ -147,12 +147,12 @@ contract liquidStaking is Ownable {
      */
     function unStake(address to, uint256 stok) public returns(bool) {
         // Check the supplied amount is greater than 0
-        require(_msgSender() != address(0), "Staker address cannot be 0x");
-        require(to == _msgSender(), "Unstaking can only be done by Staker");
-        require(stok>0, "Number of unstaked tokens should be greater than 0");
+        require(_msgSender() != address(0), "liquidStaking: Staker address cannot be 0x");
+        require(to == _msgSender(), "liquidStaking: Unstaking can only be done by Staker");
+        require(stok>0, "liquidStaking: Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 currentSTokenBalance = STokens.balanceOf(to);
-        require(currentSTokenBalance>=stok, "Insuffcient balance for account");
+        require(currentSTokenBalance>=stok, "liquidStaking: Insuffcient balance for account");
         // Burn the sTokens as specified with the amount
         STokens.burn(to, stok);
         locked storage user = unstakingUsers[to];
