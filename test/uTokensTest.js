@@ -8,58 +8,45 @@ const {
     contract,
 } = require("@openzeppelin/test-environment");
 const {
-    BN,
-    constants,
-    expectEvent,
     expectRevert,
 } = require("@openzeppelin/test-helpers");
+const LiquidStaking = contract.fromArtifact("liquidStaking");
+const sTokens = contract.fromArtifact("sTokens");
 const uTokens = contract.fromArtifact("uTokens");
-const { ZERO_ADDRESS } = constants;
+let from = accounts[1];
+let to = accounts[2];
 
 describe('uTokens', () => {
-    describe("Minting", function () {
-        let from = accounts[1];
+    describe("Set smart contract address", function () {
         let utokens;
-        let amount = new BN(100);
+        let stokens;
+        let liquidStaking;
         beforeEach(async function () {
             utokens = await uTokens.new({from: from});
+            stokens = await sTokens.new(utokens.address, {from: from,});
+            liquidStaking = await LiquidStaking.new(utokens.address, stokens.address, {
+                from: from,
+            });
         });
 
-        it("Mint uTokens: ", async function () {
-            let mintUTokens = await utokens.mint(from,amount,{from: from, });
-            // test if the event 'Transfer(sender, recipient, amount)' is emitted:
-            await expectEvent(mintUTokens, "Transfer", {
-                to: from,
-                value: amount,
-            });
+        it("Non_Owner cannot set sToken contract address: ", async function () {
+            await expectRevert(utokens.setSTokenContractAddress(liquidStaking.address,{from: to,}), "Ownable: caller is not the owner");
             // TEST SCENARIO END
         }, 200000);
-    });
 
-    describe("Burning", function () {
-        let from = accounts[1];
-        let utokens;
-        let amount = new BN("100");
-        let amt = new BN("50");
-        beforeEach(async function () {
-            utokens = await uTokens.new({from: from});
-        });
-        it('Burn amount exceeds balance', async function () {
-            await expectRevert(
-                utokens.burn(from,amt), 'ERC20: burn amount exceeds balance',
-            );
-        },200000);
+        it("Non_Owner cannot set liquidStaking contract address: ", async function () {
+            await expectRevert(utokens.setLiquidStakingContractAddress(liquidStaking.address,{from: to,}), "Ownable: caller is not the owner");
+            // TEST SCENARIO END
+        }, 200000);
 
-        it("Burn uTokens: ", async function () {
-            let mintUTokens = await utokens.mint(from,amount,{from: from,});
-            expectEvent(mintUTokens, "Transfer", {
-                value: amount,
-            });
-            let burnUTokens = await utokens.burn(from,amt,{from: from,});
-            // test if the event 'Transfer(sender, recipient, amount)' is emitted:
-            expectEvent(burnUTokens, "Transfer", {
-                value: amt,
-            });
+        it("Set sToken contract address: ", async function () {
+            await utokens.setSTokenContractAddress(stokens.address,{from: from,});
+            // TEST SCENARIO END
+        }, 200000);
+
+        it("Set liquidStaking contract address: ", async function () {
+            await utokens.setLiquidStakingContractAddress(liquidStaking.address,{from: from,});
+            // TEST SCENARIO END
         }, 200000);
     });
 });
