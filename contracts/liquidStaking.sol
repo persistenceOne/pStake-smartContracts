@@ -5,15 +5,15 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract uTokens {
-     function mint(address to, uint256 tokens) public returns (bool success) { }
-     function burn(address from, uint256 tokens) public returns (bool success) { }
-     function balanceOf(address account) public view returns (uint256) { }
+     function mint(address, uint256) public returns (bool) { }
+     function burn(address, uint256) public returns (bool) { }
+     function balanceOf(address) public view returns (uint256) { }
 }
 
 contract sTokens {
-     function mint(address to, uint256 tokens) public returns (bool success) { }
-      function balanceOf(address account) public view returns (uint256) { }
-      function burn(address from, uint256 tokens) public returns (bool success) { }
+     function mint(address, uint256) public returns (bool) { }
+      function balanceOf(address) public view returns (uint256) { }
+      function burn(address, uint256) public returns (bool) { }
 }
 
 contract liquidStaking is Ownable {

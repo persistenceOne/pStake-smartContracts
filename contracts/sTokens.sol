@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract uTokens {
-     function mint(address to, uint256 tokens) public returns (bool success) { }
+     function mint(address, uint256) public returns (bool) { }
 }
 
 contract sTokens is ERC20, Ownable {
