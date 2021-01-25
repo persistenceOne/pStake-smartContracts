@@ -14,7 +14,7 @@ contract UTokens is ERC20, Ownable {
     }
     
     function mint(address to, uint256 tokens) public returns (bool success) {
-       require((tx.origin == owner() && _msgSender() == _liquidStakingContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User authorised to mint UTokens");
+       require((tx.origin == owner() && _msgSender() == _liquidStakingContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
     }
