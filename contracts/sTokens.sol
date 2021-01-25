@@ -4,102 +4,96 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract uTokens {
-     function mint(address, uint256) public returns (bool) { }
+contract UTokens {
+     function mint(address _to, uint256 _tokens) public returns (bool _success) { }
 }
 
-contract sTokens is ERC20, Ownable {
+contract STokens is ERC20, Ownable {
     
-    address private liquidStakingContract;
+    address private _liquidStakingContract;
     
      //Private instance of contract to handle Utokens
-    uTokens private UTokens;
+    UTokens private _uTokens;
     
      //Event to track the setting of contracts
     event SetContract(
         address indexed _contract
     );
     
-    uint256 internal rewardRate = 1;
-    mapping(address => uint256) private stakedBlocks;
+    uint256 private _rewardRate = 1;
+    mapping(address => uint256) private _stakedBlocks;
     
-    constructor(address _uaddress) public ERC20("stackedAtoms", "sAtoms") {
+    constructor(address uaddress) public ERC20("stackedAtoms", "sAtoms") {
         _setupDecimals(6);
-        setUTokensContract(_uaddress);
+        setUTokensContract(uaddress);
     }
     
-    function setUTokensContract(address _contract) public onlyOwner {
-        UTokens = uTokens(_contract);
-        emit SetContract(_contract);
+    function setUTokensContract(address uTokenContract) public onlyOwner {
+        _uTokens = UTokens(uTokenContract);
+        emit SetContract(uTokenContract);
     }
     
     function setRewardRate(uint256 rate) public onlyOwner returns (bool success) {
-        rewardRate = rate;
+        _rewardRate = rate;
         return true;
     }
     
     function mint(address to, uint256 tokens) public returns (bool success) {
-        require(tx.origin == to);
-        require(_msgSender() == liquidStakingContract);
+        require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
         return true;
     }
 
     function burn(address from, uint256 tokens) public returns (bool success) {
-        require(tx.origin == from);
-        require(_msgSender() == liquidStakingContract);
+        require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
         _burn(from, tokens);
         return true;
     }
 
     function _calculateRewards(address to) internal returns (bool success){
-        uint256 balance = balanceOf(to);
-        
-        // Check the supplied amount is greater than 0
-        require(balance>=0, "sTokens: Number of tokens should be greater than 0");
-        
-        // Fetch the users stakedBlock from the mapping
-        uint256 stakedBlock = stakedBlocks[to];
         
         // Get the current Block
-        uint256 currentBlock = block.number;
+        uint256 _currentBlock = block.number;
         
         // Check the supplied block is greater than the staked block
-        require(currentBlock>stakedBlock, "sTokens: Current Block should be greater than staked Block");
-        uint256 rewardBlock = currentBlock - stakedBlock;
-        uint256 reward = (balance * rewardRate * rewardBlock) / 100;
+        require(_currentBlock>_stakedBlocks[to], "STokens: Current Block should be greater than staked Block");
+        uint256 _rewardBlock = _currentBlock - _stakedBlocks[to];
         
         // Set the new stakedBlock to the current
-        stakedBlocks[to] = currentBlock;
+        _stakedBlocks[to] = _currentBlock;
         
-        // Mint new uTokens and send to the callers account
-        UTokens.mint(to, reward);
+        //Get the balance of the account
+        uint256 _balance = balanceOf(to);
+        
+        if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0)
+        {
+            uint256 _reward = (_balance * _rewardRate * _rewardBlock) / 100;
+            // Mint new uTokens and send to the callers account
+            _uTokens.mint(to, _reward);
+        }
+        
         return true;
     }
     
     function calculateRewards(address to) public returns (bool success) {
+        require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
         return _calculateRewards(to);
-    }
-    
-    function transfer(address recipient, uint256 amount) public override returns (bool) {
-        _transfer(_msgSender(), recipient, amount);
-        return true;
     }
     
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
-        if (from == address(0) && to != address(0))
-        {
-            _calculateRewards(to);
-        }
-        else
+        if (from != address(0))
         {
             _calculateRewards(from);
+        }
+        if (to != address(0))
+        {
+            _calculateRewards(to);
         }
     }
     
     //This function need to be called after deployment, only admin can call the same
-     function setLiquidStakingContractAddress(address _liquidStakingContract) public onlyOwner {
-        liquidStakingContract = _liquidStakingContract;
+     function setLiquidStakingContractAddress(address liquidStakingContract) public onlyOwner {
+        _liquidStakingContract = liquidStakingContract;
     }
 }

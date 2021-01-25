@@ -4,19 +4,19 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract uTokens {
-     function mint(address, uint256) public returns (bool) { }
-     function burn(address, uint256) public returns (bool) { }
-     function balanceOf(address) public view returns (uint256) { }
+contract UTokens {
+     function mint(address to, uint256 tokens) public returns (bool success) { }
+     function burn(address from, uint256 tokens) public returns (bool success) { }
+     function balanceOf(address account) public view returns (uint256) { }
 }
 
-contract sTokens {
-     function mint(address, uint256) public returns (bool) { }
-      function balanceOf(address) public view returns (uint256) { }
-      function burn(address, uint256) public returns (bool) { }
+contract STokens {
+     function mint(address to, uint256 tokens) public returns (bool success) { }
+      function balanceOf(address account) public view returns (uint256) { }
+      function burn(address from, uint256 tokens) public returns (bool success) { }
 }
 
-contract liquidStaking is Ownable {
+contract LiquidStaking is Ownable {
 
     using SafeMath for uint256;
 
@@ -24,68 +24,53 @@ contract liquidStaking is Ownable {
     event SetContract(
         address indexed _contract
     );
-
-    //Event to track Staking
-    event Staking(
-        address indexed _from,
-        uint256 _value
-    );
-
-    //Event to track UnStaking
-    event Unstaking(
-        address indexed _from,
-        uint256 _value
-    );
    
     //Private instances of contracts to handle Utokens and Stokens
-    uTokens private UTokens;
-    sTokens private STokens;
+    UTokens private _uTokens;
+    STokens private _sTokens;
     
-    uint256 unstakinglockTime = 21 days;
+    uint256 _unstakinglockTime = 21 days;
     
-    //Structure to handle the locking period
-    struct locked{
-        uint256 expire;
-        uint256 amount;
-    }
+    //Mapping to handle the Expiry period
+    mapping(address => uint256) _unstakingExpiration;
     
-    //Mapping to handle the locking period
-    mapping(address => locked) unstakingUsers;
+   //Mapping to handle the Expiry amount
+    mapping(address => uint256) _unstakingAmount; 
 
     /**
      * @dev Sets the values for {utoken contract address} and {stoken contract address}
-     * @param _uaddress: utoken address, _saddress: stoken address
+     * @param uAddress: utoken address, sAddress: stoken address
      *
      * Both contract addresses are immutable: they can only be set once during
      * construction.
      */
-    constructor(address _uaddress, address _saddress) public {
-        setUTokensContract(_uaddress);
-        setSTokensContract(_saddress);
+    constructor(address uAddress, address sAddress) public {
+        setUTokensContract(uAddress);
+        setSTokensContract(sAddress);
     }
 
     /**
      * @dev Set 'contract address', called from constructor
-     * @param _contract: utoken contract address
+     * @param uAddress: utoken contract address
      *
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
-    function setUTokensContract(address _contract) public onlyOwner {
-        UTokens = uTokens(_contract);
-        emit SetContract(_contract);
+    function setUTokensContract(address uAddress) public onlyOwner {
+        _uTokens = UTokens(uAddress);
+        emit SetContract(uAddress);
     }
 
     /**
      * @dev Set 'contract address', called from constructor
-     * @param _contract: stoken contract address
+     * @param sAddress: stoken contract address
      *
      * Emits a {SetContract} event with '_contract' set to the stoken contract address.
      *
      */
-    function setSTokensContract(address _contract) public onlyOwner {
-        STokens = sTokens(_contract);
-        emit SetContract(_contract);
+    function setSTokensContract(address sAddress) public onlyOwner {
+        _sTokens = STokens(sAddress);
+        emit SetContract(sAddress);
     }
 
     /**
@@ -100,9 +85,9 @@ contract liquidStaking is Ownable {
      *
      */
     function generateUTokens(address to, uint256 amount) public {
-        require(amount>0, "liquidStaking: Token Amount should be greater than 0");
-        require(_msgSender() == owner(), "liquidStaking: Only owner can mint new tokens for a user.");
-        UTokens.mint(to, amount);
+        require(amount>0, "LiquidStaking: Only owner can call generateUTokens()");
+        require(_msgSender() == owner(), "LiquidStaking: Only owner can mint new tokens for a user");
+        _uTokens.mint(to, amount);
     }
 
      /**
@@ -118,19 +103,15 @@ contract liquidStaking is Ownable {
      */
     function stake(address to, uint256 utok) public returns(bool) {
         // Check the supplied amount is greater than 0
-        require(utok>0, "liquidStaking: Number of staked tokens should be greater than 0");
-        require(_msgSender() != address(0), "liquidStaking: Staker address cannot be 0x");
-        require(to == _msgSender(), "liquidStaking: Staking can only be done by Staker");
+        require(utok>0, "LiquidStaking: Number of staked tokens should be greater than 0");
+        require(to == _msgSender(), "LiquidStaking: Staking can only be done by Staker");
         // Check the current balance for uTokens is greater than the amount to be staked
-        uint256 currentUTokenBalance = UTokens.balanceOf(to);
-        require(currentUTokenBalance>=utok, "liquidStaking: Insuffcient balance for account");
+        uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
+        require(_currentUTokenBalance>=utok, "LiquidStaking: Insuffcient balance for account");
         // Burn the uTokens as specified with the amount
-        UTokens.burn(to, utok);
+        _uTokens.burn(to, utok);
         // Mint the sTokens for the account specified
-        STokens.mint(to, utok);
-       
-        //Emit Event for Staking
-        emit Staking(to, utok);
+        _sTokens.mint(to, utok);
         return true;
     }
     
@@ -147,18 +128,16 @@ contract liquidStaking is Ownable {
      */
     function unStake(address to, uint256 stok) public returns(bool) {
         // Check the supplied amount is greater than 0
-        require(_msgSender() != address(0), "liquidStaking: Staker address cannot be 0x");
-        require(to == _msgSender(), "liquidStaking: Unstaking can only be done by Staker");
-        require(stok>0, "liquidStaking: Number of unstaked tokens should be greater than 0");
+        require(to == _msgSender(), "LiquidStaking: Unstaking can only be done by Staker");
+        require(stok>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
-        uint256 currentSTokenBalance = STokens.balanceOf(to);
-        require(currentSTokenBalance>=stok, "liquidStaking: Insuffcient balance for account");
+        uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
+        require(_currentSTokenBalance>=stok, "LiquidStaking: Insuffcient balance for account");
         // Burn the sTokens as specified with the amount
-        STokens.burn(to, stok);
-        locked storage user = unstakingUsers[to];
-        user.expire = block.timestamp + unstakinglockTime;
-        user.amount = stok;
-        emit Unstaking(to, stok);
+        _sTokens.burn(to, stok);
+        
+        _unstakingExpiration[to] = block.timestamp + _unstakinglockTime;
+        _unstakingAmount[to] = stok;
         return true;
     }
     
@@ -169,12 +148,12 @@ contract liquidStaking is Ownable {
      *
      * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
      */
-    function withdrawUnstakedTokens() public {
-        require(block.timestamp>=unstakingUsers[_msgSender()].expire);
-        locked storage userInfo = unstakingUsers[_msgSender()];
-        uint256 value = userInfo.amount;
-        userInfo.expire = 0;
-        userInfo.amount = 0;
-        UTokens.mint(msg.sender, value);
+    function withdrawUnstakedTokens(address staker) public {
+        require(staker == _msgSender(), "LiquidStaking: Only staker can withdraw");
+        require(block.timestamp>=_unstakingExpiration[staker], "LiquidStaking: UnStaking period still pending");
+        uint256 _value = _unstakingAmount[staker];
+        _unstakingExpiration[staker] = 0;
+        _unstakingAmount[staker] = 0;
+        _uTokens.mint(msg.sender, _value);
     }
 }
