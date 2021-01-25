@@ -23,6 +23,7 @@ const uTokens = contract.fromArtifact("UTokens");
 let to = accounts[3];
 let from = accounts[1];
 let anotherAccount = accounts[4];
+const web3 = require('web3');
 
 describe("Liquid Staking", function () {
     let liquidStaking;
@@ -244,5 +245,5 @@ describe("Liquid Staking", function () {
             expect(totalBalance > await utokens.balanceOf(to));
             await expectRevert(liquidStaking.withdrawUnstakedTokens(to,{from: to,}), "LiquidStaking: UnStaking period still pending");
         });
-    })
+    });
 }); // DESCRIBE END

@@ -35,7 +35,9 @@ contract LiquidStaking is Ownable {
     mapping(address => uint256) _unstakingExpiration;
     
    //Mapping to handle the Expiry amount
-    mapping(address => uint256) _unstakingAmount; 
+    mapping(address => uint256) _unstakingAmount;
+
+    event withdrawTokens(address from, uint256 tokens, bytes32 toAtomAddress);
 
     /**
      * @dev Sets the values for {utoken contract address} and {stoken contract address}
@@ -88,6 +90,26 @@ contract LiquidStaking is Ownable {
         require(amount>0, "LiquidStaking: Only owner can call generateUTokens()");
         require(_msgSender() == owner(), "LiquidStaking: Only owner can mint new tokens for a user");
         _uTokens.mint(to, amount);
+    }
+
+    /**
+     * @dev Burn utokens for the provided 'address' and 'amount'
+     * @param from: account address, tokens: number of tokens, toAtomAddress: atom wallet address
+     *
+     * Emits a {BurnTokens} event with 'from' set to address and 'tokens' set to amount of tokens.
+     *
+     * Requirements:
+     *
+     * - `tokens` cannot be less than zero.
+     *
+     */
+    function withdrawUTokens(address from, uint256 tokens, bytes32 toAtomAddress) public {
+        require(tokens>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
+        uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
+        require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
+        require(from == _msgSender(), "LiquidStaking: Withdraw can only be done by Staker");
+        _uTokens.burn(from, tokens);
+        emit withdrawTokens(from, tokens, toAtomAddress);
     }
 
      /**
