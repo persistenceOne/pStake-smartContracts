@@ -13,13 +13,13 @@ const {
     expectEvent,
     expectRevert,
 } = require("@openzeppelin/test-helpers");
-const uTokens = contract.fromArtifact("uTokens");
-const sTokens = contract.fromArtifact("sTokens");
-const LiquidStaking = contract.fromArtifact("liquidStaking");
+const uTokens = contract.fromArtifact("UTokens");
+const sTokens = contract.fromArtifact("STokens");
+const LiquidStaking = contract.fromArtifact("LiquidStaking");
 const { expect } = require('chai');
 const { ZERO_ADDRESS } = constants;
 
-describe('sTokens', () => {
+describe('STokens', () => {
     describe("Set smart contract address", function () {
         let to = accounts[3];
         let from = accounts[1];
