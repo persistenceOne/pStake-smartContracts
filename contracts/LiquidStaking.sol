@@ -32,10 +32,10 @@ contract LiquidStaking is Ownable {
     uint256 _unstakinglockTime = 21 days;
     
     //Mapping to handle the Expiry period
-    mapping(address => uint256) _unstakingExpiration;
+    mapping(address => uint256[]) _unstakingExpiration;
     
    //Mapping to handle the Expiry amount
-    mapping(address => uint256) _unstakingAmount;
+    mapping(address => uint256[]) _unstakingAmount;
 
     event withdrawTokens(address from, uint256 tokens, bytes32 toAtomAddress);
 
@@ -158,8 +158,8 @@ contract LiquidStaking is Ownable {
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
         
-        _unstakingExpiration[to] = block.timestamp + _unstakinglockTime;
-        _unstakingAmount[to] = stok;
+        _unstakingExpiration[to].push(block.timestamp + _unstakinglockTime);
+        _unstakingAmount[to].push(stok);
         return true;
     }
     
@@ -172,10 +172,15 @@ contract LiquidStaking is Ownable {
      */
     function withdrawUnstakedTokens(address staker) public {
         require(staker == _msgSender(), "LiquidStaking: Only staker can withdraw");
-        require(block.timestamp>=_unstakingExpiration[staker], "LiquidStaking: UnStaking period still pending");
-        uint256 _value = _unstakingAmount[staker];
-        _unstakingExpiration[staker] = 0;
-        _unstakingAmount[staker] = 0;
-        _uTokens.mint(msg.sender, _value);
+        uint256 _withdrawBalance;
+        for (uint256 i=0; i<=_unstakingExpiration[staker].length; i++) {
+            if (_unstakingExpiration[staker][i] > block.timestamp) {
+                _withdrawBalance = _withdrawBalance + _unstakingAmount[staker][i];
+                _unstakingExpiration[staker][i] = 0;
+                _unstakingAmount[staker][i] = 0;
+            }
+        }
+        require(_withdrawBalance == 0, "LiquidStaking: UnStaking period still pending");
+        _uTokens.mint(msg.sender, _withdrawBalance);
     }
 }
