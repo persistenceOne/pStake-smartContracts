@@ -25,7 +25,7 @@ contract STokens is ERC20, Ownable {
     uint256 private _rewardRate = 1;
     mapping(address => uint256) private _stakedBlocks;
 
-    constructor(address uaddress) public ERC20("stackedAtoms", "sAtoms") {
+    constructor(address uaddress) ERC20("stackedAtoms", "sAtoms") {
         _setupDecimals(6);
         setUTokensContract(uaddress);
     }

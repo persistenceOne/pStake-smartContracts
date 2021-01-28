@@ -9,7 +9,7 @@ contract UTokens is ERC20, Ownable {
     address private _stokenContract;
     address private _liquidStakingContract;
     
-    constructor() public ERC20("unstakedAtoms", "uAtoms") {
+    constructor() ERC20("unstakedAtoms", "uAtoms") {
         _setupDecimals(6);
     }
     

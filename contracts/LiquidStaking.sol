@@ -38,9 +38,10 @@ contract LiquidStaking is Ownable {
     mapping(address => uint256[]) _unstakingAmount;
 
     event GenerateUTokens(address to, uint256 amount);
-    event WithdrawTokens(address from, uint256 tokens, bytes32 toAtomAddress);
+    event WithdrawUTokens(address from, uint256 tokens, bytes32 toAtomAddress);
     event StakeTokens(address staker, uint256 tokens);
     event UnstakeTokens(address staker, uint256 tokens);
+    event WithdrawUnstakeTokens(address staker, uint256 tokens);
 
     /**
      * @dev Sets the values for {utoken contract address} and {stoken contract address}
@@ -49,7 +50,7 @@ contract LiquidStaking is Ownable {
      * Both contract addresses are immutable: they can only be set once during
      * construction.
      */
-    constructor(address uAddress, address sAddress) public {
+    constructor(address uAddress, address sAddress) {
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
     }
@@ -113,7 +114,7 @@ contract LiquidStaking is Ownable {
         require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
         require(from == _msgSender(), "LiquidStaking: Withdraw can only be done by Staker");
         _uTokens.burn(from, tokens);
-        emit WithdrawTokens(from, tokens, toAtomAddress);
+        emit WithdrawUTokens(from, tokens, toAtomAddress);
     }
 
     /**
@@ -187,6 +188,7 @@ contract LiquidStaking is Ownable {
             }
         }
         require(_withdrawBalance == 0, "LiquidStaking: UnStaking period still pending");
+        emit WithdrawUnstakeTokens(staker, _withdrawBalance);
         _uTokens.mint(msg.sender, _withdrawBalance);
     }
 }
