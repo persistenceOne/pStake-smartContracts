@@ -87,7 +87,7 @@ contract LiquidStaking is Ownable {
      *
      */
     function generateUTokens(address to, uint256 amount) public {
-        require(amount>0, "LiquidStaking: Only owner can call generateUTokens()");
+        require(amount>0, "LiquidStaking: Number of tokens should be greater than 0");
         require(_msgSender() == owner(), "LiquidStaking: Only owner can mint new tokens for a user");
         _uTokens.mint(to, amount);
     }
@@ -173,7 +173,7 @@ contract LiquidStaking is Ownable {
     function withdrawUnstakedTokens(address staker) public {
         require(staker == _msgSender(), "LiquidStaking: Only staker can withdraw");
         uint256 _withdrawBalance;
-        for (uint256 i=0; i<=_unstakingExpiration[staker].length; i++) {
+        for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
             if (_unstakingExpiration[staker][i] > block.timestamp) {
                 _withdrawBalance = _withdrawBalance + _unstakingAmount[staker][i];
                 _unstakingExpiration[staker][i] = 0;
