@@ -5,39 +5,41 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract UTokens {
-     function mint(address _to, uint256 _tokens) public returns (bool _success) { }
+    function mint(address _to, uint256 _tokens) public returns (bool _success) { }
 }
 
 contract STokens is ERC20, Ownable {
-    
+
     address private _liquidStakingContract;
-    
-     //Private instance of contract to handle Utokens
+
+    //Private instance of contract to handle Utokens
     UTokens private _uTokens;
-    
-     //Event to track the setting of contracts
+
+    //Event to track the setting of contracts
     event SetContract(
         address indexed _contract
     );
-    
+
+    event CalculateRewards(address to, uint256 reward);
+
     uint256 private _rewardRate = 1;
     mapping(address => uint256) private _stakedBlocks;
-    
+
     constructor(address uaddress) public ERC20("stackedAtoms", "sAtoms") {
         _setupDecimals(6);
         setUTokensContract(uaddress);
     }
-    
+
     function setUTokensContract(address uTokenContract) public onlyOwner {
         _uTokens = UTokens(uTokenContract);
         emit SetContract(uTokenContract);
     }
-    
+
     function setRewardRate(uint256 rate) public onlyOwner returns (bool success) {
         _rewardRate = rate;
         return true;
     }
-    
+
     function mint(address to, uint256 tokens) public returns (bool success) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
@@ -51,35 +53,35 @@ contract STokens is ERC20, Ownable {
     }
 
     function _calculateRewards(address to) internal returns (bool success){
-        
+
         // Get the current Block
         uint256 _currentBlock = block.number;
-        
+
         // Check the supplied block is greater than the staked block
         require(_currentBlock>_stakedBlocks[to], "STokens: Current Block should be greater than staked Block");
         uint256 _rewardBlock = _currentBlock - _stakedBlocks[to];
-        
+
         // Set the new stakedBlock to the current
         _stakedBlocks[to] = _currentBlock;
-        
+
         //Get the balance of the account
         uint256 _balance = balanceOf(to);
-        
+
         if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0)
         {
             uint256 _reward = (_balance * _rewardRate * _rewardBlock) / 100;
             // Mint new uTokens and send to the callers account
             _uTokens.mint(to, _reward);
+            emit CalculateRewards(to, _reward);
         }
-        
         return true;
     }
-    
+
     function calculateRewards(address to) public returns (bool success) {
         require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
         return _calculateRewards(to);
     }
-    
+
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         super._beforeTokenTransfer(from, to, amount);
         if (from != address(0))
@@ -91,9 +93,9 @@ contract STokens is ERC20, Ownable {
             _calculateRewards(to);
         }
     }
-    
+
     //This function need to be called after deployment, only admin can call the same
-     function setLiquidStakingContractAddress(address liquidStakingContract) public onlyOwner {
+    function setLiquidStakingContractAddress(address liquidStakingContract) public onlyOwner {
         _liquidStakingContract = liquidStakingContract;
     }
 }
