@@ -40,6 +40,14 @@ contract STokens is ERC20, Ownable {
         return true;
     }
 
+    function getRewardRate() public view returns (uint256) {
+        return _rewardRate;
+    }
+
+    function getStakedBlock(address to) public view returns (uint256) {
+        return _stakedBlocks[to];
+    }
+
     function mint(address to, uint256 tokens) public returns (bool success) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
