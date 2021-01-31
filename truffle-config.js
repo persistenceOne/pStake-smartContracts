@@ -18,12 +18,13 @@
  *
  */
 
-const HDWalletProvider = require('@truffle/hdwallet-provider');
+const HDWalletProvider = require("@truffle/hdwallet-provider");
 // const infuraKey = "fj4jll3k.....";
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-const mnemonic = "baby year rocket october what surprise lab bag report swap game unveil";
+const mnemonic =
+  "baby year rocket october what surprise lab bag report swap game unveil";
 
 module.exports = {
   /**
@@ -81,7 +82,7 @@ module.exports = {
 
   // Set default mocha options here, use special reporters etc.
   mocha: {
-    // timeout: 100000
+    timeout: 100000,
   },
 
   // Configure your compilers
