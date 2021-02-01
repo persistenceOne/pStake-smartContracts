@@ -44,7 +44,7 @@ function deployAll(gasPrice, gasLimit, deployer, accounts) {
     })
     .then(function (instance) {
       UTokensInstance = instance;
-      console.log("UTokens deployed: ", instance.address);
+      console.log("UTokens deployed: ", UTokensInstance.address);
       return deployer.deploy(STokensArtifact, UTokensInstance.address, {
         from: accounts[0],
         gasPrice: gasPrice,
@@ -53,7 +53,8 @@ function deployAll(gasPrice, gasLimit, deployer, accounts) {
     })
     .then(function (instance2) {
       STokensInstance = instance2;
-      console.log("STokens deployed: ", instance2.address);
+      console.log("STokens deployed: ", STokensInstance.address);
+      console.log("UTokens address: ", UTokensInstance.address);
       return deployer.deploy(
         LiquidStakingArtifact,
         UTokensInstance.address,
@@ -88,6 +89,19 @@ function deployAll(gasPrice, gasLimit, deployer, accounts) {
     .then(function (txReceipt) {
       console.log(
         "setLiquidStakingContractAddress() set for UTokens contract."
+      );
+      return STokensInstance.setLiquidStakingContractAddress(
+        LiquidStakingInstance.address,
+        {
+          from: accounts[0],
+          gasPrice: gasPrice,
+          gas: gasLimit,
+        }
+      );
+    })
+    .then(function (txReceipt) {
+      console.log(
+        "setLiquidStakingContractAddress() set for STokens contract."
       );
       console.log("ALL DONE.");
     })
