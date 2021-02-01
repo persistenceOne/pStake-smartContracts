@@ -38,7 +38,7 @@ contract LiquidStaking is Ownable {
     mapping(address => uint256[]) _unstakingAmount;
 
     event GenerateUTokens(address to, uint256 amount);
-    event WithdrawUTokens(address from, uint256 tokens, bytes32 toAtomAddress);
+    event WithdrawUTokens(address from, uint256 tokens, string toAtomAddress);
     event StakeTokens(address staker, uint256 tokens);
     event UnstakeTokens(address staker, uint256 tokens);
     event WithdrawUnstakeTokens(address staker, uint256 tokens);
@@ -108,7 +108,7 @@ contract LiquidStaking is Ownable {
      * - `tokens` cannot be less than zero.
      *
      */
-    function withdrawUTokens(address from, uint256 tokens, bytes32 toAtomAddress) public {
+    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public {
         require(tokens>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
