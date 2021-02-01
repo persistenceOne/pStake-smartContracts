@@ -135,11 +135,11 @@ contract LiquidStaking is Ownable {
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
         require(_currentUTokenBalance>=utok, "LiquidStaking: Insuffcient balance for account");
+        emit StakeTokens(to, utok);
         // Burn the uTokens as specified with the amount
         _uTokens.burn(to, utok);
         // Mint the sTokens for the account specified
         _sTokens.mint(to, utok);
-        emit StakeTokens(to, utok);
         return true;
     }
 
@@ -161,12 +161,11 @@ contract LiquidStaking is Ownable {
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
         require(_currentSTokenBalance>=stok, "LiquidStaking: Insuffcient balance for account");
+        emit UnstakeTokens(to, stok);
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
-
         _unstakingExpiration[to].push(block.timestamp + _unstakinglockTime);
         _unstakingAmount[to].push(stok);
-        emit UnstakeTokens(to, stok);
         return true;
     }
 
