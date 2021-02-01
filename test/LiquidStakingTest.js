@@ -176,6 +176,15 @@ describe("Liquid Staking", function () {
             expectRevert(stokens.calculateRewards(to, {from: anotherAccount,}), "STokens: only staker can initiate their own rewards calculation");
         },200000);
 
+        it('Call CalculateRewards before staking any atom', async function () {
+            let reward = await stokens.calculateRewards(to,{from: to,});
+            expect(reward >= stokens.balanceOf(to));
+            expectEvent(reward, "TriggeredCalculateRewards", {
+                to:to,
+                reward:new BN(0),
+            });
+        },200000);
+
         it('CalculateRewards with double minting', async function () {
             let generate = await liquidStaking.generateUTokens(to,amount,{from: from,});
             let balance = await utokens.balanceOf(from);
@@ -200,6 +209,14 @@ describe("Liquid Staking", function () {
                 staker:to,
                 tokens: val,
             });
+            let reward = await stokens.calculateRewards(to,{from: to,});
+            expect(reward >= stokens.balanceOf(to));
+            expectEvent(reward, "CalculateRewards", {
+                to:to,
+            });
+            expectEvent(reward, "TriggeredCalculateRewards", {
+                to:to,
+            });
         },200000);
 
         it('Call CalculateRewards()', async function () {
@@ -220,6 +237,9 @@ describe("Liquid Staking", function () {
             let reward = await stokens.calculateRewards(to,{from: to,});
             expect(reward >= stokens.balanceOf(to));
             expectEvent(reward, "CalculateRewards", {
+                to:to,
+            });
+            expectEvent(reward, "TriggeredCalculateRewards", {
                 to:to,
             });
         },200000);
