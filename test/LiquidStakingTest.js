@@ -20,7 +20,7 @@ const { expect } = require("chai");
 const LiquidStaking = contract.fromArtifact("LiquidStaking");
 const sTokens = contract.fromArtifact("STokens");
 const uTokens = contract.fromArtifact("UTokens");
-const toAtomAddress = "0x7465737400000000000000000000000000000000000000000000000000000000"
+const toAtomAddress = "toAtomAddress"
 let to = accounts[3];
 let from = accounts[1];
 let anotherAccount = accounts[4];
@@ -88,6 +88,31 @@ describe("Liquid Staking", function () {
             let balance = await utokens.balanceOf(to);
             expect(balance == amount)
             await expectRevert(liquidStaking.stake(to, amount, {from: anotherAccount,}), "LiquidStaking: Staking can only be done by Staker");
+        });
+
+        it('Get Reward Rate', async function () {
+            await stokens.setRewardRate(rate,{from: from,});
+            let rewardRate = await stokens.getRewardRate({from: from,});
+            expect(rewardRate == rate);
+        });
+
+        it('Get Staked Block', async function () {
+            let generate = await liquidStaking.generateUTokens(to,amount,{from: from,});
+            let balance = await utokens.balanceOf(to);
+            expect(balance == amount)
+            expectEvent(generate, "GenerateUTokens", {
+                to:to,
+                amount: amount,
+            });
+            let stake = await liquidStaking.stake(to,amt,{from: to,});
+            balance = await stokens.balanceOf(to);
+            expect(balance>=amt)
+            expectEvent(stake, "StakeTokens", {
+                staker:to,
+                tokens: amt,
+            });
+            let stakedBlock = await stokens.getStakedBlock(to,{from: from,});
+            expect(stakedBlock>0);
         });
     });
 
@@ -389,62 +414,62 @@ describe("Liquid Staking", function () {
 
         //TODO
 
-        // describe("Withdraw unStaked tokens", function () {
-        //     it('Only staker can withdraw', async function () {
-        //         await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: anotherAccount,}), "LiquidStaking: Only staker can withdraw");
-        //     },200000);
-        //
-        //     it('Cannot withdraw UnStake token before locking period', async function () {
-        //         let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
-        //         await expectEvent(generate, "GenerateUTokens", {
-        //             to:to,
-        //             amount: amount,
-        //         });
-        //         let stake = await liquidStaking.stake(to, amt, {from: to,});
-        //         await expectEvent(stake, "StakeTokens", {
-        //             staker:to,
-        //             tokens: amt,
-        //         });
-        //         let balance = await stokens.balanceOf(to);
-        //         expect(balance >= amt)
-        //         let unstake = await liquidStaking.unStake(to, val, {from: to,});
-        //         await expectEvent(unstake, "UnstakeTokens", {
-        //             staker:to,
-        //             tokens: val,
-        //         });
-        //         await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
-        //     },2000000);
-        //
-        //     it('Multi-lock for same user', async function () {
-        //         let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
-        //         await expectEvent(generate, "GenerateUTokens", {
-        //             to:to,
-        //             amount: amount,
-        //         });
-        //         let stake = await liquidStaking.stake(to, amt, {from: to,});
-        //         let balance = await stokens.balanceOf(to);
-        //         expect(balance >= amt)
-        //         await expectEvent(stake, "StakeTokens", {
-        //             staker:to,
-        //             tokens: amt,
-        //         });
-        //         let unstake = await liquidStaking.unStake(to, val, {from: to,});
-        //         await expectEvent(unstake, "UnstakeTokens", {
-        //             staker:to,
-        //             tokens: val,
-        //         });
-        //         unstake = await liquidStaking.unStake(to, val, {from: to,});
-        //         balance = await stokens.balanceOf(to);
-        //         expect(balance > amt)
-        //         let _val = val+val
-        //         let totalBalance = amt + _val
-        //         expect(totalBalance > await utokens.balanceOf(to));
-        //         await expectEvent(unstake, "UnstakeTokens", {
-        //             staker:to,
-        //             tokens: val,
-        //         });
-        //         await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
-        //     },2000000);
-        // });
+        describe("Withdraw unStaked tokens", function () {
+            it('Only staker can withdraw', async function () {
+                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: anotherAccount,}), "LiquidStaking: Only staker can withdraw");
+            },200000);
+
+            it('Cannot withdraw UnStake token before locking period', async function () {
+                let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
+                await expectEvent(generate, "GenerateUTokens", {
+                    to:to,
+                    amount: amount,
+                });
+                let stake = await liquidStaking.stake(to, amt, {from: to,});
+                await expectEvent(stake, "StakeTokens", {
+                    staker:to,
+                    tokens: amt,
+                });
+                let balance = await stokens.balanceOf(to);
+                expect(balance >= amt)
+                let unstake = await liquidStaking.unStake(to, val, {from: to,});
+                await expectEvent(unstake, "UnstakeTokens", {
+                    staker:to,
+                    tokens: val,
+                });
+                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
+            },2000000);
+
+            it('Multi-lock for same user', async function () {
+                let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
+                await expectEvent(generate, "GenerateUTokens", {
+                    to:to,
+                    amount: amount,
+                });
+                let stake = await liquidStaking.stake(to, amt, {from: to,});
+                let balance = await stokens.balanceOf(to);
+                expect(balance >= amt)
+                await expectEvent(stake, "StakeTokens", {
+                    staker:to,
+                    tokens: amt,
+                });
+                let unstake = await liquidStaking.unStake(to, val, {from: to,});
+                await expectEvent(unstake, "UnstakeTokens", {
+                    staker:to,
+                    tokens: val,
+                });
+                unstake = await liquidStaking.unStake(to, val, {from: to,});
+                balance = await stokens.balanceOf(to);
+                expect(balance > amt)
+                let _val = val+val
+                let totalBalance = amt + _val
+                expect(totalBalance > await utokens.balanceOf(to));
+                await expectEvent(unstake, "UnstakeTokens", {
+                    staker:to,
+                    tokens: val,
+                });
+                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
+            },2000000);
+        });
     });
 }); // DESCRIBE END
