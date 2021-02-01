@@ -48,6 +48,7 @@ contract STokens is ERC20, Ownable {
         return _stakedBlocks[to];
     }
 
+
     function mint(address to, uint256 tokens) public returns (bool success) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
@@ -60,7 +61,7 @@ contract STokens is ERC20, Ownable {
         return true;
     }
 
-    function _calculateRewards(address to) internal returns (bool success){
+    function _calculateRewards(address to) internal returns (uint256){
 
         // Get the current Block
         uint256 _currentBlock = block.number;
@@ -74,20 +75,22 @@ contract STokens is ERC20, Ownable {
 
         //Get the balance of the account
         uint256 _balance = balanceOf(to);
+        uint256 _reward;
 
         if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0)
         {
-            uint256 _reward = (_balance * _rewardRate * _rewardBlock) / 100;
+            _reward = (_balance * _rewardRate * _rewardBlock) / 100;
             // Mint new uTokens and send to the callers account
             _uTokens.mint(to, _reward);
-            emit CalculateRewards(to, _reward);
         }
-        return true;
+        return _reward;
     }
 
     function calculateRewards(address to) public returns (bool success) {
         require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
-        return _calculateRewards(to);
+        uint256 reward =  _calculateRewards(to);
+        emit CalculateRewards(to, reward);
+        return true;
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
