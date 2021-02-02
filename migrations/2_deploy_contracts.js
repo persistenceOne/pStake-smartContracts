@@ -18,7 +18,7 @@ module.exports = function (deployer, network, accounts) {
   }
 
   if (network === "goerli") {
-    let gasPriceGoerli = 4e9;
+    let gasPriceGoerli = 1e11;
     let gasLimitGoerli = 4000000;
     deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
   }
