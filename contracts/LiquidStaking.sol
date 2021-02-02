@@ -191,7 +191,7 @@ contract LiquidStaking is Ownable {
         _uTokens.mint(msg.sender, _withdrawBalance);
     }
 
-    function getUnbondingTokens(address staker) public view returns (uint256[] memory, uint256[] memory) {
+    function getUnbondingTokens(address staker) public view returns (uint256[] memory unstakingAmount, uint256[] memory unstakingExpiration) {
         require(staker == _msgSender(), "LiquidStaking: Only staker can retrieve unbonded tokens");
         return (_unstakingAmount[staker], _unstakingExpiration[staker]);
     }

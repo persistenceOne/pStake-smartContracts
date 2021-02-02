@@ -332,7 +332,7 @@ describe("Liquid Staking", function () {
         },200000);
 
         it('Non-staker cannot withdraw', async function () {
-            expectRevert(liquidStaking.unStake(to, amount, {from: anotherAccount,}), "Unstaking can only be done by Staker");
+            await expectRevert(liquidStaking.unStake(to, amount, {from: anotherAccount,}), "Unstaking can only be done by Staker");
         },200000);
 
         it('Current sToken balance should be greater than unstaked amount', async function () {
@@ -373,6 +373,45 @@ describe("Liquid Staking", function () {
                 staker:to,
                 tokens: val,
             });
+        },200000);
+
+        it('Only staker can retrieve unbonded tokens', async function () {
+            await expectRevert(liquidStaking.getUnbondingTokens(to, {from: anotherAccount,}), "LiquidStaking: Only staker can retrieve unbonded tokens");
+        },200000);
+
+        it('Get unbonding tokens', async function () {
+            let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
+            expectEvent(generate, "GenerateUTokens", {
+                to:to,
+                amount: amount,
+            });
+            let stake = await liquidStaking.stake(to, amt, {from: to,});
+            let balance = await stokens.balanceOf(to);
+            expect(balance >= amt)
+            expectEvent(stake, "StakeTokens", {
+                staker:to,
+                tokens: amt,
+            });
+            let unstake = await liquidStaking.unStake(to, val, {from: to,});
+            balance = await stokens.balanceOf(to);
+            expect(balance > amt)
+            let totalBalance = amt + val
+            expect(totalBalance > await utokens.balanceOf(to));
+            expectEvent(unstake, "UnstakeTokens", {
+                staker:to,
+                tokens: val,
+            });
+            unstake = await liquidStaking.unStake(to, val, {from: to,});
+            balance = await stokens.balanceOf(to);
+            expect(balance > amt)
+            totalBalance = amt + val
+            expect(totalBalance > await utokens.balanceOf(to));
+            expectEvent(unstake, "UnstakeTokens", {
+                staker:to,
+                tokens: val,
+            });
+            let unbondTokens = await liquidStaking.getUnbondingTokens(to, {from: to,});
+            expect(unbondTokens.unstakingAmount.length == 2)
         },200000);
     });
 
