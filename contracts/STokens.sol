@@ -20,8 +20,8 @@ contract STokens is ERC20, Ownable {
         address indexed _contract
     );
 
-    event CalculateRewards(address to, uint256 reward);
-    event TriggeredCalculateRewards(address to, uint256 reward);
+    event CalculateRewards(address indexed to, uint256 reward, uint256 timestamp);
+    event TriggeredCalculateRewards(address indexed to, uint256 reward, uint256 timestamp);
 
 
     uint256 private _rewardRate = 1;
@@ -83,7 +83,7 @@ contract STokens is ERC20, Ownable {
         {
             _reward = (_balance * _rewardRate * _rewardBlock) / 100;
             // Mint new uTokens and send to the callers account
-            emit CalculateRewards(to, _reward);
+            emit CalculateRewards(to, _reward, block.timestamp);
             _uTokens.mint(to, _reward);
         }
         return _reward;
@@ -92,7 +92,7 @@ contract STokens is ERC20, Ownable {
     function calculateRewards(address to) public returns (bool success) {
         require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
         uint256 reward =  _calculateRewards(to);
-        emit TriggeredCalculateRewards(to, reward);
+        emit TriggeredCalculateRewards(to, reward, block.timestamp);
         return true;
     }
 

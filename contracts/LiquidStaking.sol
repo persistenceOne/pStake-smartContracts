@@ -37,11 +37,11 @@ contract LiquidStaking is Ownable {
     //Mapping to handle the Expiry amount
     mapping(address => uint256[]) _unstakingAmount;
 
-    event GenerateUTokens(address to, uint256 amount);
-    event WithdrawUTokens(address from, uint256 tokens, string toAtomAddress);
-    event StakeTokens(address staker, uint256 tokens);
-    event UnstakeTokens(address staker, uint256 tokens);
-    event WithdrawUnstakeTokens(address staker, uint256 tokens);
+    event GenerateUTokens(address indexed to, uint256 amount, uint256 timestamp);
+    event WithdrawUTokens(address indexed from, uint256 tokens, string toAtomAddress, uint256 timestamp);
+    event StakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
+    event UnstakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
+    event WithdrawUnstakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
 
     /**
      * @dev Sets the values for {utoken contract address} and {stoken contract address}
@@ -93,7 +93,7 @@ contract LiquidStaking is Ownable {
     function generateUTokens(address to, uint256 amount) public {
         require(amount>0, "LiquidStaking: Number of tokens should be greater than 0");
         require(_msgSender() == owner(), "LiquidStaking: Only owner can mint new tokens for a user");
-        emit GenerateUTokens(to, amount);
+        emit GenerateUTokens(to, amount, block.timestamp);
         _uTokens.mint(to, amount);
     }
 
@@ -114,7 +114,7 @@ contract LiquidStaking is Ownable {
         require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
         require(from == _msgSender(), "LiquidStaking: Withdraw can only be done by Staker");
         _uTokens.burn(from, tokens);
-        emit WithdrawUTokens(from, tokens, toAtomAddress);
+        emit WithdrawUTokens(from, tokens, toAtomAddress, block.timestamp);
     }
 
     /**
@@ -135,7 +135,7 @@ contract LiquidStaking is Ownable {
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
         require(_currentUTokenBalance>=utok, "LiquidStaking: Insuffcient balance for account");
-        emit StakeTokens(to, utok);
+        emit StakeTokens(to, utok, block.timestamp);
         // Burn the uTokens as specified with the amount
         _uTokens.burn(to, utok);
         // Mint the sTokens for the account specified
@@ -161,7 +161,7 @@ contract LiquidStaking is Ownable {
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
         require(_currentSTokenBalance>=stok, "LiquidStaking: Insuffcient balance for account");
-        emit UnstakeTokens(to, stok);
+        emit UnstakeTokens(to, stok, block.timestamp);
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
         _unstakingExpiration[to].push(block.timestamp + _unstakinglockTime);
@@ -187,7 +187,7 @@ contract LiquidStaking is Ownable {
             }
         }
         require(_withdrawBalance == 0, "LiquidStaking: UnStaking period still pending");
-        emit WithdrawUnstakeTokens(staker, _withdrawBalance);
+        emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
         _uTokens.mint(msg.sender, _withdrawBalance);
     }
 
