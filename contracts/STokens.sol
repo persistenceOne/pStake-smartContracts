@@ -10,6 +10,8 @@ contract UTokens {
 
 contract STokens is ERC20, Ownable {
 
+    using SafeMath for uint256;
+
     address private _liquidStakingContract;
 
     //Private instance of contract to handle Utokens
@@ -27,7 +29,7 @@ contract STokens is ERC20, Ownable {
     uint256 private _rewardRate = 1;
     mapping(address => uint256) private _stakedBlocks;
 
-    constructor(address uaddress) ERC20("stackedAtoms", "sAtoms") {
+    constructor(address uaddress) ERC20("stakedATOM", "stkATOM") {
         _setupDecimals(6);
         setUTokensContract(uaddress);
     }
@@ -42,12 +44,14 @@ contract STokens is ERC20, Ownable {
         return true;
     }
 
-    function getRewardRate() public view returns (uint256) {
-        return _rewardRate;
+    function getRewardRate() public view returns (uint256 rewardRate) {
+        rewardRate = _rewardRate;
+        return rewardRate;
     }
 
-    function getStakedBlock(address to) public view returns (uint256) {
-        return _stakedBlocks[to];
+    function getStakedBlock(address to) public view returns (uint256 stakedBlocks) {
+        stakedBlocks = _stakedBlocks[to];
+        return stakedBlocks;
     }
 
 
@@ -64,29 +68,31 @@ contract STokens is ERC20, Ownable {
     }
 
     function _calculateRewards(address to) internal returns (uint256){
-
-        // Get the current Block
-        uint256 _currentBlock = block.number;
-
-        // Check the supplied block is greater than the staked block
-        require(_currentBlock>_stakedBlocks[to], "STokens: Current Block should be greater than staked Block");
-        uint256 _rewardBlock = _currentBlock - _stakedBlocks[to];
-
-        // Set the new stakedBlock to the current
-        _stakedBlocks[to] = _currentBlock;
-
-        //Get the balance of the account
-        uint256 _balance = balanceOf(to);
-        uint256 _reward;
-
-        if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0)
-        {
-            _reward = (_balance * _rewardRate * _rewardBlock) / 100;
+        // Calculate the rewards pending
+        uint256 _reward = calculatePendingRewards(to);
+        // mint uTokens only if reward is greater than zero
+        if(_reward>0) {
             // Mint new uTokens and send to the callers account
             emit CalculateRewards(to, _reward, block.timestamp);
             _uTokens.mint(to, _reward);
         }
+        // Set the new stakedBlock to the current
+        _stakedBlocks[to] = block.number;
         return _reward;
+    }
+
+    function calculatePendingRewards(address to) public view returns (uint256 pendingRewards){
+        // Get the current Block
+        uint256 _currentBlock = block.number;
+        // Get the time in number of blocks
+        uint256 _rewardBlock = _currentBlock.sub(_stakedBlocks[to]);
+        // Get the balance of the account
+        uint256 _balance = balanceOf(to);
+        // Calculate the interest if P, R, T are non zero values
+        if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0) {
+            pendingRewards = (_balance * _rewardRate * _rewardBlock) / 100;
+        }
+        return pendingRewards;
     }
 
     function calculateRewards(address to) public returns (bool success) {

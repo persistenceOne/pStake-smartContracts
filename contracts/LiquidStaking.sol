@@ -7,12 +7,12 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 contract UTokens {
     function mint(address to, uint256 tokens) public returns (bool success) { }
     function burn(address from, uint256 tokens) public returns (bool success) { }
-    function balanceOf(address account) public view returns (uint256) { }
+    function balanceOf(address account) public view returns (uint256 balance) { }
 }
 
 contract STokens {
     function mint(address to, uint256 tokens) public returns (bool success) { }
-    function balanceOf(address account) public view returns (uint256) { }
+    function balanceOf(address account) public view returns (uint256 balance) { }
     function burn(address from, uint256 tokens) public returns (bool success) { }
 }
 
@@ -161,11 +161,10 @@ contract LiquidStaking is Ownable {
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
         require(_currentSTokenBalance>=stok, "LiquidStaking: Insuffcient balance for account");
-        uint256 lockTime = block.timestamp + _unstakinglockTime;
-        emit UnstakeTokens(to, stok, lockTime);
+        emit UnstakeTokens(to, stok, block.timestamp);
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
-        _unstakingExpiration[to].push(block.timestamp + lockTime);
+        _unstakingExpiration[to].push(block.timestamp + _unstakinglockTime);
         _unstakingAmount[to].push(stok);
         return true;
     }
@@ -192,8 +191,14 @@ contract LiquidStaking is Ownable {
         _uTokens.mint(msg.sender, _withdrawBalance);
     }
 
-    function getUnbondingTokens(address staker) public view returns (uint256[] memory unstakingAmount, uint256[] memory unstakingExpiration) {
-        require(staker == _msgSender(), "LiquidStaking: Only staker can retrieve unbonded tokens");
-        return (_unstakingAmount[staker], _unstakingExpiration[staker]);
+    function getTotalUnbondedTokens(address staker) public view returns (uint256 unbondingTokens) {
+        if(staker == _msgSender()){
+            for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
+                if (block.timestamp > _unstakingExpiration[staker][i]) {
+                    unbondingTokens = unbondingTokens + _unstakingAmount[staker][i];
+                }
+            }
+        }
+        return unbondingTokens;
     }
 }
