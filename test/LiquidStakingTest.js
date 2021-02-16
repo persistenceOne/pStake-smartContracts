@@ -185,7 +185,35 @@ describe("Liquid Staking", function () {
             });
         },200000);
 
-        it('CalculateRewards with double minting', async function () {
+        it('Calculate Pending Rewards with double minting', async function () {
+            let generate = await liquidStaking.generateUTokens(to,amount,{from: from,});
+            let balance = await utokens.balanceOf(from);
+            expect(balance == amount)
+            expectEvent(generate, "GenerateUTokens", {
+                to:to,
+                amount: amount,
+            });
+            let stake = await liquidStaking.stake(to,amt,{from: to,});
+            balance = await stokens.balanceOf(to);
+            expect(balance>=amt)
+            expectEvent(stake, "StakeTokens", {
+                staker:to,
+                tokens: amt,
+            });
+            stake = await liquidStaking.stake(to,val,{from: to,});
+            balance = await stokens.balanceOf(to);
+            expect(balance>val)
+            let totalBalance = amt + val
+            expect(totalBalance > await utokens.balanceOf(to));
+            expectEvent(stake, "StakeTokens", {
+                staker:to,
+                tokens: val,
+            });
+            let reward = await stokens.calculatePendingRewards(to,{from: to,});
+            expect(reward >= stokens.balanceOf(to));
+        },200000);
+
+        it('Calculate Rewards with double minting', async function () {
             let generate = await liquidStaking.generateUTokens(to,amount,{from: from,});
             let balance = await utokens.balanceOf(from);
             expect(balance == amount)
@@ -375,10 +403,6 @@ describe("Liquid Staking", function () {
             });
         },200000);
 
-        it('Only staker can retrieve unbonded tokens', async function () {
-            await expectRevert(liquidStaking.getUnbondingTokens(to, {from: anotherAccount,}), "LiquidStaking: Only staker can retrieve unbonded tokens");
-        },200000);
-
         it('Get unbonding tokens', async function () {
             let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
             expectEvent(generate, "GenerateUTokens", {
@@ -410,8 +434,8 @@ describe("Liquid Staking", function () {
                 staker:to,
                 tokens: val,
             });
-            let unbondTokens = await liquidStaking.getUnbondingTokens(to, {from: to,});
-            expect(unbondTokens.unstakingAmount.length == 2)
+            let unbondTokens = await liquidStaking.getTotalUnbondedTokens(to, {from: to,});
+            expect(unbondTokens == val)
         },200000);
     });
 
@@ -470,8 +494,6 @@ describe("Liquid Staking", function () {
                 });
             },2000000);
         });
-
-        //TODO
 
         describe("Withdraw unStaked tokens", function () {
             it('Only staker can withdraw', async function () {
