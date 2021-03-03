@@ -37,7 +37,7 @@ contract LiquidStaking is Ownable {
     //Mapping to handle the Expiry amount
     mapping(address => uint256[]) _unstakingAmount;
 
-    event GenerateUTokens(address indexed to, uint256 amount, uint256 timestamp);
+    event GenerateUTokens(address indexed to, uint256 tokens, uint256 timestamp);
     event WithdrawUTokens(address indexed from, uint256 tokens, string toAtomAddress, uint256 timestamp);
     event StakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
     event UnstakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);

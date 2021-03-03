@@ -22,8 +22,8 @@ contract STokens is ERC20, Ownable {
         address indexed _contract
     );
 
-    event CalculateRewards(address indexed to, uint256 reward, uint256 timestamp);
-    event TriggeredCalculateRewards(address indexed to, uint256 reward, uint256 timestamp);
+    event CalculateRewards(address indexed to, uint256 tokens, uint256 timestamp);
+    event TriggeredCalculateRewards(address indexed to, uint256 tokens, uint256 timestamp);
 
 
     uint256 private _rewardRate = 1;
