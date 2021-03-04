@@ -51,7 +51,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
         });
 
@@ -72,7 +72,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -102,7 +102,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -123,7 +123,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
         });
 
@@ -137,7 +137,7 @@ describe("Liquid Staking", function () {
             let balance = await utokens.balanceOf(to);
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amt,
+                tokens: amt,
             });
             expect(balance == amt)
             await expectRevert(liquidStaking.stake(to, amount, {from: to,}), "LiquidStaking: Insuffcient balance for account");
@@ -149,7 +149,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -181,7 +181,7 @@ describe("Liquid Staking", function () {
             expect(reward >= stokens.balanceOf(to));
             expectEvent(reward, "TriggeredCalculateRewards", {
                 to:to,
-                reward:new BN(0),
+                tokens:new BN(0),
             });
         },200000);
 
@@ -191,7 +191,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -219,7 +219,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -253,7 +253,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -278,7 +278,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -305,7 +305,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -336,7 +336,7 @@ describe("Liquid Staking", function () {
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
@@ -367,7 +367,7 @@ describe("Liquid Staking", function () {
             let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to, amt, {from: to,});
             expectEvent(stake, "StakeTokens", {
@@ -383,7 +383,7 @@ describe("Liquid Staking", function () {
             let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to, amt, {from: to,});
             let balance = await stokens.balanceOf(to);
@@ -407,7 +407,7 @@ describe("Liquid Staking", function () {
             let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
             expectEvent(generate, "GenerateUTokens", {
                 to:to,
-                amount: amount,
+                tokens: amount,
             });
             let stake = await liquidStaking.stake(to, amt, {from: to,});
             let balance = await stokens.balanceOf(to);
@@ -448,7 +448,7 @@ describe("Liquid Staking", function () {
                 expect(balance == amount)
                 expectEvent(generate, "GenerateUTokens", {
                     to:to,
-                    amount: amount,
+                    tokens: amount,
                 });
                 await expectRevert(liquidStaking.withdrawUTokens(to,_val,toAtomAddress,{from: to,}),"LiquidStaking: Number of unstaked tokens should be greater than 0");
             },200000);
@@ -459,7 +459,7 @@ describe("Liquid Staking", function () {
                 expect(balance == amt)
                 expectEvent(generate, "GenerateUTokens", {
                     to:to,
-                    amount: amt,
+                    tokens: amt,
                 });
                 await expectRevert(liquidStaking.withdrawUTokens(to, amount, toAtomAddress, {from: to,}), "LiquidStaking: Insuffcient balance for account");
             },200000);
@@ -470,7 +470,7 @@ describe("Liquid Staking", function () {
                 expect(balance == amt);
                 expectEvent(generate, "GenerateUTokens", {
                     to:to,
-                    amount: amount,
+                    tokens: amount,
                 });
                 await expectRevert(liquidStaking.withdrawUTokens(to, amt, toAtomAddress, {from: anotherAccount,}), "LiquidStaking: Withdraw can only be done by Staker");
             },2000000);
@@ -481,7 +481,7 @@ describe("Liquid Staking", function () {
                 expect(balance == amt)
                 expectEvent(generate, "GenerateUTokens", {
                     to:to,
-                    amount: amount,
+                    tokens: amount,
                 });
                 let withdraw = await liquidStaking.withdrawUTokens(to, amt, toAtomAddress, {from: to,});
                 let _val = balance - amt;
@@ -504,7 +504,7 @@ describe("Liquid Staking", function () {
                 let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
                 await expectEvent(generate, "GenerateUTokens", {
                     to:to,
-                    amount: amount,
+                    tokens: amount,
                 });
                 let stake = await liquidStaking.stake(to, amt, {from: to,});
                 await expectEvent(stake, "StakeTokens", {
@@ -525,7 +525,7 @@ describe("Liquid Staking", function () {
                 let generate = await liquidStaking.generateUTokens(to, amount, {from: from,});
                 await expectEvent(generate, "GenerateUTokens", {
                     to:to,
-                    amount: amount,
+                    tokens: amount,
                 });
                 let stake = await liquidStaking.stake(to, amt, {from: to,});
                 let balance = await stokens.balanceOf(to);

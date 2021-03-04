@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract UTokens is ERC20, Ownable {
+
+    using SafeMath for uint256;
     
     address private _stokenContract;
     address private _liquidStakingContract;
