@@ -1,16 +1,17 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
 contract UTokens {
     function mint(address _to, uint256 _tokens) public returns (bool _success) { }
 }
 
-contract STokens is ERC20, Ownable {
+contract STokens is ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
 
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
 
     address private _liquidStakingContract;
 
@@ -26,42 +27,44 @@ contract STokens is ERC20, Ownable {
     event TriggeredCalculateRewards(address indexed to, uint256 tokens, uint256 timestamp);
 
 
-    uint256 private _rewardRate = 1;
+    uint256 private _rewardRate;
     mapping(address => uint256) private _stakedBlocks;
 
-    constructor(address uaddress) ERC20("stakedATOM", "stkATOM") {
+    function initialize(address uaddress) public virtual initializer {
+        __ERC20_init("stakedATOM", "stkATOM");
+        _rewardRate = 1;
         _setupDecimals(6);
         setUTokensContract(uaddress);
     }
 
-    function setUTokensContract(address uTokenContract) public onlyOwner {
+    function setUTokensContract(address uTokenContract) public whenNotPaused onlyOwner {
         _uTokens = UTokens(uTokenContract);
         emit SetContract(uTokenContract);
     }
 
-    function setRewardRate(uint256 rate) public onlyOwner returns (bool success) {
+    function setRewardRate(uint256 rate) public whenNotPaused onlyOwner returns (bool success) {
         _rewardRate = rate;
         return true;
     }
 
-    function getRewardRate() public view returns (uint256 rewardRate) {
+    function getRewardRate() public whenNotPaused view returns (uint256 rewardRate) {
         rewardRate = _rewardRate;
         return rewardRate;
     }
 
-    function getStakedBlock(address to) public view returns (uint256 stakedBlocks) {
+    function getStakedBlock(address to) public whenNotPaused view returns (uint256 stakedBlocks) {
         stakedBlocks = _stakedBlocks[to];
         return stakedBlocks;
     }
 
 
-    function mint(address to, uint256 tokens) public returns (bool success) {
+    function mint(address to, uint256 tokens) public whenNotPaused returns (bool success) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
         return true;
     }
 
-    function burn(address from, uint256 tokens) public returns (bool success) {
+    function burn(address from, uint256 tokens) public whenNotPaused returns (bool success) {
         require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
         _burn(from, tokens);
         return true;
@@ -81,7 +84,7 @@ contract STokens is ERC20, Ownable {
         return _reward;
     }
 
-    function calculatePendingRewards(address to) public view returns (uint256 pendingRewards){
+    function calculatePendingRewards(address to) public whenNotPaused view returns (uint256 pendingRewards){
         // Get the current Block
         uint256 _currentBlock = block.number;
         // Get the time in number of blocks
@@ -95,7 +98,7 @@ contract STokens is ERC20, Ownable {
         return pendingRewards;
     }
 
-    function calculateRewards(address to) public returns (bool success) {
+    function calculateRewards(address to) public whenNotPaused returns (bool success) {
         require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
@@ -115,7 +118,7 @@ contract STokens is ERC20, Ownable {
     }
 
     //This function need to be called after deployment, only admin can call the same
-    function setLiquidStakingContractAddress(address liquidStakingContract) public onlyOwner {
+    function setLiquidStakingContractAddress(address liquidStakingContract) public whenNotPaused onlyOwner {
         _liquidStakingContract = liquidStakingContract;
     }
 }

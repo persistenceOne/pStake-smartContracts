@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.7.0;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 
 contract UTokens {
     function mint(address to, uint256 tokens) public returns (bool success) { }
@@ -16,9 +17,9 @@ contract STokens {
     function burn(address from, uint256 tokens) public returns (bool success) { }
 }
 
-contract LiquidStaking is Ownable {
+contract LiquidStaking is OwnableUpgradeable, PausableUpgradeable {
 
-    using SafeMath for uint256;
+    using SafeMathUpgradeable for uint256;
 
     //Event to track the setting of contracts
     event SetContract(
@@ -28,6 +29,8 @@ contract LiquidStaking is Ownable {
     //Private instances of contracts to handle Utokens and Stokens
     UTokens private _uTokens;
     STokens private _sTokens;
+
+    //bytes32 public constant STAKER_ROLE = keccak256("STAKER_ROLE");
 
     uint256 _unstakinglockTime = 21 days;
 
@@ -50,9 +53,11 @@ contract LiquidStaking is Ownable {
      * Both contract addresses are immutable: they can only be set once during
      * construction.
      */
-    constructor(address uAddress, address sAddress) {
+    function initialize(address uAddress, address sAddress) public virtual initializer {
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
+        //        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        //        _setupRole(STAKER_ROLE, msg.sender);
     }
 
     /**
@@ -62,7 +67,7 @@ contract LiquidStaking is Ownable {
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
-    function setUTokensContract(address uAddress) public onlyOwner {
+    function setUTokensContract(address uAddress) public whenNotPaused onlyOwner {
         _uTokens = UTokens(uAddress);
         emit SetContract(uAddress);
     }
@@ -74,7 +79,7 @@ contract LiquidStaking is Ownable {
      * Emits a {SetContract} event with '_contract' set to the stoken contract address.
      *
      */
-    function setSTokensContract(address sAddress) public onlyOwner {
+    function setSTokensContract(address sAddress) public whenNotPaused onlyOwner {
         _sTokens = STokens(sAddress);
         emit SetContract(sAddress);
     }
@@ -90,9 +95,10 @@ contract LiquidStaking is Ownable {
      * - `amount` cannot be less than zero.
      *
      */
-    function generateUTokens(address to, uint256 amount) public {
+    function generateUTokens(address to, uint256 amount) public whenNotPaused {
         require(amount>0, "LiquidStaking: Number of tokens should be greater than 0");
         require(_msgSender() == owner(), "LiquidStaking: Only owner can mint new tokens for a user");
+        //grantRole(STAKER_ROLE, to);
         emit GenerateUTokens(to, amount, block.timestamp);
         _uTokens.mint(to, amount);
     }
@@ -108,8 +114,9 @@ contract LiquidStaking is Ownable {
      * - `tokens` cannot be less than zero.
      *
      */
-    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public {
+    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public whenNotPaused {
         require(tokens>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
+       // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Wihdraw can only be done by Staker");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
         require(from == _msgSender(), "LiquidStaking: Withdraw can only be done by Staker");
@@ -128,10 +135,11 @@ contract LiquidStaking is Ownable {
     * - 'utok' cannot be more than balance
     * - 'utok' plus new balance should be equal to the old balance
     */
-    function stake(address to, uint256 utok) public returns(bool) {
+    function stake(address to, uint256 utok) public whenNotPaused returns(bool)  {
         // Check the supplied amount is greater than 0
         require(utok>0, "LiquidStaking: Number of staked tokens should be greater than 0");
         require(to == _msgSender(), "LiquidStaking: Staking can only be done by Staker");
+       // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Staking can only be done by Staker");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
         require(_currentUTokenBalance>=utok, "LiquidStaking: Insuffcient balance for account");
@@ -154,9 +162,9 @@ contract LiquidStaking is Ownable {
      * - 'stok' cannot be more than balance
      * - 'stok' plus new balance should be equal to the old balance
      */
-    function unStake(address to, uint256 stok) public returns(bool) {
+    function unStake(address to, uint256 stok) public whenNotPaused returns(bool) {
         // Check the supplied amount is greater than 0
-        require(to == _msgSender(), "LiquidStaking: Unstaking can only be done by Staker");
+     //   require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Unstaking can only be done by Staker");
         require(stok>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
@@ -176,8 +184,9 @@ contract LiquidStaking is Ownable {
      *
      * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
      */
-    function withdrawUnstakedTokens(address staker) public {
+    function withdrawUnstakedTokens(address staker) public whenNotPaused {
         require(staker == _msgSender(), "LiquidStaking: Only staker can withdraw");
+       // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Only staker can withdrawr");
         uint256 _withdrawBalance;
         for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
             if (_unstakingExpiration[staker][i] > block.timestamp) {
@@ -191,7 +200,7 @@ contract LiquidStaking is Ownable {
         _uTokens.mint(msg.sender, _withdrawBalance);
     }
 
-    function getTotalUnbondedTokens(address staker) public view returns (uint256 unbondingTokens) {
+    function getTotalUnbondedTokens(address staker) public whenNotPaused view returns (uint256 unbondingTokens) {
         if(staker == _msgSender()){
             for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
                 if (block.timestamp > _unstakingExpiration[staker][i]) {
