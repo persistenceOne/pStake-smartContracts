@@ -32,7 +32,7 @@ contract LiquidStaking is OwnableUpgradeable, PausableUpgradeable {
 
     //bytes32 public constant STAKER_ROLE = keccak256("STAKER_ROLE");
 
-    uint256 _unstakinglockTime = 21 days;
+    uint256 _unstakinglockTime;
 
     //Mapping to handle the Expiry period
     mapping(address => uint256[]) _unstakingExpiration;
@@ -56,6 +56,7 @@ contract LiquidStaking is OwnableUpgradeable, PausableUpgradeable {
     function initialize(address uAddress, address sAddress) public virtual initializer {
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
+        _unstakinglockTime = 21 days;
         //        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         //        _setupRole(STAKER_ROLE, msg.sender);
     }
