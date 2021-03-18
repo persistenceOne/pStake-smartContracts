@@ -24,12 +24,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     mapping(address => uint256) private _stakedBlocks;
 
     function initialize(address uaddress, address pauserAddress) public virtual initializer {
-        __ERC20_init("stakedATOM", "stkATOM");
+        __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
         __AccessControl_init();
-        __AccessControl_init_unchained();
         __Pausable_init();
-        __Pausable_init_unchained();
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         _rewardRate = 1;
         _setupDecimals(6);
@@ -87,7 +85,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // Get the current Block
         uint256 _currentBlock = block.number;
         // Get the time in number of blocks
-        uint256 _rewardBlock = _currentBlock.sub(_stakedBlocks[to]);
+        uint256 _rewardBlock = _currentBlock.sub(_stakedBlocks[to], "STokens: Error in subtraction");
         // Get the balance of the account
         uint256 _balance = balanceOf(to);
         // Calculate the interest if P, R, T are non zero values
@@ -105,6 +103,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        require(!paused(), "ERC20Pausable: token transfer while paused");
         super._beforeTokenTransfer(from, to, amount);
         if (from != address(0))
         {
@@ -117,18 +116,18 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     //This function need to be called after deployment, only admin can call the same
-    function setLiquidStakingContractAddress(address liquidStakingContract) public virtual override whenNotPaused{
+    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused{
         _liquidStakingContract = liquidStakingContract;
     }
 
     function pause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, msg.sender), "STokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to pause contracts.");
         _pause();
         return true;
     }
 
     function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, msg.sender), "STokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to pause contracts.");
         _unpause();
         return true;
     }

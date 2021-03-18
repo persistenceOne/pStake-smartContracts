@@ -61,7 +61,7 @@ interface ISTokens is IERC20Upgradeable {
     * @dev Set LiquidStaking smart contract.
     * Emits a {SetContract} event.
     */
-    function setLiquidStakingContractAddress(address liquidStakingContract) external;
+    function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Set UTokens smart contract.

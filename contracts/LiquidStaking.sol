@@ -56,7 +56,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function setUTokensContract(address uAddress) public virtual override whenNotPaused {
         _uTokens = IUTokens(uAddress);
-        emit SetContract(uAddress);
+        emit SetUTokensContract(uAddress);
     }
 
     /**
@@ -68,7 +68,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function setSTokensContract(address sAddress) public virtual override whenNotPaused {
         _sTokens = ISTokens(sAddress);
-        emit SetContract(sAddress);
+        emit SetSTokensContract(sAddress);
     }
 
     /**
@@ -175,13 +175,13 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Only staker can withdrawr");
         uint256 _withdrawBalance;
         for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
-            if (_unstakingExpiration[staker][i] > block.timestamp) {
+            if (block.timestamp > _unstakingExpiration[staker][i]) {
                 _withdrawBalance = _withdrawBalance + _unstakingAmount[staker][i];
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
             }
         }
-        require(_withdrawBalance == 0, "LiquidStaking: UnStaking period still pending");
+        require(_withdrawBalance > 0, "LiquidStaking: UnStaking period still pending");
         emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
         _uTokens.mint(msg.sender, _withdrawBalance);
     }
@@ -198,13 +198,13 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     }
 
     function pause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, msg.sender), "LiquidStaking: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "LiquidStaking: User not authorised to pause contracts.");
         _pause();
         return true;
     }
 
     function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, msg.sender), "LiquidStaking: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "LiquidStaking: User not authorised to pause contracts.");
         _unpause();
         return true;
     }
