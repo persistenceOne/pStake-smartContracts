@@ -2,69 +2,68 @@
 pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "./ISTokens.sol";
+import "./IUTokens.sol";
 
-contract UTokens {
-    function mint(address _to, uint256 _tokens) public returns (bool _success) { }
-}
-
-contract STokens is ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
+contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
+
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     address private _liquidStakingContract;
 
     //Private instance of contract to handle Utokens
-    UTokens private _uTokens;
-
-    //Event to track the setting of contracts
-    event SetContract(
-        address indexed _contract
-    );
-
-    event CalculateRewards(address indexed to, uint256 tokens, uint256 timestamp);
-    event TriggeredCalculateRewards(address indexed to, uint256 tokens, uint256 timestamp);
+    IUTokens private _uTokens;
 
 
     uint256 private _rewardRate;
     mapping(address => uint256) private _stakedBlocks;
 
-    function initialize(address uaddress) public virtual initializer {
+    function initialize(address uaddress, address pauserAddress) public virtual initializer {
         __ERC20_init("stakedATOM", "stkATOM");
+        __AccessControl_init();
+        __AccessControl_init_unchained();
+        __Pausable_init();
+        __Pausable_init_unchained();
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(PAUSER_ROLE, pauserAddress);
         _rewardRate = 1;
         _setupDecimals(6);
         setUTokensContract(uaddress);
     }
 
-    function setUTokensContract(address uTokenContract) public whenNotPaused onlyOwner {
-        _uTokens = UTokens(uTokenContract);
+    function setUTokensContract(address uTokenContract) public virtual override whenNotPaused{
+        _uTokens = IUTokens(uTokenContract);
         emit SetContract(uTokenContract);
     }
 
-    function setRewardRate(uint256 rate) public whenNotPaused onlyOwner returns (bool success) {
+    function setRewardRate(uint256 rate) public virtual override whenNotPaused returns (bool success) {
         _rewardRate = rate;
         return true;
     }
 
-    function getRewardRate() public whenNotPaused view returns (uint256 rewardRate) {
+    function getRewardRate() public view virtual override whenNotPaused returns (uint256 rewardRate) {
         rewardRate = _rewardRate;
         return rewardRate;
     }
 
-    function getStakedBlock(address to) public whenNotPaused view returns (uint256 stakedBlocks) {
+    function getStakedBlock(address to) public view virtual override whenNotPaused returns (uint256 stakedBlocks) {
         stakedBlocks = _stakedBlocks[to];
         return stakedBlocks;
     }
 
 
-    function mint(address to, uint256 tokens) public whenNotPaused returns (bool success) {
+    function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
         return true;
     }
 
-    function burn(address from, uint256 tokens) public whenNotPaused returns (bool success) {
+    function burn(address from, uint256 tokens) public  virtual override whenNotPaused returns (bool success) {
         require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
         _burn(from, tokens);
         return true;
@@ -84,7 +83,7 @@ contract STokens is ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
         return _reward;
     }
 
-    function calculatePendingRewards(address to) public whenNotPaused view returns (uint256 pendingRewards){
+    function calculatePendingRewards(address to) public view virtual override whenNotPaused returns (uint256 pendingRewards){
         // Get the current Block
         uint256 _currentBlock = block.number;
         // Get the time in number of blocks
@@ -98,7 +97,7 @@ contract STokens is ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
         return pendingRewards;
     }
 
-    function calculateRewards(address to) public whenNotPaused returns (bool success) {
+    function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
         require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
@@ -118,7 +117,19 @@ contract STokens is ERC20Upgradeable, OwnableUpgradeable, PausableUpgradeable {
     }
 
     //This function need to be called after deployment, only admin can call the same
-    function setLiquidStakingContractAddress(address liquidStakingContract) public whenNotPaused onlyOwner {
+    function setLiquidStakingContractAddress(address liquidStakingContract) public virtual override whenNotPaused{
         _liquidStakingContract = liquidStakingContract;
+    }
+
+    function pause() public virtual override returns (bool success) {
+        require(hasRole(PAUSER_ROLE, msg.sender), "STokens: User not authorised to pause contracts.");
+        _pause();
+        return true;
+    }
+
+    function unpause() public virtual override returns (bool success) {
+        require(hasRole(PAUSER_ROLE, msg.sender), "STokens: User not authorised to pause contracts.");
+        _unpause();
+        return true;
     }
 }
