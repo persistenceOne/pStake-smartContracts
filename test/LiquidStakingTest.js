@@ -3,6 +3,11 @@
 /* This unit test uses the OpenZeppelin test environment and OpenZeppelin test helpers,
 which we will be using for our unit testing. */
 
+const {web3} = require("@openzeppelin/test-helpers/src/setup");
+const {
+    deployProxy,
+} = require("@openzeppelin/truffle-upgrades");
+
 const {
   accounts,
   defaultSender,
@@ -16,16 +21,24 @@ const {
   expectRevert,
   balance,
 } = require("@openzeppelin/test-helpers");
+const { TestHelper } = require('zos');
+const { Contracts, ZWeb3 } = require('zos-lib');
+
+ZWeb3.initialize(web3.currentProvider);
 const { expect } = require("chai");
-const LiquidStaking = contract.fromArtifact("LiquidStaking");
-const sTokens = contract.fromArtifact("STokens");
-const uTokens = contract.fromArtifact("UTokens");
+const LiquidStaking = artifacts.require('LiquidStaking');
+const sTokens = artifacts.require('STokens');
+const uTokens = artifacts.require('UTokens');
+/*const LiquidStaking = Contracts.getFromLocal("LiquidStaking");
+const sTokens = Contracts.getFromLocal("STokens");
+const uTokens = Contracts.getFromLocal("UTokens");*/
 const toAtomAddress = "toAtomAddress"
 let to = accounts[3];
 let from = accounts[1];
 let anotherAccount = accounts[4];
 
 describe("Liquid Staking", function () {
+    this.timeout(0);
     let liquidStaking;
     let utokens;
     let stokens;
@@ -33,20 +46,52 @@ describe("Liquid Staking", function () {
     let amount = new BN(200);
     let val = new BN(50);
     let rate = 2;
-    beforeEach(async function () {
-        utokens = await uTokens.new({ from: from});
-        stokens = await sTokens.new(utokens.address, {from: from,});
-        liquidStaking = await LiquidStaking.new(utokens.address, stokens.address, {
+    beforeEach(async function (){
+        this.project = await TestHelper()
+
+        utokens = await deployProxy(uTokens, [], { initializer: 'initialize' });
+
+        stokens = await deployProxy(sTokens, [utokens.address], { initializer: 'initialize' });
+
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address], { initializer: 'initialize' });
+
+        /*utokens = await this.project.createProxy(uTokens, {
+            initMethod: 'initialize',
+            initArgs: [],
             from: from,
         });
-        await utokens.setSTokenContractAddress(stokens.address,{from: from,});
-        await utokens.setLiquidStakingContractAddress(liquidStaking.address,{from: from,});
-        await stokens.setUTokensContract(utokens.address,{from: from,});
-        await stokens.setLiquidStakingContractAddress(liquidStaking.address,{from: from,});
+        console.log("utokens" + utokens)
+
+        stokens = await this.project.createProxy(sTokens, {
+            initMethod: 'initialize',
+            initArgs: [utokens.address],
+            from: from,
+        });
+
+        liquidStaking = await this.project.createProxy(LiquidStaking, {
+            initMethod: 'initialize',
+            initArgs: [utokens.address, stokens.address],
+            from: from,
+        });*/
+        //utokens = await uTokens.initialize({ from: from});
+        /*stokens = await sTokens.initialize(utokens.address, {from: from,});
+        liquidStaking = await LiquidStaking.initialize(utokens.address, stokens.address, {
+            from: from,
+        });*/
+        console.log(utokens,"utokens")
+        console.log(stokens,"stokens")
+        console.log(liquidStaking,"liquidStaking")
+        await utokens.methods.setSTokenContractAddress(stokens.address).send({from: from,});
+        await utokens.methods.setLiquidStakingContractAddress(liquidStaking.address).send({from: from,});
+        await stokens.methods.setUTokensContract(utokens.address).send({from: from,});
+        await stokens.methods.setLiquidStakingContractAddress(liquidStaking.address).send({from: from,});
     });
     describe("uTokens", function () {
         it('Only owner can mint new uTokens for a user.', async function () {
-            let generate = await liquidStaking.generateUTokens(to,amount,{from: from,});
+            console.log(utokens+"utokens")
+            console.log(stokens+"stokens")
+            console.log(liquidStaking+"liquidStaking")
+            let generate = await liquidStaking.methods.generateUTokens(to,amount).send({from: from,});
             let balance = await utokens.balanceOf(to);
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
@@ -65,7 +110,7 @@ describe("Liquid Staking", function () {
         });
     });
 
-    describe("sTokens", function () {
+    /*describe("sTokens", function () {
         it('Only Staker can mint new sTokens', async function () {
             let generate = await liquidStaking.generateUTokens(to,amount,{from: from,});
             let balance = await utokens.balanceOf(to);
@@ -552,5 +597,5 @@ describe("Liquid Staking", function () {
                 await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
             },2000000);
         });
-    });
+    });*/
 }); // DESCRIBE END
