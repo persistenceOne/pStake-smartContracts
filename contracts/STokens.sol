@@ -15,6 +15,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     address private _liquidStakingContract;
+    address private _pegTokensContract;
 
     //Private instance of contract to handle Utokens
     IUTokens private _uTokens;
@@ -118,6 +119,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     //This function need to be called after deployment, only admin can call the same
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused{
         _liquidStakingContract = liquidStakingContract;
+    }
+
+    function setPegTokensContractAddress(address pegTokensContract) public virtual override whenNotPaused {
+        _pegTokensContract = pegTokensContract;
     }
 
     function pause() public virtual override returns (bool success) {

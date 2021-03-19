@@ -6,19 +6,6 @@ pragma solidity ^0.7.0;
  */
 interface ILiquidStaking {
 
-    /**
-     * @dev Generates `amount` tokens to the caller's address `to`.
-     *
-     * Emits a {GenerateUTokens} event.
-     */
-    function generateUTokens(address to, uint256 amount) external;
-
-    /**
-     * @dev Withdraws `amount` tokens to the caller's address `to`.
-     *
-     * Emits a {WithdrawUTokens} event.
-     */
-    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) external;
 
     /**
      *  @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
@@ -65,6 +52,12 @@ interface ILiquidStaking {
     function setSTokensContract(address sAddress) external;
 
     /**
+    * @dev Set PegTokens smart contract.
+    * Emits a {SetContract} event.
+    */
+    function setPegTokensContract(address ptAddress) external;
+
+    /**
      * @dev Pause smart contracts
      *
      * Returns a boolean value indicating whether the operation succeeded.
@@ -85,17 +78,17 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when contract addresses are set
     */
-    event SetContract( address indexed _contract );
+    event SetUTokensContract( address indexed _contract );
 
     /**
-    * @dev Emitted when uTokens are generated
+    * @dev Emitted when contract addresses are set
     */
-    event GenerateUTokens(address indexed to, uint256 tokens, uint256 timestamp);
+    event SetSTokensContract( address indexed _contract );
 
     /**
-    * @dev Emitted when UTokens are withdrawn
+    * @dev Emitted when contract addresses are set
     */
-    event WithdrawUTokens(address indexed from, uint256 tokens, string toAtomAddress, uint256 timestamp);
+    event SetPegTokensContract( address indexed _contract );
 
     /**
     * @dev Emitted when uTokens are staked

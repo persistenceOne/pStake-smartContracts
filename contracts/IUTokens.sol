@@ -28,21 +28,18 @@ interface IUTokens is IERC20Upgradeable {
 
     /**
     * @dev Set LiquidStaking smart contract.
-    *
-    * Returns a boolean value indicating whether the operation succeeded.
-    *
-    * Emits a {Transfer} event.
     */
     function setLiquidStakingContractAddress(address liquidStakingContract) external;
 
     /**
      * @dev Set STokens smart contract.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Transfer} event.
      */
     function setSTokenContractAddress(address stokenContract) external;
+
+    /**
+     * @dev Set PegTokens smart contract.
+     */
+    function setPegTokensContractAddress(address pegTokensContract) external;
 
     /**
      * @dev Pause smart contracts

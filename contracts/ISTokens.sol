@@ -59,7 +59,6 @@ interface ISTokens is IERC20Upgradeable {
 
     /**
     * @dev Set LiquidStaking smart contract.
-    * Emits a {SetContract} event.
     */
     function setLiquidStakingContract(address liquidStakingContract) external;
 
@@ -70,6 +69,11 @@ interface ISTokens is IERC20Upgradeable {
      * Emits a {SetContract} event.
      */
     function setUTokensContract(address utokenContract) external;
+
+    /**
+     * @dev Set PegTokens smart contract.
+     */
+    function setPegTokensContractAddress(address pegTokensContract) external;
 
     /**
      * @dev Pause smart contracts

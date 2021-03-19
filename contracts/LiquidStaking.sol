@@ -7,6 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "./ISTokens.sol";
 import "./IUTokens.sol";
 import "./ILiquidStaking.sol";
+import "./IPegTokens.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -15,6 +16,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
     ISTokens private _sTokens;
+    IPegTokens private _pTokens;
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -34,13 +36,14 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * Both contract addresses are immutable: they can only be set once during
      * construction.
      */
-    function initialize(address uAddress, address sAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address ptAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __AccessControl_init_unchained();
         __Pausable_init();
         __Pausable_init_unchained();
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
+        setPegTokensContract(ptAddress);
         _unstakinglockTime = 21 days;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
@@ -70,44 +73,16 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
     }
-
-    /**
-     * @dev Mint new utokens for the provided 'address' and 'amount'
-     * @param to: account address, amount: number of tokens
-     *
-     * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
-     *
-     * Requirements:
-     *
-     * - `amount` cannot be less than zero.
-     *
-     */
-    function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "LiquidStaking: Number of tokens should be greater than 0");
-        require(hasRole(BRIDGE_ADMIN_ROLE, msg.sender), "LiquidStaking: Only bridge admin can mint new tokens for a user");
-        emit GenerateUTokens(to, amount, block.timestamp);
-        _uTokens.mint(to, amount);
-    }
-
-    /**
-     * @dev Burn utokens for the provided 'address' and 'amount'
-     * @param from: account address, tokens: number of tokens, toAtomAddress: atom wallet address
-     *
-     * Emits a {BurnTokens} event with 'from' set to address and 'tokens' set to amount of tokens.
-     *
-     * Requirements:
-     *
-     * - `tokens` cannot be less than zero.
-     *
-     */
-    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public virtual override whenNotPaused {
-        require(tokens>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
-        //require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Wihdraw can only be done by Staker");
-        uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
-        require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
-        require(from == _msgSender(), "LiquidStaking: Withdraw can only be done by Staker");
-        _uTokens.burn(from, tokens);
-        emit WithdrawUTokens(from, tokens, toAtomAddress, block.timestamp);
+    /*
+    * @dev Set 'contract address', called from constructor
+    * @param sAddress: stoken contract address
+    *
+    * Emits a {SetContract} event with '_contract' set to the stoken contract address.
+    *
+    */
+    function setPegTokensContract(address ptAddress) public virtual override whenNotPaused {
+        _pTokens = IPegTokens(ptAddress);
+        emit SetPegTokensContract(ptAddress);
     }
 
     /**
