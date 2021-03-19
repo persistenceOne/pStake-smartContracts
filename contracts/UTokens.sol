@@ -16,7 +16,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
 
     address private _stokenContract;
     address private _liquidStakingContract;
-    address private _pegTokensContract;
+    address private _wrapperContract;
 
     function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
         __ERC20_init("pSTAKE Unstaked ATOM", "ustkATOM");
@@ -29,28 +29,31 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     }
 
     function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _pegTokensContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
     }
 
     function burn(address from, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _pegTokensContract), "UTokens: User not authorised to burn UTokens");
+        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
         _burn(from, tokens);
         return true;
     }
 
     //These functions need to be called after deployment, only admin can call the same
-    function setSTokenContractAddress(address stokenContract) public virtual override whenNotPaused {
+    function setSTokenContract(address stokenContract) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set SToken contract");
         _stokenContract = stokenContract;
     }
 
-    function setLiquidStakingContractAddress(address liquidStakingContract) public virtual override whenNotPaused {
+    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
     }
 
-    function setPegTokensContractAddress(address pegTokensContract) public virtual override whenNotPaused {
-        _pegTokensContract = pegTokensContract;
+    function setWrapperContract(address wrapperTokensContract) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set wrapper contract");
+        _wrapperContract = wrapperTokensContract;
     }
 
     function pause() public virtual override returns (bool success) {
@@ -60,7 +63,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     }
 
     function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to unpause contracts.");
         _unpause();
         return true;
     }

@@ -29,17 +29,17 @@ interface IUTokens is IERC20Upgradeable {
     /**
     * @dev Set LiquidStaking smart contract.
     */
-    function setLiquidStakingContractAddress(address liquidStakingContract) external;
+    function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Set STokens smart contract.
      */
-    function setSTokenContractAddress(address stokenContract) external;
+    function setSTokenContract(address stokenContract) external;
 
     /**
      * @dev Set PegTokens smart contract.
      */
-    function setPegTokensContractAddress(address pegTokensContract) external;
+    function setWrapperContract(address wrapperTokensContract) external;
 
     /**
      * @dev Pause smart contracts

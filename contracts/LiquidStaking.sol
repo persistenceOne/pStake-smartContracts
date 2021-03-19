@@ -16,7 +16,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
     ISTokens private _sTokens;
-    ITokenWrapper private _pTokens;
+    ITokenWrapper private _tokenWrapper;
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -36,14 +36,14 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * Both contract addresses are immutable: they can only be set once during
      * construction.
      */
-    function initialize(address uAddress, address sAddress, address ptAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address wrapperAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __AccessControl_init_unchained();
         __Pausable_init();
         __Pausable_init_unchained();
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
-        setPegTokensContract(ptAddress);
+        setWrapperContract(wrapperAddress);
         _unstakinglockTime = 21 days;
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
@@ -58,6 +58,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      *
      */
     function setUTokensContract(address uAddress) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
     }
@@ -70,6 +71,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      *
      */
     function setSTokensContract(address sAddress) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set SToken contract");
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
     }
@@ -80,9 +82,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     * Emits a {SetContract} event with '_contract' set to the stoken contract address.
     *
     */
-    function setPegTokensContract(address ptAddress) public virtual override whenNotPaused {
-        _pTokens = ITokenWrapper(ptAddress);
-        emit SetPegTokensContract(ptAddress);
+    function setWrapperContract(address wrapperAddress) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set wrapper contract");
+        _tokenWrapper = ITokenWrapper(wrapperAddress);
+        emit SetWrapperContract(wrapperAddress);
     }
 
     /**
@@ -125,7 +128,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function unStake(address to, uint256 stok) public virtual override whenNotPaused returns(bool) {
         // Check the supplied amount is greater than 0
-        //   require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Unstaking can only be done by Staker");
+        require(to == _msgSender(), "LiquidStaking: Unstaking can only be done by Stakerr");
         require(stok>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
@@ -179,7 +182,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     }
 
     function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "LiquidStaking: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "LiquidStaking: User not authorised to unpause contracts.");
         _unpause();
         return true;
     }

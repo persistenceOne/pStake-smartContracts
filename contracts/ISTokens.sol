@@ -71,9 +71,9 @@ interface ISTokens is IERC20Upgradeable {
     function setUTokensContract(address utokenContract) external;
 
     /**
-     * @dev Set PegTokens smart contract.
+     * @dev Set Wrapper smart contract.
      */
-    function setPegTokensContractAddress(address pegTokensContract) external;
+    function setWrapperContract(address wrapperContract) external;
 
     /**
      * @dev Pause smart contracts

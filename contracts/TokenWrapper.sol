@@ -34,6 +34,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     function setUTokensContract(address uAddress) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetContract(uAddress);
     }
@@ -46,6 +47,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setSTokensContract(address sAddress) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set SToken contract");
         _sTokens = ISTokens(sAddress);
         emit SetContract(sAddress);
     }
@@ -58,17 +60,18 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set LiquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
     }
 
     function pause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to pause contracts");
         _pause();
         return true;
     }
 
     function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to unpause contracts");
         _unpause();
         return true;
     }
@@ -85,8 +88,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "LiquidStaking: Number of tokens should be greater than 0");
-        // require(_msgSender == owner(), "LiquidStaking: Only owner can mint new tokens for a user");
+        require(amount>0, "TokenWrapper: Number of tokens should be greater than 0");
+        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TokenWrapper: Only bridge admin can mint new tokens for a user");
         emit GenerateUTokens(to, amount, block.timestamp);
         _uTokens.mint(to, amount);
     }
@@ -103,11 +106,10 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public virtual override whenNotPaused {
-        require(tokens>0, "LiquidStaking: Number of unstaked tokens should be greater than 0");
-        // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Wihdraw can only be done by Staker");
+        require(tokens>0, "TokenWrapper: Number of unstaked tokens should be greater than 0");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
-        require(_currentUTokenBalance>=tokens, "LiquidStaking: Insuffcient balance for account");
-        require(from == _msgSender(), "LiquidStaking: Withdraw can only be done by Staker");
+        require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
+        require(from == _msgSender(), "TokenWrapper: Withdraw can only be done by Staker");
         _uTokens.burn(from, tokens);
         emit WithdrawUTokens(from, tokens, toAtomAddress, block.timestamp);
     }

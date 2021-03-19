@@ -15,7 +15,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     address private _liquidStakingContract;
-    address private _pegTokensContract;
+    address private _wrapperContract;
 
     //Private instance of contract to handle Utokens
     IUTokens private _uTokens;
@@ -36,11 +36,13 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     function setUTokensContract(address uTokenContract) public virtual override whenNotPaused{
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set UToken contract address");
         _uTokens = IUTokens(uTokenContract);
         emit SetContract(uTokenContract);
     }
 
     function setRewardRate(uint256 rate) public virtual override whenNotPaused returns (bool success) {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set reward rate");
         _rewardRate = rate;
         return true;
     }
@@ -118,11 +120,13 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
     //This function need to be called after deployment, only admin can call the same
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused{
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
     }
 
-    function setPegTokensContractAddress(address pegTokensContract) public virtual override whenNotPaused {
-        _pegTokensContract = pegTokensContract;
+    function setWrapperContract(address wrapperContract) public virtual override whenNotPaused {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set wrapper contract");
+        _wrapperContract = wrapperContract;
     }
 
     function pause() public virtual override returns (bool success) {
@@ -132,7 +136,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to unpause contracts.");
         _unpause();
         return true;
     }

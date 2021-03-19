@@ -55,7 +55,7 @@ interface ILiquidStaking {
     * @dev Set PegTokens smart contract.
     * Emits a {SetContract} event.
     */
-    function setPegTokensContract(address ptAddress) external;
+    function setWrapperContract(address wrapperAddress) external;
 
     /**
      * @dev Pause smart contracts
@@ -88,7 +88,7 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when contract addresses are set
     */
-    event SetPegTokensContract( address indexed _contract );
+    event SetWrapperContract( address indexed _contract );
 
     /**
     * @dev Emitted when uTokens are staked
