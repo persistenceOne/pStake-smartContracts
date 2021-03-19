@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "./ISTokens.sol";
 import "./IUTokens.sol";
 import "./ILiquidStaking.sol";
-import "./IPegTokens.sol";
+import "./ITokenWrapper.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -16,7 +16,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
     ISTokens private _sTokens;
-    IPegTokens private _pTokens;
+    ITokenWrapper private _pTokens;
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -45,7 +45,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         setSTokensContract(sAddress);
         setPegTokensContract(ptAddress);
         _unstakinglockTime = 21 days;
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
     }
@@ -81,7 +81,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     *
     */
     function setPegTokensContract(address ptAddress) public virtual override whenNotPaused {
-        _pTokens = IPegTokens(ptAddress);
+        _pTokens = ITokenWrapper(ptAddress);
         emit SetPegTokensContract(ptAddress);
     }
 
@@ -158,7 +158,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         }
         require(_withdrawBalance > 0, "LiquidStaking: UnStaking period still pending");
         emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
-        _uTokens.mint(msg.sender, _withdrawBalance);
+        _uTokens.mint(_msgSender(), _withdrawBalance);
     }
 
     function getTotalUnbondedTokens(address staker) public view virtual override whenNotPaused returns (uint256 unbondingTokens) {
