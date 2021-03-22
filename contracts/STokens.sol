@@ -30,9 +30,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
+        setUTokensContract(uaddress);
         _rewardRate = 1;
         _setupDecimals(6);
-        setUTokensContract(uaddress);
     }
 
     function setUTokensContract(address uTokenContract) public virtual override whenNotPaused{
