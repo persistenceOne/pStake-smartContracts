@@ -38,92 +38,96 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     " accounts: ",
     accounts
   );
-  await deployProxy(UTokensArtifact, [accounts[0], accounts[0]], { deployer, initializer: 'initialize' })
+    let defaultAdmin = accounts[0];
+    let bridgeAdmin = accounts[1];
+    let pauseAdmin = accounts[2];
+
+  await deployProxy(UTokensArtifact, [bridgeAdmin, pauseAdmin], { deployer, initializer: 'initialize' })
   .then(async function (instance) {
     UTokensInstance = instance;
-   // console.log("UTokens deployed: ", UTokensInstance.address);
-    return await deployProxy(STokensArtifact, [UTokensInstance.address, accounts[0]], { deployer, initializer: 'initialize' });
+   console.log("UTokens deployed: ", UTokensInstance.address);
+    return await deployProxy(STokensArtifact, [UTokensInstance.address, pauseAdmin], { deployer, initializer: 'initialize' });
   })
   .then(async function (instance2) {
     STokensInstance = instance2;
-    // console.log("STokens deployed: ", STokensInstance.address);
-    // console.log("UTokens address: ", UTokensInstance.address);
-    return await deployProxy(TokenWrapperArtifact, [UTokensInstance.address, STokensInstance.address, accounts[0], accounts[0]], { deployer, initializer: 'initialize' });
+    console.log("STokens deployed: ", STokensInstance.address);
+    console.log("UTokens address: ", UTokensInstance.address);
+    return await deployProxy(TokenWrapperArtifact, [UTokensInstance.address, STokensInstance.address, bridgeAdmin, pauseAdmin], { deployer, initializer: 'initialize' });
   })
   .then(async function (instance3) {
     TokenWrapperInstance = instance3;
-    // console.log("STokens deployed: ", STokensInstance.address);
-    // console.log("UTokens address: ", UTokensInstance.address);
-    return await deployProxy(LiquidStakingArtifact, [UTokensInstance.address,STokensInstance.address, TokenWrapperInstance.address, accounts[0], accounts[0]], { deployer, initializer: 'initialize' });
+    console.log("STokens deployed: ", STokensInstance.address);
+    console.log("UTokens address: ", UTokensInstance.address);
+    return await deployProxy(LiquidStakingArtifact, [UTokensInstance.address,STokensInstance.address, TokenWrapperInstance.address, bridgeAdmin, pauseAdmin], { deployer, initializer: 'initialize' });
   })
   .then(function (instance4) {
     LiquidStakingInstance = instance4;
-   // console.log("LiquidStaking deployed: ", instance4.address);
+   console.log("LiquidStaking deployed: ", instance4.address);
     return UTokensInstance.setSTokenContract(
         STokensInstance.address,
         {
-          from: accounts[0],
+          from: defaultAdmin,
           gasPrice: gasPrice,
           gas: gasLimit,
         }
     );
   })
   .then(function (txReceipt) {
-    //console.log("setWrapperContract() set for UTokens contract.");
+    console.log("setWrapperContract() set for UTokens contract.");
     return UTokensInstance.setWrapperContract(
         TokenWrapperInstance.address,
         {
-          from: accounts[0],
+          from: defaultAdmin,
           gasPrice: gasPrice,
           gas: gasLimit,
         }
     );
   })
   .then(function (txReceipt) {
-    //console.log("setSTokenContract() set for UTokens contract.");
+    console.log("setSTokenContract() set for UTokens contract.");
     return UTokensInstance.setLiquidStakingContract(
         LiquidStakingInstance.address,
         {
-          from: accounts[0],
+          from: defaultAdmin,
           gasPrice: gasPrice,
           gas: gasLimit,
         }
     );
   })
   .then(function (txReceipt) {
-    //console.log("setWrapperContract() set for UTokens contract.");
+    console.log("setWrapperContract() set for UTokens contract.");
     return STokensInstance.setWrapperContract(
         TokenWrapperInstance.address,
         {
-          from: accounts[0],
+          from: defaultAdmin,
           gasPrice: gasPrice,
           gas: gasLimit,
         }
     );
   })
   .then(function (txReceipt) {
-    /*console.log(
+    console.log(
         "setLiquidStakingContract() set for UTokens contract."
-    );*/
+    );
 
     return STokensInstance.setLiquidStakingContract(
         LiquidStakingInstance.address,
         {
-          from: accounts[0],
+          from: defaultAdmin,
           gasPrice: gasPrice,
           gas: gasLimit,
         }
     );
   })
   .then(function (txReceipt) {
-    // console.log(
-    //     "setLiquidStakingContract() set for Wrapper contract."
-    // );
+    console.log(
+        "setLiquidStakingContract() set for Wrapper contract."
+    );
 
     return TokenWrapperInstance.setLiquidStakingContract(
         LiquidStakingInstance.address,
         {
-          from: accounts[0],
+          from: defaultAdmin,
           gasPrice: gasPrice,
           gas: gasLimit,
         }
@@ -131,88 +135,12 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
 
   })
   .then(function (txReceipt) {
-    // console.log(
-    //     "setLiquidStakingContract() set for STokens contract."
-    // );
+    console.log(
+        "setLiquidStakingContract() set for STokens contract."
+    );
     console.log("ALL DONE.");
   })
   .catch(function (e) {
     console.error(e);
   });
-
-
-
-
-  /*deployer
-    .deploy(UTokensArtifact, {
-      from: accounts[0],
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    })
-    .then(function (instance) {
-      UTokensInstance = instance;
-      console.log("UTokens deployed: ", UTokensInstance.address);
-      return deployer.deploy(STokensArtifact, UTokensInstance.address, {
-        from: accounts[0],
-        gasPrice: gasPrice,
-        gas: gasLimit,
-      });
-    })
-    .then(function (instance2) {
-      STokensInstance = instance2;
-      console.log("STokens deployed: ", STokensInstance.address);
-      console.log("UTokens address: ", UTokensInstance.address);
-      return deployer.deploy(
-        LiquidStakingArtifact,
-        UTokensInstance.address,
-        STokensInstance.address,
-        {
-          from: accounts[0],
-          gasPrice: gasPrice,
-          gas: gasLimit,
-        }
-      );
-    })
-    .then(function (instance3) {
-      LiquidStakingInstance = instance3;
-      console.log("LiquidStaking deployed: ", instance3.address);
-      return UTokensInstance.setSTokenContract(STokensInstance.address, {
-        from: accounts[0],
-        gasPrice: gasPrice,
-        gas: gasLimit,
-      });
-    })
-    .then(function (txReceipt) {
-      console.log("setSTokenContract() set for UTokens contract.");
-      return UTokensInstance.setLiquidStakingContract(
-        LiquidStakingInstance.address,
-        {
-          from: accounts[0],
-          gasPrice: gasPrice,
-          gas: gasLimit,
-        }
-      );
-    })
-    .then(function (txReceipt) {
-      console.log(
-        "setLiquidStakingContract() set for UTokens contract."
-      );
-      return STokensInstance.setLiquidStakingContract(
-        LiquidStakingInstance.address,
-        {
-          from: accounts[0],
-          gasPrice: gasPrice,
-          gas: gasLimit,
-        }
-      );
-    })
-    .then(function (txReceipt) {
-      console.log(
-        "setLiquidStakingContract() set for STokens contract."
-      );
-      console.log("ALL DONE.");
-    })
-    .catch(function (e) {
-      console.error(e);
-    });*/
 }
