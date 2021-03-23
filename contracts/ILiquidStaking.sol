@@ -93,15 +93,15 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when uTokens are staked
     */
-    event StakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
+    event StakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 
     /**
     * @dev Emitted when sTokens are unstaked
     */
-    event UnstakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
+    event UnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 
     /**
     * @dev Emitted when unstaked tokens are withdrawn
     */
-    event WithdrawUnstakeTokens(address indexed staker, uint256 tokens, uint256 timestamp);
+    event WithdrawUnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 }
