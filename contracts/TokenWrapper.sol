@@ -23,14 +23,12 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     function initialize(address uAddress, address sAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
          __AccessControl_init();
-         __AccessControl_init_unchained();
         __Pausable_init();
-        __Pausable_init_unchained();
-        setUTokensContract(uAddress);
-        setSTokensContract(sAddress);
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
+        setUTokensContract(uAddress);
+        setSTokensContract(sAddress);
     }
 
     function setUTokensContract(address uAddress) public virtual override whenNotPaused {

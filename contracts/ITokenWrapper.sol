@@ -63,12 +63,12 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when uTokens are generated
     */
-    event GenerateUTokens(address indexed to, uint256 tokens, uint256 timestamp);
+    event GenerateUTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 
     /**
     * @dev Emitted when UTokens are withdrawn
     */
-    event WithdrawUTokens(address indexed from, uint256 tokens, string toAtomAddress, uint256 timestamp);
+    event WithdrawUTokens(address indexed accountAddress, uint256 tokens, string toAtomAddress, uint256 timestamp);
 
     /**
       * @dev Emitted when contract addresses are set

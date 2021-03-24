@@ -30,12 +30,12 @@ const LiquidStaking = artifacts.require('LiquidStaking');
 const TokenWrapper = artifacts.require('TokenWrapper');
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
-const toAtomAddress = "toAtomAddress"
-let to = "0x648c7358aF9d5208168a62571089aBb0DBc64B07";
-//let from = accounts[0];
-let from = "0x64D7AD9B8b450c1De16e7cD822283Dae5970e97A";
-let anotherAccount = "0x3c452EC096F015569E7E75BE7D68C46AD271591C";
-let owner = accounts[0]
+
+let defaultAdmin = "0x1a79BdaC24d3506E3d3944F7f529DEE6e7a14c60";
+let bridgeAdmin = "0x9891B80b44e295374C2cbDa2F4791fa50EB987be";
+let pauseAdmin = "0xcC349258560870e97a49848b2B722EBa908913F2";
+let to = "0xBbD167f5D7301562A5F2373Fe08a8327EC3B5Dd6";
+let unknownAddress = "0x4869120851d5fA8eE58bd0C64A1D71400a21d23c";
 
 describe("Token Wrapper", function () {
     this.timeout(0);
@@ -50,40 +50,40 @@ describe("Token Wrapper", function () {
     beforeEach(async function () {
         this.project = await TestHelper()
 
-        utokens = await deployProxy(uTokens, [from, from], {initializer: 'initialize'});
+        utokens = await deployProxy(uTokens, [bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        stokens = await deployProxy(sTokens, [utokens.address, from], {initializer: 'initialize'});
+        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin], { initializer: 'initialize' });
 
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, stokens.address, from, from], {initializer: 'initialize'});
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, stokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, from, from], {initializer: 'initialize'});
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        await utokens.setSTokenContract(stokens.address, {from: from})
-        await utokens.setWrapperContract(tokenWrapper.address, {from: from})
-        await utokens.setLiquidStakingContract(liquidStaking.address, {from: from})
+        await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
+        await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
+        await utokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await stokens.setWrapperContract(tokenWrapper.address, {from: from})
-        await stokens.setLiquidStakingContract(liquidStaking.address, {from: from})
+        await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
+        await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await tokenWrapper.setLiquidStakingContract(liquidStaking.address, {from: from})
+        await tokenWrapper.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
     });
 
     describe("Set smart contract address", function () {
 
         it("Set liquidStaking contract address: ", async function () {
-            await stokens.setLiquidStakingContract(liquidStaking.address,{from: from,});
+            await tokenWrapper.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin,});
             // TEST SCENARIO END
         }, 200000);
 
-        it("Non owner can set liquidStaking contract address: ", async function () {
-            await expectRevert(stokens.setLiquidStakingContract(liquidStaking.address,{from: to,}), "TokenWrapper: User not authorised to set LiquidStaking contract");
+        it("Non owner cannot set liquidStaking contract address: ", async function () {
+            await expectRevert(tokenWrapper.setLiquidStakingContract(liquidStaking.address,{from: unknownAddress,}), "TokenWrapper: User not authorised to set LiquidStaking contract");
             // TEST SCENARIO END
         }, 200000);
     });
 
     describe("uTokens", function () {
         it('Only bridge admin can mint new uTokens for a user.', async function () {
-            let generate = await tokenWrapper.generateUTokens(to, amount, {from: from,});
+            let generate = await tokenWrapper.generateUTokens(to, amount, {from: bridgeAdmin,});
             let balance = await utokens.balanceOf(to);
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
@@ -94,44 +94,44 @@ describe("Token Wrapper", function () {
 
         it('Number of tokens should be greater than 0', async function () {
             let val = new BN(0);
-            await expectRevert(tokenWrapper.generateUTokens(to, val, {from: from,}), "TokenWrapper: Number of tokens should be greater than 0");
+            await expectRevert(tokenWrapper.generateUTokens(to, val, {from: bridgeAdmin,}), "TokenWrapper: Number of tokens should be greater than 0");
         });
 
         it('Non bridge admin cannot mint new tokens for a user', async function () {
-            await expectRevert(tokenWrapper.generateUTokens(to, amount, {from: anotherAccount,}), "TokenWrapper: Only bridge admin can mint new tokens for a user");
+            await expectRevert(tokenWrapper.generateUTokens(to, amount, {from: unknownAddress,}), "TokenWrapper: Only bridge admin can mint new tokens for a user");
         });
     });
 
     describe("Pausable", function () {
         it('Only pauser admin can pause contracts', async function () {
-            await tokenWrapper.pause({from: from,});
+            await tokenWrapper.pause({from: pauseAdmin,});
             let checkPause = await tokenWrapper.paused();
             expect(checkPause === true)
         });
 
         it('Non pauser admin cannot pause contracts', async function () {
-            await expectRevert(tokenWrapper.pause({from: to,}), "TokenWrapper: User not authorised to pause contracts");
+            await expectRevert(tokenWrapper.pause({from: unknownAddress,}), "TokenWrapper: User not authorised to pause contracts");
         });
 
         it('Transactions could not be sent to paused contracts', async function () {
-            await tokenWrapper.pause({from: from,});
+            await tokenWrapper.pause({from: pauseAdmin,});
             let checkPause = await tokenWrapper.paused();
             expect(checkPause === false)
-            await expectRevert(tokenWrapper.generateUTokens(to, val, {from: from,}), "Pausable: paused");
+            await expectRevert(tokenWrapper.generateUTokens(to, val, {from: bridgeAdmin,}), "Pausable: paused");
         });
 
         it('Only pauser admin can unpause contracts', async function () {
-            await tokenWrapper.pause({from: from,});
+            await tokenWrapper.pause({from: pauseAdmin,});
             let checkPause = await tokenWrapper.paused();
             expect(checkPause === true)
 
-            await tokenWrapper.unpause({from: from,});
+            await tokenWrapper.unpause({from: pauseAdmin,});
             checkPause = await tokenWrapper.paused();
             expect(checkPause === false)
         });
 
         it('Non pauser admin cannot unpause contracts', async function () {
-            await expectRevert(tokenWrapper.unpause({from: to,}), "TokenWrapper: User not authorised to unpause contracts");
+            await expectRevert(tokenWrapper.unpause({from: unknownAddress,}), "TokenWrapper: User not authorised to unpause contracts");
         });
     });
 });

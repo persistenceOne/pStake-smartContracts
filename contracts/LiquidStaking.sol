@@ -38,16 +38,14 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function initialize(address uAddress, address sAddress, address wrapperAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
-        __AccessControl_init_unchained();
         __Pausable_init();
-        __Pausable_init_unchained();
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
+        _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
         setWrapperContract(wrapperAddress);
         _unstakinglockTime = 21 days;
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
-        _setupRole(PAUSER_ROLE, pauserAddress);
     }
 
     /**
