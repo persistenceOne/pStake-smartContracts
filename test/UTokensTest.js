@@ -24,11 +24,11 @@ const TokenWrapper = artifacts.require('TokenWrapper');
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
-let defaultAdmin = "0x1a79BdaC24d3506E3d3944F7f529DEE6e7a14c60";
-let bridgeAdmin = "0x9891B80b44e295374C2cbDa2F4791fa50EB987be";
-let pauseAdmin = "0xcC349258560870e97a49848b2B722EBa908913F2";
-let to = "0xBbD167f5D7301562A5F2373Fe08a8327EC3B5Dd6";
-let unknownAddress = "0x4869120851d5fA8eE58bd0C64A1D71400a21d23c";
+let defaultAdmin = "0x45fD163832c0F3Bb67f17685A291697d08C9c252";
+let bridgeAdmin = "0x65aa7409C43f8361440B2EC0dA4e1cc0670C9de8";
+let pauseAdmin = "0x26229886F35D551745C227D663F58284D6E082e6";
+let to = "0x4DB38b4a13Cc484965e1EEA8AF597427A44f8145";
+let unknownAddress = "0xb05CCF5775343A2576a852c534Cf55E24E283882";
 
 describe('UTokens', () => {
     let amount = new BN(200);
