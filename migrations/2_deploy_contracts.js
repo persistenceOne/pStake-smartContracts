@@ -12,7 +12,7 @@ var UTokensInstance,
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
     let gasPriceGanache = 3e10;
-    let gasLimitGanache = 8000000;
+    let gasLimitGanache = 800000;
     await deployAll(gasPriceGanache, gasLimitGanache, deployer, accounts);
   }
 
@@ -44,6 +44,8 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   let defaultAdmin = accounts[0];
   let bridgeAdmin = accounts[1];
   let pauseAdmin = accounts[2];
+
+  console.log(bridgeAdmin, "bridgeAdmin")
 
   UTokensInstance = await deployProxy(
     UTokensArtifact,
