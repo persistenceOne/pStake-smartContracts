@@ -1,13 +1,13 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "./ISTokens.sol";
-import "./IUTokens.sol";
-import "./ILiquidStaking.sol";
-import "./ITokenWrapper.sol";
+import "./interfaces/ISTokens.sol";
+import "./interfaces/IUTokens.sol";
+import "./interfaces/ILiquidStaking.sol";
+import "./interfaces/ITokenWrapper.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -30,12 +30,13 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     mapping(address => uint256[]) _unstakingAmount;
 
     /**
-     * @dev Sets the values for {utoken contract address} and {stoken contract address}
-     * @param uAddress: utoken address, sAddress: stoken address
-     *
-     * Both contract addresses are immutable: they can only be set once during
-     * construction.
-     */
+   * @dev Constructor for initializing the LiquidStaking contract.
+   * @param uAddress - address of the UToken contract.
+   * @param sAddress - address of the SToken contract.
+   * @param wrapperAddress - address of the tokenWrapper contract.
+   * @param bridgeAdminAddress - address of the bridge admin.
+   * @param pauserAddress - address of the pauser admin.
+   */
     function initialize(address uAddress, address sAddress, address wrapperAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
@@ -162,6 +163,11 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         _uTokens.mint(_msgSender(), _withdrawBalance);
     }
 
+    /**
+     * @dev get Total Unbonded Tokens
+     * @param staker: account address
+     *
+     */
     function getTotalUnbondedTokens(address staker) public view virtual override whenNotPaused returns (uint256 unbondingTokens) {
         if(staker == _msgSender()){
             for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
@@ -173,12 +179,26 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         return unbondingTokens;
     }
 
+    /**
+      * @dev Triggers stopped state.
+      *
+      * Requirements:
+      *
+      * - The contract must not be paused.
+      */
     function pause() public virtual override returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "LiquidStaking: User not authorised to pause contracts.");
         _pause();
         return true;
     }
 
+    /**
+     * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
     function unpause() public virtual override returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "LiquidStaking: User not authorised to unpause contracts.");
         _unpause();
