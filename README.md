@@ -11,6 +11,6 @@ This contract is used for minting and burning stkTokens for which the liquid sta
 This contract is used for staking, unstaking and withdrawal of unbonded tokens. On staking request, the ustkTokens are converted to stkTokens which start accruing returns. Also unstaking operation initiates a withdrawal delay of certain days, after which the ustkTokens can be redeemed back using withdraw unbonding tokens action. 
 
 ## TokenWrapper Contract
-This contract is used for deposit and withdraw operations of ustkTokens. This enables transfer of value between two blockchains when the protocol token is converted to its pegged representative or vice versa. 
+This contract is used for deposit and withdraw operations of ustkTokens. This enables transfer of value between two blockchains when the protocol token is converted to its pegged representative or vice versa. The contract contains functions for generating and withdrawing uTokens 
 
 
