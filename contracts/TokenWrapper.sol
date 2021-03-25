@@ -1,12 +1,12 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./ISTokens.sol";
-import "./IUTokens.sol";
-import "./ITokenWrapper.sol";
+import "./interfaces/ISTokens.sol";
+import "./interfaces/IUTokens.sol";
+import "./interfaces/ITokenWrapper.sol";
 
 contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -21,6 +21,13 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
+    /**
+   * @dev Constructor for initializing the TokenWrapper contract.
+   * @param uAddress - address of the UToken contract.
+   * @param sAddress - address of the SToken contract.
+   * @param bridgeAdminAddress - address of the bridge admin.
+   * @param pauserAddress - address of the pauser admin.
+   */
     function initialize(address uAddress, address sAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
          __AccessControl_init();
         __Pausable_init();
@@ -31,6 +38,13 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         setSTokensContract(sAddress);
     }
 
+    /*
+     * @dev Set 'contract address', called from constructor
+     * @param uAddress: utoken contract address
+     *
+     * Emits a {SetContract} event with '_contract' set to the utoken contract address.
+     *
+     */
     function setUTokensContract(address uAddress) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
@@ -62,12 +76,26 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         _liquidStakingContract = liquidStakingContract;
     }
 
+    /**
+      * @dev Triggers stopped state.
+      *
+      * Requirements:
+      *
+      * - The contract must not be paused.
+      */
     function pause() public virtual override returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to pause contracts");
         _pause();
         return true;
     }
 
+    /**
+     * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
     function unpause() public virtual override returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to unpause contracts");
         _unpause();
