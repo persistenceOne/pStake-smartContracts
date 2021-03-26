@@ -10,10 +10,16 @@ contract TimeLock is ERC20Upgradeable, PausableUpgradeable, TokenTimelockUpgrade
 
     using SafeMathUpgradeable for uint256;
 
-    mapping(address => uint256) supply;
+    struct lockData
+    {
+        uint balance;
+        uint releaseTime;
+    }
+
+
+    mapping (address => lockData) accounts;
 
     uint256 public _totalSupply = 100000000;
-    //uint256 releaseTime = now + 6 months;
 
     address constant public address1 = 0x3F5fdb1c4B40b04f54082482DCBF9732c1199eB6;
     address constant public address2 = 0x528B19d24426C4A78D0fDC0933c3F91C87102adA;
@@ -26,14 +32,25 @@ contract TimeLock is ERC20Upgradeable, PausableUpgradeable, TokenTimelockUpgrade
    * @dev Constructor for initializing the TimeLock contract.
    */
     function initialize() public virtual initializer {
-        supply[address1] = 50000000;
-        supply[address2] = 10000000;
-        supply[address3] = 10000000;
-        supply[address4] = 10000000;
-        supply[address5] = 10000000;
+        accounts[address1].balance = 50000000;
+        accounts[address1].releaseTime = 0;
+
+        accounts[address2].balance = 10000000;
+        accounts[address2].releaseTime = block.timestamp + 180 days;
+
+        accounts[address3].balance = 10000000;
+        accounts[address3].releaseTime = block.timestamp + 180 days;
+
+        accounts[address4].balance = 10000000;
+        accounts[address4].releaseTime = 0;
+
+        accounts[address5].balance = 10000000;
+        accounts[address5].releaseTime = 0;
+
+
         __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
         __Pausable_init();
-        // __TokenTimelock_init("", address2, (block.timestamp + 6 months));
+        // __TokenTimelock_init(accounts, address2, (now + 180 days));
     }
 
     /**
