@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/IUTokens.sol";
 
-contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessControlUpgradeable {
+contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
 
@@ -24,7 +24,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
    * @param pauserAddress - address of the pauser admin.
    */
     function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
-        __ERC20_init("pSTAKE Unstaked ATOMs", "ustkATOMs");
+        __ERC20_init("pSTAKE Unstaked XPRT", "ustkXPRT");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

@@ -13,22 +13,6 @@ interface ITokenWrapper {
     function setUTokensContract(address uAddress) external;
 
     /**
-     * @dev Set STokens smart contract.
-     *
-     *
-     * Emits a {SetContract} event.
-     */
-    function setSTokensContract(address sAddress) external;
-
-    /**
-    * @dev Set LiquidStaking smart contract.
-    *
-    *
-    * Emits a {SetContract} event.
-    */
-    function setLiquidStakingContract(address lqAddress) external;
-
-    /**
     * @dev Pause smart contracts
     *
     * Returns a boolean value indicating whether the operation succeeded.

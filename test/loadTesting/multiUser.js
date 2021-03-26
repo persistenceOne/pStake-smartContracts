@@ -1,7 +1,8 @@
+/*
 //UNIT TEST
 
-/* This unit test uses the OpenZeppelin test environment and OpenZeppelin test helpers,
-which we will be using for our unit testing. */
+/!* This unit test uses the OpenZeppelin test environment and OpenZeppelin test helpers,
+which we will be using for our unit testing. *!/
 
 const {web3} = require("@openzeppelin/test-helpers/src/setup");
 const {
@@ -28,8 +29,11 @@ ZWeb3.initialize(web3.currentProvider);
 const { expect } = require("chai");
 const LiquidStaking = artifacts.require('LiquidStaking');
 const TokenWrapper = artifacts.require('TokenWrapper');
-const sTokens = artifacts.require('STokens');
-const uTokens = artifacts.require('UTokens');
+/!*const sTokens = artifacts.require('STokens');
+const uTokens = artifacts.require('UTokens');*!/
+
+const sTokens = artifacts.require('StkXPRT');
+const uTokens = artifacts.require('UstkXPRT');
 
 let defaultAdmin = "0x2ffa2B68baE6ec48548918b9eACCA83FF6C1B374";
 let bridgeAdmin = "0x287527B6316e901f78B132f5905A26545503d2ce";
@@ -54,7 +58,7 @@ describe("Multi-user staking and unstaking", function () {
 
         stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin], {initializer: 'initialize'});
 
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, stokens.address, bridgeAdmin, pauseAdmin], {initializer: 'initialize'});
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin], {initializer: 'initialize'});
 
         liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, bridgeAdmin, pauseAdmin], {initializer: 'initialize'});
 
@@ -154,4 +158,4 @@ describe("Multi-user staking and unstaking", function () {
             console.log(gasUsed + " gasUsed ")
         },200000);
     })
-});
+});*/

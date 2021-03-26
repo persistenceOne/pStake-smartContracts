@@ -4,7 +4,6 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ITokenWrapper.sol";
 
@@ -14,28 +13,24 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
-    ISTokens private _sTokens;
-
-    address private _liquidStakingContract;
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    /**
+    /*
    * @dev Constructor for initializing the TokenWrapper contract.
    * @param uAddress - address of the UToken contract.
    * @param sAddress - address of the SToken contract.
    * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uAddress, address sAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
+    function initialize(address uAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
          __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
-        setSTokensContract(sAddress);
     }
 
     /*
@@ -49,31 +44,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetContract(uAddress);
-    }
-
-    /**
-     * @dev Set 'contract address', called from constructor
-     * @param sAddress: stoken contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the stoken contract address.
-     *
-     */
-    function setSTokensContract(address sAddress) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set SToken contract");
-        _sTokens = ISTokens(sAddress);
-        emit SetContract(sAddress);
-    }
-
-    /*
-     * @dev Set 'contract address', called from constructor
-     * @param sAddress: stoken contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the stoken contract address.
-     *
-     */
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set LiquidStaking contract");
-        _liquidStakingContract = liquidStakingContract;
     }
 
     /**

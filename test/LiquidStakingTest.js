@@ -28,15 +28,19 @@ ZWeb3.initialize(web3.currentProvider);
 const { expect } = require("chai");
 const LiquidStaking = artifacts.require('LiquidStaking');
 const TokenWrapper = artifacts.require('TokenWrapper');
-const sTokens = artifacts.require('STokens');
-const uTokens = artifacts.require('UTokens');
+/*const sTokens = artifacts.require('STokens');
+const uTokens = artifacts.require('UTokens');*/
+
+const sTokens = artifacts.require('StkXPRT');
+const uTokens = artifacts.require('UstkXPRT');
 
 const toAtomAddress = "toAtomAddress"
-let defaultAdmin = "0x45fD163832c0F3Bb67f17685A291697d08C9c252";
-let bridgeAdmin = "0x65aa7409C43f8361440B2EC0dA4e1cc0670C9de8";
-let pauseAdmin = "0x26229886F35D551745C227D663F58284D6E082e6";
-let to = "0x4DB38b4a13Cc484965e1EEA8AF597427A44f8145";
-let unknownAddress = "0xb05CCF5775343A2576a852c534Cf55E24E283882";
+let defaultAdmin = "0xa0974c80d812c1c71474Bd3108baB10792454220";
+let bridgeAdmin = "0x46cFedcF739b8fA62878f529d96e4642Dee0FF2A";
+let pauseAdmin = "0xca0A44110c6A835097b3990248D71d5Edc4697f8";
+let to = "0xA4B98501eF2f3b68f0B8cB9b37C8C2BD6E79Ad65";
+let unknownAddress = "0x7c80679CACe1122426D5aFC8B37D1c77918d4D6a";
+
 
 describe("Liquid Staking", function () {
     this.timeout(0);
@@ -56,7 +60,7 @@ describe("Liquid Staking", function () {
 
         stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin], { initializer: 'initialize' });
 
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, stokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
         liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
@@ -66,8 +70,6 @@ describe("Liquid Staking", function () {
 
         await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
-
-        await tokenWrapper.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
     });
 
     describe("sTokens", function () {
@@ -339,14 +341,14 @@ describe("Liquid Staking", function () {
             let balance = await utokens.balanceOf(to);
             expect(balance == amount)
             expectEvent(generate, "GenerateUTokens", {
-                to:to,
+                accountAddress:to,
                 tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
             balance = await stokens.balanceOf(to);
             expect(balance>=amt)
             expectEvent(stake, "StakeTokens", {
-                to:to,
+                accountAddress:to,
                 tokens: amt,
             });
             let transferTokens = await stokens.transfer(unknownAddress,val,{from: to,});
