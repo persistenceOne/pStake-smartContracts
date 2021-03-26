@@ -11,8 +11,8 @@ const { BN } = web3.utils.BN;
 const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 var UTokensInstance,
   STokensInstance,
-  TokenWrapperInstance;
- // LiquidStakingInstance;
+  TokenWrapperInstance,
+ LiquidStakingInstance;
 
 //deploy ATOMs contracts
 /*module.exports = async function (deployer, network, accounts) {
@@ -136,7 +136,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
 
   console.log("ALL DONE.");
 }
- */
+*/
 
 //deploy XPRT contracts
 module.exports = async function (deployer, network, accounts) {
