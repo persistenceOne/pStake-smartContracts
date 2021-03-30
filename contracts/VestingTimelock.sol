@@ -189,31 +189,38 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
 
     }
 
-    /**
+     /**
      * @notice revokeGrant tokens held by timelock to beneficiary.
      */
-    function revokeGrant(address beneficiary_, address vestingProvider_) external {
-        // revoke currently doesnt return the ERC20 tokens sent to this contract
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
-
+     function _revokeGrant(address beneficiary_, address vestingProvider_) internal
+    {
         Grant memory _grant = vestingGrants[beneficiary_];
 
         // check whether the grant is active
         require(_grant.isActive, "VestingTimelock: Grant is not active");
 
         uint256 _amount = _grant.amount;
-        require(_amount > 0, "VestingTimelock: no tokens to revoke");
+        require(_amount > 0, "VestingTimelock: No tokens to revoke");
 
         // reset all the grant detail variables to zero
         delete vestingGrants[beneficiary_];
         totalVestingAmount = totalVestingAmount.sub(_amount);
         totalVestedHistory = totalVestedHistory.sub(1);
 
+        // transfer the erc20 token amount back to the vesting provider 
+        // needs to be done as there is no other means to transfer ERC20 tokens without keys. 
+        // except by defining custom grant for a self controlled wallet address then claiming the grant. 
+        token().safeTransfer(vestingProvider_, _amount);
+    }
+
+    /**
+     * @notice revokeGrant tokens held by timelock to beneficiary.
+     */
+    function revokeGrant(address beneficiary_, address vestingProvider_) external {
+        // revoke currently doesnt return the ERC20 tokens sent to this contract
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
+        _revokeGrant(beneficiary_, vestingProvider_);
         GrantRevoked(beneficiary_, vestingProvider_, block.timestamp);
-
-        // transfer the erc20 token amount back to the vesting provider (maybe not as lets keep erc20 balances separate from logic)
-        // token().safeTransfer(vestingProvider_, _amount);
-
     }
 
      /**
