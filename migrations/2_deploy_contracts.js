@@ -55,20 +55,6 @@ async function deployVesting(gasPrice, gasLimit, deployer, accounts) {
     let bridgeAdmin = accounts[1];
     let pauseAdmin = accounts[2];
     let pstkTreasury = accounts[3];
-    let amount = [];
-    let startTime = [];
-    let cliff = [];
-    let recipient = [];
-    let totalAmount = new BN("10000000000");
-    let numUsers = 5;
-
-    console.log("otalAmount.div(numUsers) + " + totalAmount.div(new BN(numUsers)))
-    for(let i=0; i<numUsers; i++){
-        amount.push(totalAmount.div(new BN(numUsers)))
-        startTime.push(parseInt(Date.now()/1000))
-        recipient.push(accounts[i+4])
-        cliff.push(parseInt(Date.now()/1000) + 180)
-    }
 
     UTokensInstance = await deployProxy(
         UstkXPRTArtifact,
@@ -84,9 +70,24 @@ async function deployVesting(gasPrice, gasLimit, deployer, accounts) {
     );
     console.log("VestingTimelock deployed: ", VestingTimelockInstance.address);
 
-    await UTokensInstance.transfer(VestingTimelockInstance.address, totalAmount, {from: pstkTreasury})
+    let totalAmount = new BN("10000000000");
 
-    console.log("Transfer done.")
+  //  await UTokensInstance.transfer(VestingTimelockInstance.address, totalAmount, {from: pstkTreasury})
+
+  //  console.log("Transfer done.")
+
+    let amount = [];
+    let startTime = [];
+    let cliff = [];
+    let recipient = [];
+    let numUsers = 5;
+
+    for(let i=0; i<numUsers; i++){
+        amount.push(totalAmount.div(new BN(numUsers)))
+        startTime.push(parseInt(Date.now()/1000))
+        recipient.push(accounts[i+4])
+        cliff.push(parseInt(Date.now()/1000) + 180)
+    }
 
     await VestingTimelockInstance.addGrants(startTime, amount, cliff, recipient, {from: defaultAdmin})
 
