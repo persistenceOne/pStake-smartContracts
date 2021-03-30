@@ -41,7 +41,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
 
     event GrantAdded(address indexed recipient, uint256 grantNumber, uint256 timestamp);
     event GrantClaimed(address indexed recipient, uint256 amount, uint256 timestamp);
-    event GrantRevoked(address indexed recipient, uint256 timestamp);
+    event GrantRevoked(address indexed recipient, address indexed vestingProvider, uint256 timestamp);
 
 
     function __VestingTimelock_init(IERC20Upgradeable token_, address pauserAddress_) internal initializer {
@@ -205,15 +205,15 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         uint256 _amount = _grant.amount;
         require(_amount > 0, "VestingTimelock: no tokens to revoke");
 
-        // reset the grant
+        // reset all the grant detail variables to zero
         delete vestingGrants[beneficiary_];
         totalVestingAmount = totalVestingAmount.sub(_amount);
         totalVestedHistory = totalVestedHistory.sub(1);
 
-        GrantRevoked(beneficiary_, block.timestamp);
+        GrantRevoked(beneficiary_, vestingProvider_, block.timestamp);
 
-        // transfer the erc20 token amount back to the vesting provider
-        token().safeTransfer(vestingProvider_, _amount);
+        // transfer the erc20 token amount back to the vesting provider (maybe not as lets keep erc20 balances separate from logic)
+        // token().safeTransfer(vestingProvider_, _amount);
 
     }
 
