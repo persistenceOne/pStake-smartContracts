@@ -13,6 +13,7 @@ const {
 } = require("@openzeppelin/test-environment");
 const {
     BN,
+    expectEvent,
     expectRevert,
 } = require("@openzeppelin/test-helpers");
 const { TestHelper } = require('zos');

@@ -44,14 +44,10 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     event GrantRevoked(address indexed recipient, address indexed vestingProvider, uint256 timestamp);
 
 
-    function __VestingTimelock_init(IERC20Upgradeable token_, address pauserAddress_) internal initializer {
+    function initialize(IERC20Upgradeable token_, address pauserAddress_) public virtual initializer {
         __ReentrancyGuard_init();
         __Pausable_init();
         __AccessControl_init();
-        __VestingTimelock_init_unchained(token_, pauserAddress_);
-    }
-
-    function __VestingTimelock_init_unchained(IERC20Upgradeable token_, address pauserAddress_) internal initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress_);
         // solhint-disable-next-line not-rely-on-time

@@ -1,3 +1,4 @@
+const VestingTimelockArtifact = artifacts.require("VestingTimelock");
 const LiquidStakingArtifact = artifacts.require("LiquidStaking");
 const TokenWrapperArtifact = artifacts.require("TokenWrapper");
 const STokensArtifact = artifacts.require("STokens");
@@ -7,7 +8,10 @@ const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 var UTokensInstance,
   STokensInstance,
   TokenWrapperInstance,
-  LiquidStakingInstance;
+  LiquidStakingInstance,
+    VestingTimelockInstance;
+
+const ustkXPRTContractAddress = "0x04AE194386F89Abf5Fe91a3521353ea92D0EAbf8";
 
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
@@ -77,6 +81,13 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     { deployer, initializer: "initialize" }
   );
   console.log("LiquidStaking deployed: ", LiquidStakingInstance.address);
+
+    VestingTimelockInstance = await deployProxy(
+        VestingTimelockArtifact,
+        [ustkXPRTContractAddress, pauseAdmin],
+        { deployer, initializer: "initialize" }
+    );
+    console.log("VestingTimelock deployed: ", VestingTimelockInstance.address);
 
   // set contract addresses in UTokens Contract
   const txReceiptSetSTokenContract = await UTokensInstance.setSTokenContract(
