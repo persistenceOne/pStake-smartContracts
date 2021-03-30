@@ -17,14 +17,13 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
     address private _stokenContract;
     address private _liquidStakingContract;
     address private _wrapperContract;
-    address constant public pstkTreasury = 0x3F5fdb1c4B40b04f54082482DCBF9732c1199eB6;
 
     /**
    * @dev Constructor for initializing the UToken contract.
    * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
+    function initialize(address bridgeAdminAddress, address pauserAddress, address pstkTreasury) public virtual initializer {
         __ERC20_init("pSTAKE Unstaked XPRT", "ustkXPRT");
         __AccessControl_init();
         __Pausable_init();
@@ -48,7 +47,10 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
     *
     */
     function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) ||
+        (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  ||
+        (tx.origin == to && _msgSender() == _stokenContract) ||
+            (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
     }
@@ -65,7 +67,8 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      *
      */
     function burn(address from, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
+        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||
+            (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
         _burn(from, tokens);
         return true;
     }
