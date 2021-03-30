@@ -14,7 +14,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol
  * tokens after a given release time.
  *
  * Useful for simple vesting schedules like "advisors get all of their tokens
- * after 1 year".
+ * after 1 year"
  */
 contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, AccessControlUpgradeable{
     
@@ -25,7 +25,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     // ERC20 basic token contract being held
     IERC20Upgradeable _token;
     
-    // Struct to hold vesting program
+    // Struct to hold vesting grant
     struct Grant {
         uint256 startTime;
         uint256 amount;
@@ -44,13 +44,13 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     event GrantRevoked(address indexed recipient, uint256 timestamp);
 
 
-    function __VestingTimelock_init(IERC20Upgradeable token_, address pauserAddress) internal initializer {
-        __VestingTimelock_init_unchained(token_, pauserAddress);
+    function __VestingTimelock_init(IERC20Upgradeable token_, address pauserAddress_) internal initializer {
+        __VestingTimelock_init_unchained(token_, pauserAddress_);
     }
 
-    function __VestingTimelock_init_unchained(IERC20Upgradeable token_, address pauserAddress) internal initializer {
+    function __VestingTimelock_init_unchained(IERC20Upgradeable token_, address pauserAddress_) internal initializer {
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setupRole(PAUSER_ROLE, pauserAddress);
+        _setupRole(PAUSER_ROLE, pauserAddress_);
         // solhint-disable-next-line not-rely-on-time
         _token = token_;
     }
@@ -65,12 +65,12 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     /**
      * @dev get the details vesting program for a user
      */
-     function getGrant(address grantedAddress_) public view returns (uint256 startTime,
+     function getGrant(address beneficiary_) public view returns (uint256 startTime,
         uint256 amount,
         uint256 vestingCliff,    
         address recipient, bool isActive)
     {
-        Grant memory _grant = vestingGrants[grantedAddress_];
+        Grant memory _grant = vestingGrants[beneficiary_];
         startTime = _grant.startTime;
         amount = _grant.amount;
         vestingCliff = _grant.vestingCliff;
@@ -86,17 +86,17 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
 
         Grant memory _grant = vestingGrants[beneficiary_];
 
+         // check whether the grant is active
+        require(_grant.isActive, "VestingTimelock: Grant is not active");
+
         // check whether the amount is not zero
         uint256 _amount = _grant.amount;
         require(_amount > 0, "VestingTimelock: no tokens to release");
 
-        // check whether the grant is active
-        require(_grant.isActive, "VestingTimelock: Grant is not active");
-
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= _grant.vestingCliff, "VestingTimelock: Grant still vesting");
 
-        // deduct the grant amount from the struct to avoid Redundancy attack and reset other variables
+        // reset all the grant detail variables to zero
         delete vestingGrants[beneficiary_];
         totalVestingAmount = totalVestingAmount.sub(_amount);
         GrantClaimed(beneficiary_, _amount, block.timestamp);
@@ -108,54 +108,54 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
      * @notice Transfers tokens held by beneficiary to timelock.
      */
     function _addGrant(
-        uint256 _startTime,
-        uint256 _amount,
-        uint256 _vestingCliff,    
-        address _recipient
+        uint256 startTime_,
+        uint256 amount_,
+        uint256 vestingCliff_,    
+        address recipient_
     ) 
         internal
     {
-        require(_amount > 0, "VestingTimelock: amount is zero");
-        require(_startTime <= _vestingCliff, "VestingTimelock: cliff before start time");
+        require(amount_ > 0, "VestingTimelock: amount is zero");
+        require(startTime_ <= vestingCliff_, "VestingTimelock: cliff before start time");
 
         // allow adding grants whose vesting schedule is already realized, so commented below line
-        // require(_vestingCliff >= block.timestamp, "VestingTimelock: vesting cliff is in the past");
+        // require(vestingCliff_ >= block.timestamp, "VestingTimelock: vesting cliff is in the past");
 
-        Grant memory _grant = vestingGrants[_recipient];
+        Grant memory _grant = vestingGrants[recipient_];
         require(!_grant.isActive, "VestingTimelock: grant already active");
 
         Grant memory grant = Grant({
-            startTime: _startTime,
-            amount: _amount,
-            vestingCliff: _vestingCliff,
-            recipient: _recipient,
+            startTime: startTime_,
+            amount: amount_,
+            vestingCliff: vestingCliff_,
+            recipient: recipient_,
             isActive: true
         });
 
         totalVestedHistory = totalVestedHistory.add(1);
-        totalVestingAmount = totalVestingAmount.add(_amount);
-        vestingGrants[_recipient] = grant;
+        totalVestingAmount = totalVestingAmount.add(amount_);
+        vestingGrants[recipient_] = grant;
     }
 
     /**
      * @notice Transfers tokens held by beneficiary to timelock.
      */
     function addGrant(
-        uint256 _startTime,
-        uint256 _amount,
-        uint256 _vestingCliff,    
-        address _recipient
+        uint256 startTime_,
+        uint256 amount_,
+        uint256 vestingCliff_,    
+        address recipient_
     ) 
         public
     {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: User not authorised for this action");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
         _addGrant(
-         _startTime,
-         _amount,
-         _vestingCliff,    
-         _recipient
+         startTime_,
+         amount_,
+         vestingCliff_,    
+         recipient_
     );
-        emit GrantAdded(_recipient, totalVestedHistory, block.timestamp);
+        emit GrantAdded(recipient_, totalVestedHistory, block.timestamp);
 
     }
 
@@ -163,29 +163,30 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
      * @notice Transfers tokens held by beneficiary to timelock.
      */
     function addGrants(
-        uint256[] calldata _startTimes,
-        uint256[] calldata _amounts,
-        uint256[] calldata _vestingCliffs,    
-        address[] calldata _recipients
+        uint256[] calldata startTimes_,
+        uint256[] calldata amounts_,
+        uint256[] calldata vestingCliffs_,    
+        address[] calldata recipients_
     ) 
         public
     {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: User not authorised for this action");
-        require(_recipients.length > 0 && _recipients.length == _amounts.length && _startTimes.length == _amounts.length && _startTimes.length == _vestingCliffs.length, "VestingTimelock: invalid array size");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
+        require(recipients_.length > 0 && recipients_.length == amounts_.length && startTimes_.length == amounts_.length && startTimes_.length == vestingCliffs_.length, "VestingTimelock: invalid array size");
 
         // allocate the grants to the respective addresses
         uint256 i;
-        for (i=0; i<_recipients.length; i++) {
+        for (i=0; i<recipients_.length; i++) {
             _addGrant(
-                    _startTimes[i],
-                    _amounts[i],
-                    _vestingCliffs[i],    
-                    _recipients[i]
+                    startTimes_[i],
+                    amounts_[i],
+                    vestingCliffs_[i],    
+                    recipients_[i]
             );
             
         }
 
-        emit GrantAdded(_recipients[i.sub(1)], totalVestedHistory, block.timestamp);
+        // emit the data of last grant that was added
+        emit GrantAdded(recipients_[i.sub(1)], totalVestedHistory, block.timestamp);
 
     }
 
@@ -194,7 +195,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
      */
     function revokeGrant(address beneficiary_, address vestingProvider_) external nonReentrant {
         // revoke currently doesnt return the ERC20 tokens sent to this contract
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: User not authorised for this action");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
 
         Grant memory _grant = vestingGrants[beneficiary_];
 
