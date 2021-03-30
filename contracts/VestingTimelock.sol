@@ -45,6 +45,9 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
 
 
     function __VestingTimelock_init(IERC20Upgradeable token_, address pauserAddress_) internal initializer {
+        __ReentrancyGuard_init();
+        __Pausable_init();
+        __AccessControl_init();
         __VestingTimelock_init_unchained(token_, pauserAddress_);
     }
 
@@ -63,7 +66,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     }
 
     /**
-     * @dev get the details vesting program for a user
+     * @dev get the details of the vesting grant for a user
      */
      function getGrant(address beneficiary_) public view returns (uint256 startTime,
         uint256 amount,
@@ -91,7 +94,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
 
         // check whether the amount is not zero
         uint256 _amount = _grant.amount;
-        require(_amount > 0, "VestingTimelock: no tokens to release");
+        require(_amount > 0, "VestingTimelock: No tokens to release");
 
         // solhint-disable-next-line not-rely-on-time
         require(block.timestamp >= _grant.vestingCliff, "VestingTimelock: Grant still vesting");
@@ -146,7 +149,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         uint256 vestingCliff_,    
         address recipient_
     ) 
-        public
+        external
     {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
         _addGrant(
@@ -168,7 +171,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         uint256[] calldata vestingCliffs_,    
         address[] calldata recipients_
     ) 
-        public
+        external
     {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
         require(recipients_.length > 0 && recipients_.length == amounts_.length && startTimes_.length == amounts_.length && startTimes_.length == vestingCliffs_.length, "VestingTimelock: invalid array size");
@@ -193,7 +196,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     /**
      * @notice revokeGrant tokens held by timelock to beneficiary.
      */
-    function revokeGrant(address beneficiary_, address vestingProvider_) external nonReentrant {
+    function revokeGrant(address beneficiary_, address vestingProvider_) external {
         // revoke currently doesnt return the ERC20 tokens sent to this contract
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
 
