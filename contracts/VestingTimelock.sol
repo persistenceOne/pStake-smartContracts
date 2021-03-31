@@ -103,7 +103,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         delete vestingGrants[beneficiary_];
         // update totalVestingAmount and transfer ERC20 tokens
         totalVestingAmount = totalVestingAmount.sub(_amount);
-        GrantClaimed(beneficiary_, _amount, block.timestamp);
+        emit GrantClaimed(beneficiary_, _amount, block.timestamp);
 
         token().safeTransfer(beneficiary_, _amount);
     }
@@ -203,6 +203,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         // check whether the grant is active
         require(_grant.isActive, "VestingTimelock: Grant is not active");
 
+        // check whether the amount is a non zero value
         uint256 _amount = _grant.amount;
         require(_amount > 0, "VestingTimelock: No tokens to revoke");
 
@@ -225,7 +226,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
 
         _revokeGrant(beneficiary_, vestingProvider_);
-        GrantRevoked(beneficiary_, vestingProvider_, block.timestamp);
+        emit GrantRevoked(beneficiary_, vestingProvider_, block.timestamp);
     }
 
     /**
