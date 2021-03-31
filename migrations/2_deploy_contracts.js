@@ -93,7 +93,7 @@ async function deployVesting(gasPrice, gasLimit, deployer, accounts) {
   ); */
 
   // Creating Vesting Grants for the Eth Addresses
-  let amount = [];
+  /* let amount = [];
   let startTime = [];
   let cliff = [];
   let recipient = [];
@@ -108,7 +108,7 @@ async function deployVesting(gasPrice, gasLimit, deployer, accounts) {
 
   await VestingTimelockInstance.addGrants(startTime, amount, cliff, recipient, {
     from: defaultAdmin,
-  });
+  }); */
 
   console.log("ALL DONE.");
 }

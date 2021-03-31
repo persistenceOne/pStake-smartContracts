@@ -67,8 +67,8 @@ module.exports = {
           mnemonic,
           `https://ropsten.infura.io/v3/c1a795f858814218840034fe273cb040`
         ),
-      network_id: 3, // Ropsten's id
-      gas: 1000000, // Ropsten has a lower block limit than mainnet
+      network_id: 3, // Rinkeby's id
+      gas: 1000000, // Rinkeby has a lower block limit than mainnet
       gasPrice: 50000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
@@ -82,7 +82,7 @@ module.exports = {
           `https://rinkeby.infura.io/v3/c1a795f858814218840034fe273cb040`
         ),
       network_id: 4, // Ropsten's id
-      gas: 1000000, // Ropsten has a lower block limit than mainnet
+      // gas: 1000000, // Ropsten has a lower block limit than mainnet
       gasPrice: 50000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
