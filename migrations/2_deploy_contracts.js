@@ -13,9 +13,9 @@ var UTokensInstance,
   STokensInstance,
   TokenWrapperInstance,
   LiquidStakingInstance,
-    ustkXPRTInstance,
-    stkXPRTInstance,
-    VestingTimelockInstance;
+  ustkXPRTInstance,
+  stkXPRTInstance,
+  VestingTimelockInstance;
 
 const ustkXPRTContractAddress = "0x04AE194386F89Abf5Fe91a3521353ea92D0EAbf8";
 
@@ -32,6 +32,12 @@ module.exports = async function (deployer, network, accounts) {
     await deployVesting(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
   }
 
+  if (network === "rinkeby") {
+    let gasPriceRopsten = 5e10;
+    let gasLimitRopsten = 1000000;
+    await deployVesting(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
+  }
+
   if (network === "goerli") {
     let gasPriceGoerli = 1e11;
     let gasLimitGoerli = 4000000;
@@ -40,58 +46,71 @@ module.exports = async function (deployer, network, accounts) {
 };
 
 async function deployVesting(gasPrice, gasLimit, deployer, accounts) {
-    console.log(
-        "inside deployVesting(),",
-        " gasPrice: ",
-        gasPrice,
-        " gasLimit: ",
-        gasLimit,
-        " deployer: ",
-        deployer.network,
-        " accounts: ",
-        accounts
-    );
-    let defaultAdmin = accounts[0];
-    let bridgeAdmin = accounts[1];
-    let pauseAdmin = accounts[2];
-    let pstkTreasury = accounts[3];
+  console.log(
+    "inside deployVesting(),",
+    " gasPrice: ",
+    gasPrice,
+    " gasLimit: ",
+    gasLimit,
+    " deployer: ",
+    deployer.network,
+    " accounts: ",
+    accounts
+  );
+  let defaultAdmin = accounts[0];
+  let bridgeAdmin = accounts[1];
+  let pauseAdmin = accounts[2];
+  let pstkTreasury = accounts[3];
 
-    UTokensInstance = await deployProxy(
-        UstkXPRTArtifact,
-        [bridgeAdmin, pauseAdmin, pstkTreasury],
-        { deployer, initializer: "initialize" }
-    );
-    console.log("ustkXPRT deployed: ", UTokensInstance.address);
+  // DEPLOY CONTRACTS
+  UTokensInstance = await deployProxy(
+    UstkXPRTArtifact,
+    [bridgeAdmin, pauseAdmin, pstkTreasury],
+    { deployer, initializer: "initialize" }
+  );
+  console.log("ustkXPRT contract deployed: ", UTokensInstance.address);
 
-    VestingTimelockInstance = await deployProxy(
-        VestingTimelockArtifact,
-        [UTokensInstance.address, pauseAdmin],
-        { deployer, initializer: "initialize" }
-    );
-    console.log("VestingTimelock deployed: ", VestingTimelockInstance.address);
+  VestingTimelockInstance = await deployProxy(
+    VestingTimelockArtifact,
+    [UTokensInstance.address, pauseAdmin],
+    { deployer, initializer: "initialize" }
+  );
+  console.log(
+    "VestingTimelock contract deployed: ",
+    VestingTimelockInstance.address
+  );
 
-    let totalAmount = new BN("10000000000");
+  let totalAmount = new BN("10000000000");
 
-  //  await UTokensInstance.transfer(VestingTimelockInstance.address, totalAmount, {from: pstkTreasury})
+  // TRANSFER TOKENS TO VESTING CONTRACT
+  /* await UTokensInstance.transfer(VestingTimelockInstance.address, totalAmount, {
+    from: pstkTreasury,
+  });
+  console.log(
+    "%S Tokens transferred to %S",
+    totalAmount,
+    VestingTimelockInstance.address
+  ); */
 
-  //  console.log("Transfer done.")
+  // Creating Vesting Grants for the Eth Addresses
+  let amount = [];
+  let startTime = [];
+  let cliff = [];
+  let recipient = [];
+  let numUsers = 5;
 
-    let amount = [];
-    let startTime = [];
-    let cliff = [];
-    let recipient = [];
-    let numUsers = 5;
+  for (let i = 0; i < numUsers; i++) {
+    amount.push(totalAmount.div(new BN(numUsers)));
+    startTime.push(parseInt(Date.now() / 1000));
+    recipient.push(accounts[i + 4]);
+    cliff.push(parseInt(Date.now() / 1000) + 180);
+  }
 
-    for(let i=0; i<numUsers; i++){
-        amount.push(totalAmount.div(new BN(numUsers)))
-        startTime.push(parseInt(Date.now()/1000))
-        recipient.push(accounts[i+4])
-        cliff.push(parseInt(Date.now()/1000) + 180)
-    }
+  await VestingTimelockInstance.addGrants(startTime, amount, cliff, recipient, {
+    from: defaultAdmin,
+  });
 
-    await VestingTimelockInstance.addGrants(startTime, amount, cliff, recipient, {from: defaultAdmin})
-
-    console.log("ALL DONE.");
+  console.log("ALL DONE.");
 }
 
 async function deployAll(gasPrice, gasLimit, deployer, accounts) {
@@ -115,19 +134,19 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     [bridgeAdmin, pauseAdmin],
     { deployer, initializer: "initialize" }
   );
-  console.log("UTokens deployed: ", UTokensInstance.address);
+  console.log("UTokens contract deployed: ", UTokensInstance.address);
   STokensInstance = await deployProxy(
     STokensArtifact,
     [UTokensInstance.address, pauseAdmin],
     { deployer, initializer: "initialize" }
   );
-  console.log("STokens deployed: ", STokensInstance.address);
+  console.log("STokens contract deployed: ", STokensInstance.address);
   TokenWrapperInstance = await deployProxy(
     TokenWrapperArtifact,
     [UTokensInstance.address, STokensInstance.address, bridgeAdmin, pauseAdmin],
     { deployer, initializer: "initialize" }
   );
-  console.log("TokenWrapper deployed: ", TokenWrapperInstance.address);
+  console.log("TokenWrapper contract deployed: ", TokenWrapperInstance.address);
   LiquidStakingInstance = await deployProxy(
     LiquidStakingArtifact,
     [
@@ -139,7 +158,10 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     ],
     { deployer, initializer: "initialize" }
   );
-  console.log("LiquidStaking deployed: ", LiquidStakingInstance.address);
+  console.log(
+    "LiquidStaking contract deployed: ",
+    LiquidStakingInstance.address
+  );
 
   // set contract addresses in UTokens Contract
   const txReceiptSetSTokenContract = await UTokensInstance.setSTokenContract(
