@@ -60,7 +60,8 @@ async function deployVesting(gasPrice, gasLimit, deployer, accounts) {
   let defaultAdmin = accounts[0];
   let bridgeAdmin = accounts[1];
   let pauseAdmin = accounts[2];
-  let pstkTreasury = accounts[3];
+ // let pstkTreasury = accounts[3];
+  let pstkTreasury = "0x747cb4Fce0932C52eD245B0176F387f69b861b23";
 
   // DEPLOY CONTRACTS
   UTokensInstance = await deployProxy(
