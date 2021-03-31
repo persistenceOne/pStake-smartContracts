@@ -8,6 +8,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
  * @dev A token holder contract that will allow a beneficiary to extract the
@@ -51,7 +52,6 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress_);
-        // solhint-disable-next-line not-rely-on-time
         _token = token_;
     }
 
@@ -177,7 +177,7 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "VestingTimelock: Unauthorized User");
         require(benificiaries_.length > 0 && benificiaries_.length == amounts_.length && startTimes_.length == amounts_.length && startTimes_.length == vestingCliffs_.length, "VestingTimelock: invalid array size");
 
-        // allocate the grants to the respective addresses
+        // allocate the grants to the respective benificiaries
         uint256 i;
         for (i=0; i<benificiaries_.length; i++) {
             _addGrant(
@@ -186,7 +186,6 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
                 vestingCliffs_[i],    
                 benificiaries_[i]
             );
-            
         }
 
         // emit the data of last grant that was added
