@@ -1,22 +1,7 @@
-//const VestingTimelockInstance = require('../build/contracts/VestingTimelock.json')
 const VestingTimelock = artifacts.require("VestingTimelock");
-//const contract = require('truffle-contract')
 const BN = web3.utils.BN;
 const vestingBeneficiaries = require("./vestingBeneficiaries");
 const BigNumber = require("bignumber.js");
-
-const accounts = [
-  "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7",
-  "0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B",
-  "0xCC6F6821F903b1FC3C0c9597b26C84E31AC98B36",
-  "0xa69dE4538Fd5384FfB4e415B861dBc7eAED75dF2",
-  "0x609d344A04245104C312925D2F5aE04F643A10CB",
-  "0x7019943Ca5E81d10EFA8ACdd68B0B67Eb4B0a9f6",
-  "0x768D4C50C9D4Db6f12Bb47581E4c1823Ad9eCB49",
-  "0xe3355d5AD5f8dCdca879230e85eF0AaeE6f28d0B",
-  "0x528B19d24426C4A78D0fDC0933c3F91C87102adA",
-  "0x3F5fdb1c4B40b04f54082482DCBF9732c1199eB6",
-];
 
 const toFixedBigNumber2 = function (valueString) {
   const splitObject = valueString.toString().split(".");
@@ -26,11 +11,11 @@ const toFixedBigNumber2 = function (valueString) {
 
 const toFixedBigNumber = function (valueString) {
   const valueBigNumber = new BigNumber(valueString).toFixed(0);
-  console.log("valueBigNumber: ", valueBigNumber);
+  //console.log("valueBigNumber: ", valueBigNumber);
   return valueBigNumber;
 };
 
-module.exports = function (callback) {
+module.exports = async function (callback) {
   let defaultAdmin = "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7";
   let VestingTimelockInstance;
 
@@ -39,69 +24,75 @@ module.exports = function (callback) {
   let cliffs = [];
   let beneficiaries = [];
 
+  let consolidatedBeneficiariesWithNonZero = []
+  let consolidatedAmountsWithNonZero = []
+
+
+  for(let k = 0; k<vestingBeneficiaries.consolidatedDecimalAmounts.length; k++){
+    if(vestingBeneficiaries.consolidatedDecimalAmounts[k].toString().split(".")[0] == "0"){
+      //do nothing
+    }else{
+      consolidatedAmountsWithNonZero.push(vestingBeneficiaries.consolidatedDecimalAmounts[k])
+      consolidatedBeneficiariesWithNonZero.push(vestingBeneficiaries.consolidatedBeneficiaries[k])
+    }
+  }
+  console.log("consolidatedAmountsWithNonZero: " + consolidatedAmountsWithNonZero.length)
+  console.log("consolidatedBeneficiariesWithNonZero: " + consolidatedBeneficiariesWithNonZero.length)
+
   let totalAmount = new BN("10000000000");
-  let startIndex = 651;
-  let numUsers = 660;
+  let startIndex = 0;
   let startTime_ = parseInt(Date.now() / 1000);
   let cliff_ = parseInt(Date.now() / 1000) + 600;
 
   console.log("Inside Grant Script....");
+  console.log("Before deploy...")
+  let i = 0;
+  let j = 0;
 
-  // create array of grants
-  /*  for (let i = 0; i < numUsers; i++) {
-    amounts.push(totalAmount.div(new BN(numUsers)));
-    startTimes.push(parseInt(Date.now() / 1000));
-    beneficiaries.push(accounts[i]);
-    cliffs.push(parseInt(Date.now() / 1000) + 600);
-  } */
+  for(i = 0; i<50; i++){
+    amounts = []
+    startTimes = []
+    beneficiaries = []
+    cliffs = []
+    for(j = startIndex; j<startIndex+20; j++ ){
+      amounts.push(
+          toFixedBigNumber(
+              consolidatedAmountsWithNonZero[j]
+          )
+      );
+      startTimes.push(startTime_);
+      beneficiaries.push(
+          consolidatedBeneficiariesWithNonZero[j]
+      );
+      cliffs.push(cliff_);
+    }
 
-  for (let i = 0; i < numUsers - startIndex; i++) {
-    amounts.push(
-      toFixedBigNumber(
-        vestingBeneficiaries.consolidatedDecimalAmounts[i + startIndex]
-      )
-    );
-    startTimes.push(startTime_);
-    beneficiaries.push(
-      vestingBeneficiaries.consolidatedBeneficiaries[i + startIndex]
-    );
-    cliffs.push(cliff_);
+    startIndex = j;
+    console.log("startIndex: " + startIndex)
+
+    await VestingTimelock.deployed()
+        .then((instance) => {
+          VestingTimelockInstance = instance;
+          // estimate gas value
+          return VestingTimelockInstance.addGrants(
+              startTimes,
+              amounts,
+              cliffs,
+              beneficiaries,
+              { from: defaultAdmin }
+          );
+          // return true;
+        })
+        .then((receipt) => {
+          console.log("addGrants Transaction Executed: ", receipt);
+          return VestingTimelockInstance.getGrant(
+              vestingBeneficiaries.consolidatedBeneficiaries[startIndex]
+          );
+        })
+        .then((grant) => {
+          console.log("Grant : ", grant);
+        })
+        //.then(() => callback())
+        .catch((err) => callback(err));
   }
-
-  console.log("Before deploy...");
-  VestingTimelock.deployed()
-    .then((instance) => {
-      VestingTimelockInstance = instance;
-      console.log(
-        "VestinTimeLock deployed:  " + VestingTimelockInstance.address
-      );
-      console.log(
-        "Vesting Beneficiaries: %d",
-        vestingBeneficiaries.beneficiaries.length
-      );
-      console.log("startTimes Size:  ", startTimes);
-      console.log("cliffs Size:  ", cliffs);
-      console.log("beneficiaries Size:  ", beneficiaries);
-      console.log("amounts Size:  ", amounts);
-      // estimate gas value
-      return VestingTimelockInstance.addGrants(
-        startTimes,
-        amounts,
-        cliffs,
-        beneficiaries,
-        { from: defaultAdmin }
-      );
-      // return true;
-    })
-    .then((receipt) => {
-      console.log("addGrants Transaction Executed: ", receipt);
-      return VestingTimelockInstance.getGrant(
-        vestingBeneficiaries.consolidatedBeneficiaries[startIndex]
-      );
-    })
-    .then((grant) => {
-      console.log("Grant : ", grant);
-    })
-    .then(() => callback())
-    .catch((err) => callback(err));
 };

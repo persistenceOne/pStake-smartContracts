@@ -201,7 +201,7 @@ describe("VestingTimeLock", () => {
         );
       }, 200000);
 
-      it("Add grants with non-=unique recipients name", async function () {
+      it("Add grants with non-unique recipients name", async function () {
         await expectRevert(
           timeLock.addGrants(
             startTime,
