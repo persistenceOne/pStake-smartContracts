@@ -29,8 +29,6 @@ const toFixedBigNumber = function (valueString) {
   return valueBigNumber;
 };
 
-BigNumber;
-
 module.exports = function (callback) {
   let defaultAdmin = "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7";
   let VestingTimelockInstance;
@@ -41,8 +39,8 @@ module.exports = function (callback) {
   let beneficiaries = [];
 
   let totalAmount = new BN("10000000000");
-  let startIndex = 601;
-  let numUsers = 620;
+  let startIndex = 631;
+  let numUsers = 640;
   let startTime_ = parseInt(Date.now() / 1000);
   let cliff_ = parseInt(Date.now() / 1000) + 600;
 
@@ -56,10 +54,14 @@ module.exports = function (callback) {
     cliffs.push(parseInt(Date.now() / 1000) + 600);
   } */
 
-  for (let i = startIndex; i < numUsers; i++) {
-    amounts.push(toFixedBigNumber(vestingBeneficiaries.consolidatedAmounts[i]));
+  for (let i = 0; i < numUsers - startIndex; i++) {
+    amounts.push(
+      toFixedBigNumber(vestingBeneficiaries.consolidatedAmounts[i + startIndex])
+    );
     startTimes.push(startTime_);
-    beneficiaries.push(vestingBeneficiaries.consolidatedBeneficiaries[i]);
+    beneficiaries.push(
+      vestingBeneficiaries.consolidatedBeneficiaries[i + startIndex]
+    );
     cliffs.push(cliff_);
   }
 
@@ -74,7 +76,7 @@ module.exports = function (callback) {
         "Vesting Beneficiaries: %d",
         vestingBeneficiaries.beneficiaries.length
       );
-      console.log("startTimes Size:  ", startTimes.length);
+      console.log("startTimes Size:  ", startTimes);
       console.log("cliffs Size:  ", cliffs.length);
       console.log("beneficiaries Size:  ", beneficiaries.length);
       console.log("amounts Size:  ", amounts.length.toString());
