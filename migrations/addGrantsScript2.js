@@ -25,7 +25,8 @@ const toFixedBigNumber2 = function (valueString) {
 };
 
 const toFixedBigNumber = function (valueString) {
-  const valueBigNumber = new BigNumber(valueString.toFixed());
+  const valueBigNumber = new BigNumber(valueString).toFixed(0);
+  console.log("valueBigNumber: ", valueBigNumber);
   return valueBigNumber;
 };
 
@@ -39,8 +40,8 @@ module.exports = function (callback) {
   let beneficiaries = [];
 
   let totalAmount = new BN("10000000000");
-  let startIndex = 631;
-  let numUsers = 640;
+  let startIndex = 651;
+  let numUsers = 660;
   let startTime_ = parseInt(Date.now() / 1000);
   let cliff_ = parseInt(Date.now() / 1000) + 600;
 
@@ -56,7 +57,9 @@ module.exports = function (callback) {
 
   for (let i = 0; i < numUsers - startIndex; i++) {
     amounts.push(
-      toFixedBigNumber(vestingBeneficiaries.consolidatedAmounts[i + startIndex])
+      toFixedBigNumber(
+        vestingBeneficiaries.consolidatedDecimalAmounts[i + startIndex]
+      )
     );
     startTimes.push(startTime_);
     beneficiaries.push(
@@ -77,11 +80,11 @@ module.exports = function (callback) {
         vestingBeneficiaries.beneficiaries.length
       );
       console.log("startTimes Size:  ", startTimes);
-      console.log("cliffs Size:  ", cliffs.length);
-      console.log("beneficiaries Size:  ", beneficiaries.length);
-      console.log("amounts Size:  ", amounts.length.toString());
+      console.log("cliffs Size:  ", cliffs);
+      console.log("beneficiaries Size:  ", beneficiaries);
+      console.log("amounts Size:  ", amounts);
       // estimate gas value
-      return VestingTimelockInstance.addGrants.estimateGas(
+      return VestingTimelockInstance.addGrants(
         startTimes,
         amounts,
         cliffs,
@@ -92,10 +95,11 @@ module.exports = function (callback) {
     })
     .then((receipt) => {
       console.log("addGrants Transaction Executed: ", receipt);
-      return instance.getGrant(accounts[4]);
+      return VestingTimelockInstance.getGrant(
+        vestingBeneficiaries.consolidatedBeneficiaries[startIndex]
+      );
     })
     .then((grant) => {
-      console.log("Beneficiary : ", accounts[4]);
       console.log("Grant : ", grant);
     })
     .then(() => callback())
