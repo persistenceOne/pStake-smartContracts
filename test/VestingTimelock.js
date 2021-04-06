@@ -18,11 +18,12 @@ let amount = new BN(200);
 let zeroAmount = new BN(0);
 let num = new BN(1);
 
-let bridgeAdmin = "0x0Af71f1Fc52E98704C34C260bc888628b6eC647A";
-let pauserAdmin = "0x0eE5F1E11fEB686641536845118D97b8A8aAE08E";
-let pstkTreasury = "0x7b481c7A3F3CB4bd0FDe74ac7E1C76656c661762";
-let vestingProvider = "0x7b481c7A3F3CB4bd0FDe74ac7E1C76656c661762";
-let from = "0xd8c10B62305DD79F96128Fe689C53a3528871CA1";
+let defaultAdmin = "0xfF97951A3BbcFB57835061eB9dE89c040129259f";
+let bridgeAdmin = "0xAa2e04A739f51F81cBa6A3A3cCB13938791f53b3";
+let pauserAdmin = "0x8BD8838778eE828BA40557de36a6c68Eb31141c9";
+let pstkTreasury = "0xaD9e2D3598139D4c1d473Db89bF9fae6944fdB40";
+let vestingProvider = "0x873bDd68152b52F5B92301Ab03af7966A78E7Dd1";
+let from = "0xfF97951A3BbcFB57835061eB9dE89c040129259f";
 let ustkXPRTContractAddress = "0x04AE194386F89Abf5Fe91a3521353ea92D0EAbf8";
 let unknownAddress = "0xf1DD002Aa88847e7fb5e5B9326C9d4f46E929bD6";
 let receipientUnique = [

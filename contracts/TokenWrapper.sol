@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.0;
 
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -8,7 +9,7 @@ import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ITokenWrapper.sol";
 
-contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgradeable {
+contract TokenWrapper is Initializable, ITokenWrapper, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
 
@@ -29,8 +30,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
    * @param pauserAddress - address of the pauser admin.
    */
     function initialize(address uAddress, address sAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
-         __AccessControl_init();
-        __Pausable_init();
+        __Context_init_unchained();
+        __AccessControl_init_unchained();
+        __Pausable_init_unchained();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);

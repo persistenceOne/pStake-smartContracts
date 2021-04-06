@@ -2,6 +2,7 @@
 
 pragma solidity >=0.7.0;
 
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -17,7 +18,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
  * Useful for simple vesting schedules like "advisors get all of their tokens
  * after 1 year"
  */
-contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, AccessControlUpgradeable{
+contract VestingTimelock is Initializable, ReentrancyGuardUpgradeable, PausableUpgradeable, AccessControlUpgradeable{
     
     // including libraries
     using SafeERC20Upgradeable for IERC20Upgradeable;
@@ -47,9 +48,10 @@ contract VestingTimelock is ReentrancyGuardUpgradeable, PausableUpgradeable, Acc
     event GrantRevoked(address indexed benificiary, address indexed vestingProvider, uint256 timestamp);
 
     function initialize(IERC20Upgradeable token_, address pauserAddress_) public virtual initializer {
+        __Context_init_unchained();
         __ReentrancyGuard_init();
-        __Pausable_init();
-        __AccessControl_init();
+        __AccessControl_init_unchained();
+        __Pausable_init_unchained();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress_);
         _token = token_;

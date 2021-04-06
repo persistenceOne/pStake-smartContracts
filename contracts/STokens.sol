@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.7.0;
 
+import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
@@ -8,7 +9,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 
-contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessControlUpgradeable {
+contract STokens is Initializable, ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
 
@@ -30,9 +31,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param pauserAddress - address of the pauser admin.
    */
     function initialize(address uaddress, address pauserAddress) public virtual initializer {
-        __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
-        __AccessControl_init();
-        __Pausable_init();
+        __Context_init_unchained();
+        __ERC20_init_unchained("pSTAKE Staked ATOM", "stkATOM");
+        __AccessControl_init_unchained();
+        __Pausable_init_unchained();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uaddress);
