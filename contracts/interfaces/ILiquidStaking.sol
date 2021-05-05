@@ -33,11 +33,6 @@ interface ILiquidStaking {
     function withdrawUnstakedTokens(address staker) external;
 
     /**
-    * @dev Returns the unbonded tokens.
-    */
-    function getTotalUnbondedTokens(address staker) external view returns (uint256);
-
-    /**
     * @dev Set UTokens smart contract.
     * Emits a {SetContract} event.
     */

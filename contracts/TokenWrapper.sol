@@ -40,7 +40,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
-    function setUTokensContract(address uAddress) public virtual override whenNotPaused {
+    function setUTokensContract(address uAddress) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);

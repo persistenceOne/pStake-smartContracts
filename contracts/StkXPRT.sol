@@ -50,7 +50,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * - `rate` cannot be less than or equal to zero.
     *
     */
-    function setRewardRate(uint256 rate) public virtual override whenNotPaused returns (bool success) {
+    function setRewardRate(uint256 rate) public virtual override returns (bool success) {
         require(rate>0, "STokens: Reward rate should be greater than 0");
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set reward rate");
         _rewardRate = rate;
@@ -60,7 +60,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     /**
     * @dev get reward rate
     */
-    function getRewardRate() public view virtual override whenNotPaused returns (uint256 rewardRate) {
+    function getRewardRate() public view virtual override returns (uint256 rewardRate) {
         rewardRate = _rewardRate;
         return rewardRate;
     }
@@ -69,7 +69,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @dev get staked block
      * @param to: account address
      */
-    function getStakedBlock(address to) public view virtual override whenNotPaused returns (uint256 stakedBlocks) {
+    function getStakedBlock(address to) public view virtual override returns (uint256 stakedBlocks) {
         stakedBlocks = _stakedBlocks[to];
         return stakedBlocks;
     }
@@ -130,7 +130,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @dev Calculate pending rewards for the provided 'address'
      * @param to: account address
      */
-    function calculatePendingRewards(address to) public view virtual whenNotPaused returns (uint256 pendingRewards){
+    function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards){
         // Get the current Block
         uint256 _currentBlock = block.number;
         // Get the time in number of blocks
@@ -191,7 +191,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
-    function setUTokensContract(address uTokenContract) public virtual override whenNotPaused{
+    function setUTokensContract(address uTokenContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set UToken contract address");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);
@@ -205,7 +205,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     //This function need to be called after deployment, only admin can call the same
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused{
+    function setLiquidStakingContract(address liquidStakingContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
@@ -218,7 +218,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * Emits a {SetContract} event with '_contract' set to the wrapper contract address.
      *
      */
-    function setWrapperContract(address wrapperContract) public virtual override whenNotPaused {
+    function setWrapperContract(address wrapperContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set wrapper contract");
         _wrapperContract = wrapperContract;
         emit SetWrapperContract(wrapperContract);

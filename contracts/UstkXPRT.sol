@@ -75,7 +75,7 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
     *
     */
     //These functions need to be called after deployment, only admin can call the same
-    function setSTokenContract(address stokenContract) public virtual override whenNotPaused {
+    function setSTokenContract(address stokenContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set SToken contract");
         _stokenContract = stokenContract;
         emit SetSTokensContract(stokenContract);
@@ -88,7 +88,7 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      * Emits a {SetContract} event with '_contract' set to the liquidStaking contract address.
      *
      */
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
+    function setLiquidStakingContract(address liquidStakingContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UstkXPRT: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
@@ -101,7 +101,7 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      * Emits a {SetContract} event with '_contract' set to the tokenWrapper contract address.
      *
      */
-    function setWrapperContract(address wrapperTokensContract) public virtual override whenNotPaused {
+    function setWrapperContract(address wrapperTokensContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UstkXPRT: User not authorised to set wrapper contract");
         _wrapperContract = wrapperTokensContract;
         emit SetWrapperContract(wrapperTokensContract);

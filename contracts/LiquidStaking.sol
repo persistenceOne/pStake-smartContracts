@@ -56,7 +56,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * Emits a {SetContract} event with '_contract' set to the utoken contract address.
      *
      */
-    function setUTokensContract(address uAddress) public virtual override whenNotPaused {
+    function setUTokensContract(address uAddress) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
@@ -69,7 +69,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * Emits a {SetContract} event with '_contract' set to the stoken contract address.
      *
      */
-    function setSTokensContract(address sAddress) public virtual override whenNotPaused {
+    function setSTokensContract(address sAddress) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set SToken contract");
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
@@ -81,7 +81,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     * Emits a {SetContract} event with '_contract' set to the stoken contract address.
     *
     */
-    function setWrapperContract(address wrapperAddress) public virtual override whenNotPaused {
+    function setWrapperContract(address wrapperAddress) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set wrapper contract");
         _tokenWrapper = ITokenWrapper(wrapperAddress);
         emit SetWrapperContract(wrapperAddress);
@@ -168,7 +168,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondedTokens(address staker) public view virtual override whenNotPaused returns (uint256 unbondingTokens) {
+    function getTotalUnbondedTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
         if(staker == _msgSender()){
             for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
                 if (block.timestamp > _unstakingExpiration[staker][i]) {
