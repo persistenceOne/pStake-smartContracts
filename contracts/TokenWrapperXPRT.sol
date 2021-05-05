@@ -53,7 +53,7 @@ contract TokenWrapperXPRT is ITokenWrapper, PausableUpgradeable, AccessControlUp
       *
       * - The contract must not be paused.
       */
-    function pause() public virtual override returns (bool success) {
+    function pause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to pause contracts");
         _pause();
         return true;
@@ -66,7 +66,7 @@ contract TokenWrapperXPRT is ITokenWrapper, PausableUpgradeable, AccessControlUp
      *
      * - The contract must be paused.
      */
-    function unpause() public virtual override returns (bool success) {
+    function unpause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to unpause contracts");
         _unpause();
         return true;
