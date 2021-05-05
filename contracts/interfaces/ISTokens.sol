@@ -26,12 +26,10 @@ interface ISTokens is IERC20Upgradeable {
      */
     function burn(address from, uint256 tokens) external returns (bool);
 
-    /**
-     * @dev Sets `reward rate`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     */
-    function setRewardRate(uint256 rate) external returns (bool);
+  /**
+    * @dev Returns the reward rate set by the admin.
+    */
+    function getRewardRate() external view returns (uint256);
 
     /**
     * @dev Returns the staked block of the user's address.
@@ -39,16 +37,13 @@ interface ISTokens is IERC20Upgradeable {
     function getStakedBlock(address to) external view returns (uint256);
 
     /**
-    * @dev Returns the reward rate set by the admin.
-    */
-    function getRewardRate() external view returns (uint256);
-
-    /**
-     * @dev Returns the pending reward owned by `account`..
+     * @dev Sets `reward rate`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
      */
-    function calculatePendingRewards(address to) external view returns (uint256);
+    function setRewardRate(uint256 rate) external returns (bool);
 
-    /**
+      /**
      * @dev Calculates rewards `amount` tokens to the caller's address `to`.
      *
      * Returns a boolean value indicating whether the operation succeeded.
@@ -56,11 +51,6 @@ interface ISTokens is IERC20Upgradeable {
      * Emits a {TriggeredCalculateRewards} event.
      */
     function calculateRewards(address to) external returns (bool);
-
-    /**
-    * @dev Set LiquidStaking smart contract.
-    */
-    function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Set UTokens smart contract.
@@ -76,27 +66,26 @@ interface ISTokens is IERC20Upgradeable {
     function setWrapperContract(address wrapperContract) external;
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {pause} event.
-     */
-    function pause() external returns (bool);
-
-    /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
-     */
-    function unpause() external returns (bool);
+    * @dev Set LiquidStaking smart contract.
+    */
+    function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Emitted when contract addresses are set
      */
-    event SetContract( address indexed _contract );
+    event SetUTokensContract( address indexed _contract );
+
+    
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetWrapperContract( address indexed _contract );
+
+    
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetLiquidStakingContract( address indexed _contract );
 
     /**
      * @dev Emitted when `rewards` tokens are moved to account
