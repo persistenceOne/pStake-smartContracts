@@ -40,22 +40,4 @@ interface IUTokens is IERC20Upgradeable {
      * @dev Set PegTokens smart contract.
      */
     function setWrapperContract(address wrapperTokensContract) external;
-
-    /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Pause} event.
-     */
-    function pause() external returns (bool);
-
-    /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
-     */
-    function unpause() external returns (bool);
 }
