@@ -41,19 +41,6 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-     * @dev Set 'contract address', called from constructor
-     * @param uTokenContract: utoken contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the utoken contract address.
-     *
-     */
-    function setUTokensContract(address uTokenContract) public virtual override whenNotPaused{
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set UToken contract address");
-        _uTokens = IUTokens(uTokenContract);
-        emit SetContract(uTokenContract);
-    }
-
-    /*
     * @dev set reward rate
     * @param rate: reward rate
     *
@@ -143,7 +130,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @dev Calculate pending rewards for the provided 'address'
      * @param to: account address
      */
-    function calculatePendingRewards(address to) public view virtual override whenNotPaused returns (uint256 pendingRewards){
+    function calculatePendingRewards(address to) public view virtual whenNotPaused returns (uint256 pendingRewards){
         // Get the current Block
         uint256 _currentBlock = block.number;
         // Get the time in number of blocks
@@ -199,6 +186,19 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
     /*
      * @dev Set 'contract address', called from constructor
+     * @param uTokenContract: utoken contract address
+     *
+     * Emits a {SetContract} event with '_contract' set to the utoken contract address.
+     *
+     */
+    function setUTokensContract(address uTokenContract) public virtual override whenNotPaused{
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set UToken contract address");
+        _uTokens = IUTokens(uTokenContract);
+        emit SetUTokensContract(uTokenContract);
+    }
+
+    /*
+     * @dev Set 'contract address', called from constructor
      * @param liquidStakingContract: liquidStaking contract address
      *
      * Emits a {SetContract} event with '_contract' set to the liquidStaking contract address.
@@ -208,6 +208,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
+        emit SetLiquidStakingContract(liquidStakingContract);
     }
 
     /*
@@ -220,6 +221,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function setWrapperContract(address wrapperContract) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set wrapper contract");
         _wrapperContract = wrapperContract;
+        emit SetWrapperContract(wrapperContract);
     }
 
     /**
@@ -229,7 +231,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
       *
       * - The contract must not be paused.
       */
-    function pause() public virtual override returns (bool success) {
+    function pause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to pause contracts.");
         _pause();
         return true;
@@ -242,7 +244,7 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      * - The contract must be paused.
      */
-    function unpause() public virtual override returns (bool success) {
+    function unpause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to unpause contracts.");
         _unpause();
         return true;

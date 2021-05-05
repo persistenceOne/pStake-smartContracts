@@ -57,5 +57,5 @@ interface ITokenWrapper {
     /**
       * @dev Emitted when contract addresses are set
       */
-    event SetContract( address indexed _contract );
+    event SetUTokensContract( address indexed _contract );
 }

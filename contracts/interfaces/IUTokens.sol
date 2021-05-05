@@ -40,4 +40,21 @@ interface IUTokens is IERC20Upgradeable {
      * @dev Set PegTokens smart contract.
      */
     function setWrapperContract(address wrapperTokensContract) external;
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetSTokensContract( address indexed _contract );
+
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetWrapperContract( address indexed _contract );
+
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetLiquidStakingContract( address indexed _contract );
 }

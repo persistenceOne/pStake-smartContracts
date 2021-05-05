@@ -45,7 +45,7 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
     *
     */
     function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UstkXPRT: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
     }
@@ -62,7 +62,7 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      *
      */
     function burn(address from, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
+        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UstkXPRT: User not authorised to burn UTokens");
         _burn(from, tokens);
         return true;
     }
@@ -78,6 +78,7 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
     function setSTokenContract(address stokenContract) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set SToken contract");
         _stokenContract = stokenContract;
+        emit SetSTokensContract(stokenContract);
     }
 
     /*
@@ -88,8 +89,9 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      *
      */
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set liquidStaking contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UstkXPRT: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
+        emit SetLiquidStakingContract(liquidStakingContract);
     }
 
     /*
@@ -100,8 +102,9 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      *
      */
     function setWrapperContract(address wrapperTokensContract) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set wrapper contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UstkXPRT: User not authorised to set wrapper contract");
         _wrapperContract = wrapperTokensContract;
+        emit SetWrapperContract(wrapperTokensContract);
     }
 
     /**
@@ -111,8 +114,8 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
       *
       * - The contract must not be paused.
       */
-    function pause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
+    function pause() public virtual returns (bool success) {
+        require(hasRole(PAUSER_ROLE, _msgSender()), "UstkXPRT: User not authorised to pause contracts.");
         _pause();
         return true;
     }
@@ -124,8 +127,8 @@ contract UstkXPRT is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessCont
      *
      * - The contract must be paused.
      */
-    function unpause() public virtual override returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to unpause contracts.");
+    function unpause() public virtual returns (bool success) {
+        require(hasRole(PAUSER_ROLE, _msgSender()), "UstkXPRT: User not authorised to unpause contracts.");
         _unpause();
         return true;
     }

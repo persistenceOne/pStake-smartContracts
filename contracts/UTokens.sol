@@ -78,6 +78,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     function setSTokenContract(address stokenContract) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set SToken contract");
         _stokenContract = stokenContract;
+        emit SetSTokensContract(stokenContract);
     }
 
     /*
@@ -90,6 +91,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
+        emit SetLiquidStakingContract(liquidStakingContract);
     }
 
     /*
@@ -102,6 +104,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     function setWrapperContract(address wrapperTokensContract) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set wrapper contract");
         _wrapperContract = wrapperTokensContract;
+        emit SetWrapperContract(wrapperTokensContract);
     }
 
     /**
@@ -111,7 +114,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
       *
       * - The contract must not be paused.
       */
-    function pause() public virtual override returns (bool success) {
+    function pause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
         _pause();
         return true;
@@ -124,7 +127,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      * - The contract must be paused.
      */
-    function unpause() public virtual override returns (bool success) {
+    function unpause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to unpause contracts.");
         _unpause();
         return true;
