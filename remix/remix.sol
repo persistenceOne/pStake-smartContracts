@@ -1,14 +1,209 @@
+/*
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity ^0.8.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/ISTokens.sol";
-import "./interfaces/IUTokens.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/token/ERC20/ERC20Upgradeable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/utils/math/SafeMathUpgradeable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/security/PausableUpgradeable.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts-upgradeable/blob/master/contracts/access/AccessControlUpgradeable.sol";
 
-contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessControlUpgradeable {
+interface IUTokens is IERC20Upgradeable {
+
+    */
+/**
+     * @dev Mints `amount` tokens to the caller's address `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     *//*
+
+    function mint(address to, uint256 tokens) external returns (bool);
+
+    */
+/**
+     * @dev Burns `amount` tokens to the caller's address `from`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     *//*
+
+    function burn(address from, uint256 tokens) external returns (bool);
+
+    */
+/**
+    * @dev Set LiquidStaking smart contract.
+    *//*
+
+    function setLiquidStakingContract(address liquidStakingContract) external;
+
+    */
+/**
+     * @dev Set STokens smart contract.
+     *//*
+
+    function setSTokenContract(address stokenContract) external;
+
+    */
+/**
+     * @dev Set PegTokens smart contract.
+     *//*
+
+    function setWrapperContract(address wrapperTokensContract) external;
+
+    */
+/**
+     * @dev Emitted when contract addresses are set
+     *//*
+
+    event SetSTokensContract( address indexed _contract );
+
+
+    */
+/**
+     * @dev Emitted when contract addresses are set
+     *//*
+
+    event SetWrapperContract( address indexed _contract );
+
+
+    */
+/**
+     * @dev Emitted when contract addresses are set
+     *//*
+
+    event SetLiquidStakingContract( address indexed _contract );
+}
+
+interface ISTokens is IERC20Upgradeable {
+
+    */
+/**
+     * @dev Mints `amount` tokens to the caller's address `to`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     *//*
+
+    function mint(address to, uint256 tokens) external returns (bool);
+
+    */
+/**
+     * @dev Burns `amount` tokens to the caller's address `from`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {Transfer} event.
+     *//*
+
+    function burn(address from, uint256 tokens) external returns (bool);
+
+    */
+/**
+      * @dev Returns the reward rate set by the admin.
+      *//*
+
+    function getRewardRate() external view returns (uint256[] memory, uint256);
+
+    */
+/**
+    * @dev Returns the staked block of the user's address.
+    *//*
+
+    function getStakedBlock(address to) external view returns (uint256);
+
+    */
+/**
+     * @dev Sets `reward rate`.
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *//*
+
+    function setRewardRate(uint256 rate) external returns (bool);
+
+    */
+/**
+   * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+   *
+   * Returns a boolean value indicating whether the operation succeeded.
+   *
+   * Emits a {TriggeredCalculateRewards} event.
+   *//*
+
+    function calculateRewards(address to) external returns (bool);
+
+    */
+/**
+     * @dev Set UTokens smart contract.
+     *
+     *
+     * Emits a {SetContract} event.
+     *//*
+
+    function setUTokensContract(address utokenContract) external;
+
+    */
+/**
+     * @dev Set Wrapper smart contract.
+     *//*
+
+    function setWrapperContract(address wrapperContract) external;
+
+    */
+/**
+    * @dev Set LiquidStaking smart contract.
+    *//*
+
+    function setLiquidStakingContract(address liquidStakingContract) external;
+
+    */
+/**
+     * @dev Emitted when contract addresses are set
+     *//*
+
+    event SetUTokensContract( address indexed _contract );
+
+
+    */
+/**
+     * @dev Emitted when contract addresses are set
+     *//*
+
+    event SetWrapperContract( address indexed _contract );
+
+
+    */
+/**
+     * @dev Emitted when contract addresses are set
+     *//*
+
+    event SetLiquidStakingContract( address indexed _contract );
+
+    */
+/**
+     * @dev Emitted when `rewards` tokens are moved to account
+     *
+     * Note that `value` may be zero.
+     *//*
+
+    event CalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+
+    */
+/**
+     * @dev Emitted when `rewards` tokens are moved to account
+     *
+     * Note that `value` may be zero.
+     *//*
+
+    event TriggeredCalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+
+
+}
+
+
+contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
 
@@ -27,25 +222,28 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
     mapping(address => uint256) private _stakedBlocks;
 
-    /**
+    */
+/**
    * @dev Constructor for initializing the SToken contract.
-   * @param uaddress - address of the UToken contract.
    * @param pauserAddress - address of the pauser admin.
-   */
-    function initialize(address uaddress, address pauserAddress, uint256 rewardRate) public virtual initializer {
-        __ERC20_init("pSTAKE Staked XPRT", "stkXPRT");
+   *//*
+
+    function initialize( address pauserAddress, uint256 rewardRate) public virtual initializer {
+        __ERC20_init("pSTAKE Staked ATOMs", "stkATOMs");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
-        setUTokensContract(uaddress);
+        // setUTokensContract(uaddress);
         // to set reward rate to 5e-3 or 0.005
         _rewardRate.push(rewardRate);
         _rewardBlockNumber.push(block.number);
-        _setupDecimals(6);
+        _rewardDivisor = 10**9;
+        // _setupDecimals(6);
     }
 
-    /*
+    */
+/*
     * @dev set reward rate
     * @param rate: reward rate
     *
@@ -54,7 +252,8 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     *
     * - `rate` cannot be less than or equal to zero.
     *
-    */
+    *//*
+
     function setRewardRate(uint256 rewardRate) public virtual override returns (bool success) {
         require(rewardRate>0, "STokens: Reward rate should be greater than 0");
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set reward rate");
@@ -63,25 +262,30 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return true;
     }
 
-    /**
-    * @dev get reward rate
     */
+/**
+    * @dev get reward rate
+    *//*
+
     function getRewardRate() public view virtual override returns (uint256[] memory rewardRate, uint256 rewardDivisor) {
         rewardRate = _rewardRate;
         rewardDivisor = _rewardDivisor;
         return (rewardRate, rewardDivisor);
     }
 
-    /**
+    */
+/**
      * @dev get staked block
      * @param to: account address
-     */
+     *//*
+
     function getStakedBlock(address to) public view virtual override returns (uint256 stakedBlocks) {
         stakedBlocks = _stakedBlocks[to];
         return stakedBlocks;
     }
 
-    /**
+    */
+/**
      * @dev Mint new stokens for the provided 'address' and 'amount'
      * @param to: account address, amount: number of tokens
      *
@@ -91,14 +295,16 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      * - `amount` cannot be less than zero.
      *
-     */
+     *//*
+
     function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
+        // require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
         return true;
     }
 
-    /*
+    */
+/*
      * @dev Burn stokens for the provided 'address' and 'amount'
      * @param to: account address, amount: number of tokens
      *
@@ -108,17 +314,20 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      * - `amount` cannot be less than zero.
      *
-     */
+     *//*
+
     function burn(address from, uint256 tokens) public  virtual override whenNotPaused returns (bool success) {
-        require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
+        //  require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
         _burn(from, tokens);
         return true;
     }
 
-    /**
+    */
+/**
      * @dev Calculate rewards for the provided 'address'
      * @param to: account address
-     */
+     *//*
+
     function _calculateRewards(address to) internal returns (uint256){
         // Calculate the rewards pending
         uint256 _reward = calculatePendingRewards(to);
@@ -133,13 +342,15 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return _reward;
     }
 
-    /**
+    */
+/**
      * @dev Calculate pending rewards for the provided 'address'
      * @param to: account address
-     */
+     *//*
+
     function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards){
         // Get the current Block
-       // uint256 _currentBlock = block.number;
+        //uint256 _currentBlock = block.number;
         // Get the time in number of blocks
         uint256 _lastRewardBlockNumber = _stakedBlocks[to];
 
@@ -179,13 +390,15 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return pendingRewards;
     }
 
-    /**
+    */
+/**
      * @dev Calculate rewards for the provided 'address'
      * @param to: account address
      *
      * Emits a {TriggeredCalculateRewards} event with 'to' set to address, 'reward' set to amount of tokens and 'timestamp'
      *
-     */
+     *//*
+
     function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
         require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
         uint256 reward =  _calculateRewards(to);
@@ -193,7 +406,8 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return true;
     }
 
-    /**
+    */
+/**
      * @dev Hook that is called before any transfer of tokens. This includes
      * minting and burning.
      *
@@ -205,7 +419,8 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
      * - `from` and `to` are never both zero.
      *
-     */
+     *//*
+
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         require(!paused(), "ERC20Pausable: token transfer while paused");
         super._beforeTokenTransfer(from, to, amount);
@@ -219,26 +434,30 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         }
     }
 
-    /*
+    */
+/*
     * @dev Set 'contract address', called from constructor
     * @param uTokenContract: utoken contract address
     *
     * Emits a {SetContract} event with '_contract' set to the utoken contract address.
     *
-    */
+    *//*
+
     function setUTokensContract(address uTokenContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set UToken contract address");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);
     }
 
-    /*
+    */
+/*
      * @dev Set 'contract address', called from constructor
      * @param liquidStakingContract: liquidStaking contract address
      *
      * Emits a {SetContract} event with '_contract' set to the liquidStaking contract address.
      *
-     */
+     *//*
+
     //This function need to be called after deployment, only admin can call the same
     function setLiquidStakingContract(address liquidStakingContract) public virtual override{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
@@ -246,42 +465,48 @@ contract StkXPRT is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         emit SetLiquidStakingContract(liquidStakingContract);
     }
 
-    /*
+    */
+/*
      * @dev Set 'contract address', called from constructor
      * @param wrapperContract: wrapperContract contract address
      *
      * Emits a {SetContract} event with '_contract' set to the wrapper contract address.
      *
-     */
+     *//*
+
     function setWrapperContract(address wrapperContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set wrapper contract");
         _wrapperContract = wrapperContract;
         emit SetWrapperContract(wrapperContract);
     }
 
-    /**
+    */
+/**
       * @dev Triggers stopped state.
       *
       * Requirements:
       *
       * - The contract must not be paused.
-      */
+      *//*
+
     function pause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to pause contracts.");
         _pause();
         return true;
     }
 
-    /**
+    */
+/**
      * @dev Returns to normal state.
      *
      * Requirements:
      *
      * - The contract must be paused.
-     */
+     *//*
+
     function unpause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to unpause contracts.");
         _unpause();
         return true;
     }
-}
+}*/

@@ -31,19 +31,20 @@ const TokenWrapper = artifacts.require('TokenWrapper');
 /*const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');*/
 
-const sTokens = artifacts.require('StkXPRT');
-const uTokens = artifacts.require('UstkXPRT');
+const sTokens = artifacts.require('STokens');
+const uTokens = artifacts.require('UTokens');
 
 const toAtomAddress = "toAtomAddress"
-let defaultAdmin = "0xa0974c80d812c1c71474Bd3108baB10792454220";
-let bridgeAdmin = "0x46cFedcF739b8fA62878f529d96e4642Dee0FF2A";
-let pauseAdmin = "0xca0A44110c6A835097b3990248D71d5Edc4697f8";
-let to = "0xA4B98501eF2f3b68f0B8cB9b37C8C2BD6E79Ad65";
-let unknownAddress = "0x7c80679CACe1122426D5aFC8B37D1c77918d4D6a";
+let defaultAdmin = "0xF45b7d1DF227887Da9E8C1dD7f39C5131A3c0C0A";
+let bridgeAdmin = "0x4b6365B9A20bEdb0528989DE2b837E6fA9D53A04";
+let pauseAdmin = "0x31B94bb5085AF4c60e2354A94c3E69912A26F082";
+let to = "0x78Dc60A2d97eE1681A8Eb2d7651037f627929d8C";
+let unknownAddress = "0xf9f06Cd23e1fb23e5e180De7Fd3A32dD216505F1";
 
 
 describe("Liquid Staking", function () {
     this.timeout(0);
+    let _rewardRate = new BN(3000000);
     let liquidStaking;
     let tokenWrapper;
     let utokens;
@@ -52,13 +53,13 @@ describe("Liquid Staking", function () {
     let amt = new BN(150);
     let amount = new BN(200);
     let val = new BN(50);
-    let rate = 2;
+    let rate = new BN(2000000);
     beforeEach(async function (){
         this.project = await TestHelper()
 
         utokens = await deployProxy(uTokens, [bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin], { initializer: 'initialize' });
+        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin, _rewardRate], { initializer: 'initialize' });
 
         tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
@@ -99,8 +100,9 @@ describe("Liquid Staking", function () {
 
         it('Get Reward Rate', async function () {
             await stokens.setRewardRate(rate,{from: defaultAdmin,});
-            let rewardRate = await stokens.getRewardRate({from: defaultAdmin,});
-            expect(rewardRate == rate);
+            let _rate = await stokens.getRewardRate({from: defaultAdmin,});
+            console.log("rewardsRate: ", _rate)
+            expect(_rate == rate);
         });
 
         it('Get Staked Block', async function () {

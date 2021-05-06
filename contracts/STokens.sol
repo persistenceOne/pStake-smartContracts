@@ -21,7 +21,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     IUTokens private _uTokens;
 
 
-    uint256 private _rewardRate;
+    uint256[] private _rewardRate;
+    uint256[] private _rewardBlockNumber;
+    uint256 private _rewardDivisor;
+
     mapping(address => uint256) private _stakedBlocks;
 
     /**
@@ -29,14 +32,16 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param uaddress - address of the UToken contract.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uaddress, address pauserAddress) public virtual initializer {
+    function initialize(address uaddress, address pauserAddress, uint256 rewardRate) public virtual initializer {
         __ERC20_init("pSTAKE Staked ATOMs", "stkATOMs");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uaddress);
-        _rewardRate = 1;
+        // to set reward rate to 5e-3 or 0.005
+        _rewardRate.push(rewardRate);
+        _rewardBlockNumber.push(block.number);
         _setupDecimals(6);
     }
 
@@ -50,19 +55,21 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * - `rate` cannot be less than or equal to zero.
     *
     */
-    function setRewardRate(uint256 rate) public virtual override returns (bool success) {
-        require(rate>0, "STokens: Reward rate should be greater than 0");
+    function setRewardRate(uint256 rewardRate) public virtual override returns (bool success) {
+        require(rewardRate>0, "STokens: Reward rate should be greater than 0");
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set reward rate");
-        _rewardRate = rate;
+        _rewardRate.push(rewardRate);
+        _rewardBlockNumber.push(block.number);
         return true;
     }
 
     /**
     * @dev get reward rate
     */
-    function getRewardRate() public view virtual override returns (uint256 rewardRate) {
+    function getRewardRate() public view virtual override returns (uint256[] memory rewardRate, uint256 rewardDivisor) {
         rewardRate = _rewardRate;
-        return rewardRate;
+        rewardDivisor = _rewardDivisor;
+        return (rewardRate, rewardDivisor);
     }
 
     /**
@@ -132,15 +139,43 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      */
     function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards){
         // Get the current Block
-        uint256 _currentBlock = block.number;
+        //uint256 _currentBlock = block.number;
         // Get the time in number of blocks
-        uint256 _rewardBlock = _currentBlock.sub(_stakedBlocks[to], "STokens: Error in subtraction");
+        uint256 _lastRewardBlockNumber = _stakedBlocks[to];
+
+        // uint256 _rewardBlock = _currentBlock.sub(_stakedBlocks[to], "STokens: Error in subtraction");
         // Get the balance of the account
         uint256 _balance = balanceOf(to);
-        // Calculate the interest if P, R, T are non zero values
-        if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0) {
-            pendingRewards = (_balance * _rewardRate * _rewardBlock) / 100;
+        uint256 _index;
+        uint256 _rewardBlock;
+        uint256 _simpleInterestOfInterval;
+
+        for(_index=_rewardBlockNumber.length-1; _index>0; _index--){
+            if(_rewardBlockNumber[_index] > _lastRewardBlockNumber) {
+                _index = _index.add(1);
+                break;
+            }
         }
+
+        if(_index == _rewardBlockNumber.length) {
+            _rewardBlock = _lastRewardBlockNumber.sub(_rewardBlockNumber[_index.sub(1)]);
+            _simpleInterestOfInterval = (_balance * _rewardRate[_index.sub(1)] * _rewardBlock) / (100 * _rewardDivisor);
+            pendingRewards = _simpleInterestOfInterval;
+            return pendingRewards;
+        }
+
+        for(; _index< _rewardBlockNumber.length; _index++){
+            // Calculate the interest if P, R, T are non zero values
+            _rewardBlock = _rewardBlockNumber[_index].sub(_lastRewardBlockNumber);
+            _lastRewardBlockNumber = _rewardBlockNumber[_index];
+            if(_balance > 0 && _rewardBlockNumber[_index] > 0 && _rewardBlock > 0) {
+                // calculate the simple interest for that particular interval
+                _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
+            }
+
+        }
+
         return pendingRewards;
     }
 

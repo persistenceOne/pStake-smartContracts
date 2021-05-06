@@ -29,7 +29,7 @@ interface ISTokens is IERC20Upgradeable {
   /**
     * @dev Returns the reward rate set by the admin.
     */
-    function getRewardRate() external view returns (uint256);
+    function getRewardRate() external view returns (uint256[] memory, uint256);
 
     /**
     * @dev Returns the staked block of the user's address.
@@ -75,13 +75,13 @@ interface ISTokens is IERC20Upgradeable {
      */
     event SetUTokensContract( address indexed _contract );
 
-    
+
     /**
      * @dev Emitted when contract addresses are set
      */
     event SetWrapperContract( address indexed _contract );
 
-    
+
     /**
      * @dev Emitted when contract addresses are set
      */
