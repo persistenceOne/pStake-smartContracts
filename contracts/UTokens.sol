@@ -45,7 +45,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     *
     */
     function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
     }

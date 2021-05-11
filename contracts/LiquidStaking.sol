@@ -18,7 +18,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     ISTokens private _sTokens;
     ITokenWrapper private _tokenWrapper;
 
-    bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     uint256 _unstakinglockTime;
@@ -34,14 +33,12 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
    * @param uAddress - address of the UToken contract.
    * @param sAddress - address of the SToken contract.
    * @param wrapperAddress - address of the tokenWrapper contract.
-   * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uAddress, address sAddress, address wrapperAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address wrapperAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);

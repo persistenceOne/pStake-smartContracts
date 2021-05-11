@@ -32,7 +32,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param uaddress - address of the UToken contract.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uaddress, address pauserAddress, uint256 rewardRate) public virtual initializer {
+    function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 rewardDivisor) public virtual initializer {
         __ERC20_init("pSTAKE Staked ATOMs", "stkATOMs");
         __AccessControl_init();
         __Pausable_init();
@@ -42,6 +42,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // to set reward rate to 5e-3 or 0.005
         _rewardRate.push(rewardRate);
         _rewardBlockNumber.push(block.number);
+        _rewardDivisor = rewardDivisor;
         _setupDecimals(6);
     }
 
@@ -149,7 +150,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         uint256 _index;
         uint256 _rewardBlock;
         uint256 _simpleInterestOfInterval;
-        for(_index = _rewardBlockNumber.length.sub(1); _index >= 0; _index = _index.sub(1)){
+        for(_index = _rewardBlockNumber.length.sub(1); _index >= 0;){
             // logic applies for all indexes of array except last index
             if(_index < _rewardBlockNumber.length.sub(1)) {
                 if(_rewardBlockNumber[_index] > _lastRewardBlockNumber) {
@@ -177,6 +178,11 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }
+            }
+
+            if(_index == 0) break;
+            else {
+                _index = _index.sub(1);
             }
         }
         return pendingRewards;
