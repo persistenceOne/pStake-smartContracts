@@ -155,12 +155,14 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             if(_index < _rewardBlockNumber.length.sub(1)) {
                 if(_rewardBlockNumber[_index] > _lastRewardBlockNumber) {
                     _rewardBlock = (_rewardBlockNumber[_index.add(1)]).sub(_rewardBlockNumber[_index]);
-                    _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
                     _rewardBlock = (_rewardBlockNumber[_index.add(1)]).sub(_lastRewardBlockNumber);
-                    _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }
@@ -169,12 +171,14 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             else {
                 if(_rewardBlockNumber[_index] > _lastRewardBlockNumber) {
                     _rewardBlock = (block.number).sub(_rewardBlockNumber[_index]);
-                    _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                   // _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
                     _rewardBlock = (block.number).sub(_lastRewardBlockNumber);
-                    _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }

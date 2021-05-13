@@ -13,7 +13,7 @@ var UTokensInstance,
 let uTokenAddress = "0xAA507982e7a0abEbD4737d839fe2C3E6e71d9278";
 let sTokenAddress = "0xfAC7974De13271B26e463B351bF8e9965D983b95";
 let tokenWrapperAddress = "0x9BEA27B3953015D2BEe98496D48a7319d80e2A6F";
-let liquidStakingAddress = "0xc4062FB72e7a9a89696b634a981cfbEaBcEbA09A";
+let liquidStakingAddress = "0xac749a63F87Fe0A978Cb1002c2DFe9fdC5Bd52e4";
 
 //deploy ATOMs contracts
 module.exports = async function (deployer, network, accounts) {
@@ -70,7 +70,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   console.log("STokens deployed: ", STokensInstance.address);
   TokenWrapperInstance = await deployProxy(
     TokenWrapperArtifact,
-    [UTokensInstance.address, bridgeAdmin, pauseAdmin],
+    [UTokensInstance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
     { deployer, initializer: "initialize" }
   );
   console.log("TokenWrapper deployed: ", TokenWrapperInstance.address);
@@ -81,6 +81,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       STokensInstance.address,
       TokenWrapperInstance.address,
       pauseAdmin,
+        rewardDivisor,
     ],
     { deployer, initializer: "initialize" }
   );

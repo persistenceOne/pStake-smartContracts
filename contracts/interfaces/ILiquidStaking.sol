@@ -33,6 +33,18 @@ interface ILiquidStaking {
     function withdrawUnstakedTokens(address staker) external;
 
     /**
+    * @dev Set fees.
+    * Emits a {SetFees} event.
+    */
+    function setFees(uint256 stakeFee, uint256 unstakeFee) external;
+
+    /**
+    * @dev Set minimum values.
+    * Emits a {SetMinimumValues} event.
+    */
+    function setMinimumValues(uint256 minStake, uint256 minUnstake) external;
+
+    /**
     * @dev Set UTokens smart contract.
     * Emits a {SetContract} event.
     */
@@ -69,6 +81,16 @@ interface ILiquidStaking {
      * Emits a {Unpaused} event.
      */
     function unpause() external returns (bool);
+
+    /**
+    * @dev Emitted when fees are set
+    */
+    event SetFees( uint256 stakeFee, uint256 unstakeFee );
+
+    /**
+    * @dev Emitted when minimum values are set
+    */
+    event SetMinimumValues( uint256 minStake, uint256 minUnstake );
 
     /**
     * @dev Emitted when contract addresses are set

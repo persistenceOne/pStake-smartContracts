@@ -35,11 +35,11 @@ const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
 const toAtomAddress = "toAtomAddress"
-let defaultAdmin = "0x3c5236241b5fd7F314db7220dDf24EFD94287770";
-let bridgeAdmin = "0xcF3b27391833a8cB7f93AFD11248B89a1FB19780";
-let pauseAdmin = "0xc50D9AffAb7176775cE02A4ea62c095a69A88731";
-let to = "0x3e41c22Ec7986987427B6c5B775833ba94D18A0A";
-let unknownAddress = "0x6a4844CB2c18b29C3223aD7D465D5886Ae24f5cD";
+let defaultAdmin = "0x5416e2F6376F6B29d8049A68Be46b83491Ad3ebE";
+let bridgeAdmin = "0x5e03D2b9E9509Bf04EAa0e86882Bce5D6B44E127";
+let pauseAdmin = "0x8720D98452f05b961F4C3899aa101c4dC103D8DA";
+let to = "0xf2E94C91a811e0Be5afD5Ff849F35ada84c18f6D";
+let unknownAddress = "0x213F391F66936D6C54cC91C70d4024Ad989d088f";
 
 
 describe("Liquid Staking", function () {
@@ -62,9 +62,9 @@ describe("Liquid Staking", function () {
 
         stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin, _rewardRate, rewardDivisor], { initializer: 'initialize' });
 
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, pauseAdmin], { initializer: 'initialize' });
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
         await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
         await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
@@ -163,6 +163,7 @@ describe("Liquid Staking", function () {
                 tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
+            console.log("stake: ", stake)
             balance = await stokens.balanceOf(to);
             expect(balance>=amt)
             expectEvent(stake, "StakeTokens", {
@@ -333,6 +334,7 @@ describe("Liquid Staking", function () {
                 tokens: amt,
             });
             let unstake = await liquidStaking.unStake(to,val,{from: to,});
+            console.log("unstake: ", unstake)
             expect(balance>amt)
             let totalBalance = amt + val
             expect(totalBalance > await utokens.balanceOf(to));
