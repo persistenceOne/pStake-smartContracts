@@ -2,7 +2,7 @@
 pragma solidity ^0.7.0;
 
 /**
- * @dev Interface of the IUTokens.
+ * @dev Interface of the ITokenWrapper.
  */
 interface ITokenWrapper {
 
@@ -13,32 +13,11 @@ interface ITokenWrapper {
     function setUTokensContract(address uAddress) external;
 
     /**
-    * @dev Set fees.
-    * Emits a {SetFees} event.
-    * Returns a boolean value indicating whether the operation succeeded.
-    */
-    function setFees(uint256 depositFee, uint256 withdrawFee) external returns (bool);
-
-    /**
-    * @dev Set minimum values.
-    * Emits a {SetMinimumValues} event.
-    * Returns a boolean value indicating whether the operation succeeded.
-    */
-    function setMinimumValues(uint256 minWithdraw) external returns (bool);
-
-    /**
      * @dev Generates `amount` tokens to the caller's address `to`.
      *
      * Emits a {GenerateUTokens} event.
      */
     function generateUTokens(address to, uint256 amount) external;
-
-    /**
-    * @dev Generates `amount` tokens to the caller's address `to`.
-    *
-    * Emits a {GenerateUTokens} event.
-    */
-    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) external;
 
     /**
      * @dev Withdraws `amount` tokens to the caller's address `to`.
@@ -55,7 +34,7 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when minimum values are set
     */
-    event SetMinimumValues( uint256 minWithdraw );
+    event SetMinimumValues( uint256 minDeposit, uint256 minWithdraw );
 
   /**
      * @dev Emitted when contract addresses are set

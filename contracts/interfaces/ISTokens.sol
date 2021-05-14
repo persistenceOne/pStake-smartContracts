@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
- * @dev Interface of the IUTokens.
+ * @dev Interface of the ISTokens.
  */
 interface ISTokens is IERC20Upgradeable {
 

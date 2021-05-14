@@ -15,6 +15,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     IUTokens private _uTokens;
 
     // defining the fees and minimum values
+    uint256 private _minDeposit;
     uint256 private _minWithdraw;
     uint256 private _depositFee;
     uint256 private _withdrawFee;
@@ -38,9 +39,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         _feeDivisor = feeDivisor;
-        _minWithdraw = 0;
-        _depositFee = 0;
-        _withdrawFee = 0;
     }
 
     /**
@@ -50,7 +48,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * Emits a {SetFees} event with 'fee' set to the withdraw.
      *
      */
-    function setFees(uint256 depositFee, uint256 withdrawFee) public virtual override returns (bool success){
+    function setFees(uint256 depositFee, uint256 withdrawFee) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set fees");
         _depositFee = depositFee;
         _withdrawFee = withdrawFee;
@@ -62,9 +60,11 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * @dev get fees
      *
      */
-    function getFees() public view virtual returns (uint256 withdrawFee) {
+    function getFeesAndMinimumValues() public view virtual returns (uint256 depositFee, uint256 withdrawFee, uint256 minWithdraw) {
+        depositFee = _depositFee;
         withdrawFee = _withdrawFee;
-        return (withdrawFee);
+        minWithdraw = _minWithdraw;
+        return (depositFee, withdrawFee, minWithdraw);
     }
 
     /**
@@ -74,20 +74,12 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * Emits a {SetMinimumValues} event with 'minimum value' set to withdraw.
      *
      */
-    function setMinimumValues(uint256 minWithdraw) public virtual override returns (bool success){
+    function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set minimum values");
+        _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
-        emit SetMinimumValues(minWithdraw);
+        emit SetMinimumValues(minDeposit, minWithdraw);
         return true;
-    }
-
-    /**
-     * @dev get fees
-     *
-     */
-    function getMinimumValues() public view virtual returns (uint256 minWithdraw) {
-        minWithdraw = _minWithdraw;
-        return (minWithdraw);
     }
 
     /*
@@ -132,6 +124,20 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     /**
      * @dev Mint new utokens for the provided 'address' and 'amount'
      * @param to: account address, amount: number of tokens
+     * Requirements:
+     *
+     * - `amount` cannot be less than zero.
+     *
+     */
+    function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
+        finalTokens = (((amount.mul(100)).mul(_feeDivisor)).sub(_depositFee)).div(_feeDivisor.mul(100));
+        _uTokens.mint(to, finalTokens);
+        return finalTokens;
+    }
+
+    /**
+     * @dev Mint new utokens for the provided 'address' and 'amount'
+     * @param to: account address, amount: number of tokens
      *
      * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
      *
@@ -141,11 +147,10 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "TokenWrapper: Number of tokens should be greater than 0");
+        require(amount>0, "TokenWrapper: Requires a min deposit amount");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TokenWrapper: Only bridge admin can mint new tokens for a user");
-        uint256 finalTokens = (((amount.mul(100)).mul(_feeDivisor)).sub(_depositFee)).div(_feeDivisor.mul(100));
-        emit GenerateUTokens(to, finalTokens, block.timestamp);
-        _uTokens.mint(to, finalTokens);
+        uint256 _finalTokens = _generateUTokens(to, amount);
+        emit GenerateUTokens(to, _finalTokens, block.timestamp);
     }
 
     /**
@@ -159,15 +164,15 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * - `amount` cannot be less than zero.
      *
      */
-    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual override whenNotPaused {
+    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual whenNotPaused {
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TokenWrapper: Only bridge admin can mint new tokens for a user");
         uint256 i;
+        uint256 _finalTokens;
         for ( i=0; i<to.length; i=i.add(1)) {
-            require(amount[i]>0, "TokenWrapper: Number of tokens should be greater than 0");
-            uint256 finalTokens = (((amount[i].mul(100)).mul(_feeDivisor)).sub(_depositFee)).div(_feeDivisor.mul(100));
-            _uTokens.mint(to[i], finalTokens);
+            require(amount[i]>0, "TokenWrapper: Requires a min deposit amount");
+            _finalTokens = _generateUTokens(to[i], amount[i]);
         }
-        emit GenerateUTokens(to[i.sub(1)], amount[i.sub(1)], block.timestamp);
+        emit GenerateUTokens(to[i.sub(1)], _finalTokens, block.timestamp);
     }
 
     /**
@@ -182,7 +187,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public virtual override whenNotPaused {
-        require(tokens>0, "TokenWrapper: Number of unstaked tokens should be greater than 0");
+        require(tokens>_minWithdraw, "TokenWrapper: Requires a min withdraw amount");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
         require(from == _msgSender(), "TokenWrapper: Withdraw can only be done by Staker");

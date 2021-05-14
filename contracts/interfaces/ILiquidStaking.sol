@@ -2,10 +2,9 @@
 pragma solidity ^0.7.0;
 
 /**
- * @dev Interface of the IUTokens.
+ * @dev Interface of the ILiquidStaking.
  */
 interface ILiquidStaking {
-
 
     /**
      *  @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
@@ -33,18 +32,6 @@ interface ILiquidStaking {
     function withdrawUnstakedTokens(address staker) external;
 
     /**
-    * @dev Set fees.
-    * Emits a {SetFees} event.
-    */
-    function setFees(uint256 stakeFee, uint256 unstakeFee) external;
-
-    /**
-    * @dev Set minimum values.
-    * Emits a {SetMinimumValues} event.
-    */
-    function setMinimumValues(uint256 minStake, uint256 minUnstake) external;
-
-    /**
     * @dev Set UTokens smart contract.
     * Emits a {SetContract} event.
     */
@@ -65,24 +52,6 @@ interface ILiquidStaking {
     function setWrapperContract(address wrapperAddress) external;
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {pause} event.
-     */
-    function pause() external returns (bool);
-
-    /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
-     */
-    function unpause() external returns (bool);
-
-    /**
     * @dev Emitted when fees are set
     */
     event SetFees( uint256 stakeFee, uint256 unstakeFee );
@@ -91,6 +60,11 @@ interface ILiquidStaking {
     * @dev Emitted when minimum values are set
     */
     event SetMinimumValues( uint256 minStake, uint256 minUnstake );
+
+    /**
+    * @dev Emitted when unstakeEpoch is set
+    */
+    event SetUnstakeEpoch( uint256 unstakeEpoch );
 
     /**
     * @dev Emitted when contract addresses are set
