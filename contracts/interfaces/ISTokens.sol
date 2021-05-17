@@ -61,11 +61,6 @@ interface ISTokens is IERC20Upgradeable {
     function setUTokensContract(address utokenContract) external;
 
     /**
-     * @dev Set Wrapper smart contract.
-     */
-    function setWrapperContract(address wrapperContract) external;
-
-    /**
     * @dev Set LiquidStaking smart contract.
     */
     function setLiquidStakingContract(address liquidStakingContract) external;
@@ -74,13 +69,6 @@ interface ISTokens is IERC20Upgradeable {
      * @dev Emitted when contract addresses are set
      */
     event SetUTokensContract( address indexed _contract );
-
-
-    /**
-     * @dev Emitted when contract addresses are set
-     */
-    event SetWrapperContract( address indexed _contract );
-
 
     /**
      * @dev Emitted when contract addresses are set

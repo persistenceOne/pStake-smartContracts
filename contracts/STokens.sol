@@ -15,7 +15,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     address private _liquidStakingContract;
-    address private _wrapperContract;
 
     //Private instance of contract to handle Utokens
     IUTokens private _uTokens;
@@ -70,7 +69,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function getRewardRate() public view virtual override returns (uint256[] memory rewardRate, uint256 rewardDivisor) {
         rewardRate = _rewardRate;
         rewardDivisor = _rewardDivisor;
-        return (rewardRate, rewardDivisor);
     }
 
     /**
@@ -79,7 +77,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      */
     function getStakedBlock(address to) public view virtual override returns (uint256 stakedBlocks) {
         stakedBlocks = _stakedBlocks[to];
-        return stakedBlocks;
     }
 
     /**
@@ -257,19 +254,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
-    }
-
-    /*
-     * @dev Set 'contract address', called from constructor
-     * @param wrapperContract: wrapperContract contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the wrapper contract address.
-     *
-     */
-    function setWrapperContract(address wrapperContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set wrapper contract");
-        _wrapperContract = wrapperContract;
-        emit SetWrapperContract(wrapperContract);
     }
 
     /**

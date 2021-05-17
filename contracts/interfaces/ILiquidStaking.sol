@@ -46,12 +46,6 @@ interface ILiquidStaking {
     function setSTokensContract(address sAddress) external;
 
     /**
-    * @dev Set PegTokens smart contract.
-    * Emits a {SetContract} event.
-    */
-    function setWrapperContract(address wrapperAddress) external;
-
-    /**
     * @dev Emitted when fees are set
     */
     event SetFees( uint256 stakeFee, uint256 unstakeFee );
@@ -77,11 +71,6 @@ interface ILiquidStaking {
     event SetSTokensContract( address indexed _contract );
 
     /**
-    * @dev Emitted when contract addresses are set
-    */
-    event SetWrapperContract( address indexed _contract );
-
-    /**
     * @dev Emitted when uTokens are staked
     */
     event StakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
@@ -89,7 +78,7 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when sTokens are unstaked
     */
-    event UnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+    event UnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 unstakeTimeData, uint256 timestamp);
 
     /**
     * @dev Emitted when unstaked tokens are withdrawn

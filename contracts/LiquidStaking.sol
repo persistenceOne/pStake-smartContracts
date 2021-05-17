@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ILiquidStaking.sol";
-import "./interfaces/ITokenWrapper.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -16,7 +15,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
     ISTokens private _sTokens;
-    ITokenWrapper private _tokenWrapper;
 
     // defining the fees and minimum values
     uint256 private _minStake;
@@ -27,32 +25,33 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
 
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    uint256 _unstakinglockTime;
-    uint256 _epochInterval;
-    uint256 _unstakeEpoch;
+    uint256 private _unstakingLockTime;
+    uint256 private _epochInterval;
+    uint256 private _unstakeEpoch;
 
     //Mapping to handle the Expiry period
-    mapping(address => uint256[]) _unstakingExpiration;
+    mapping(address => uint256[]) private _unstakingExpiration;
 
     //Mapping to handle the Expiry amount
-    mapping(address => uint256[]) _unstakingAmount;
+    mapping(address => uint256[]) private _unstakingAmount;
+
+    //mappint to handle a counter variable indicating from what index to start the loop.
+    mapping(address => uint256) internal _withdrawCounters;
 
     /**
    * @dev Constructor for initializing the LiquidStaking contract.
    * @param uAddress - address of the UToken contract.
    * @param sAddress - address of the SToken contract.
-   * @param wrapperAddress - address of the tokenWrapper contract.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uAddress, address sAddress, address wrapperAddress, address pauserAddress, uint256 feeDivisor) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address pauserAddress, uint256 feeDivisor) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
-        setWrapperContract(wrapperAddress);
-        _unstakinglockTime = 21 days;
+        _unstakingLockTime = 21 days;
         _epochInterval = 3 days;
         _feeDivisor = feeDivisor;
     }
@@ -77,12 +76,14 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @dev get fees
      *
      */
-    function getFeesAndMinimumValues() public view virtual returns (uint256 stakeFee, uint256 unstakeFee, uint256 minStake, uint256 minUnstake) {
+    function getStakeUnstakeProps() public view virtual returns (uint256 stakeFee, uint256 unstakeFee, uint256 minStake, uint256 minUnstake, uint256 epochInterval, uint256 unstakeEpoch, uint256 unstakingLockTime) {
         stakeFee = _stakeFee;
         unstakeFee = _unstakeFee;
         minStake = _minStake;
         minUnstake = _minStake;
-        return (stakeFee, unstakeFee, minStake, minUnstake);
+        epochInterval= _epochInterval;
+        unstakeEpoch = _unstakeEpoch;
+        unstakingLockTime = _unstakingLockTime;
     }
 
     /**
@@ -140,18 +141,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
     }
-    /*
-    * @dev Set 'contract address', called from constructor
-    * @param sAddress: stoken contract address
-    *
-    * Emits a {SetContract} event with '_contract' set to the stoken contract address.
-    *
-    */
-    function setWrapperContract(address wrapperAddress) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set wrapper contract");
-        _tokenWrapper = ITokenWrapper(wrapperAddress);
-        emit SetWrapperContract(wrapperAddress);
-    }
 
     /**
     * @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
@@ -204,9 +193,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
         uint256 _unstakeEpochTime = getUnstakeEpochTime();
-        _unstakingExpiration[to].push((_unstakeEpochTime + block.timestamp) + _unstakinglockTime);
+        _unstakingExpiration[to].push((_unstakeEpochTime + block.timestamp) + _unstakingLockTime);
         _unstakingAmount[to].push(finalTokens);
-        emit UnstakeTokens(to, finalTokens, (_unstakeEpochTime + block.timestamp) + _unstakinglockTime);
+        emit UnstakeTokens(to, finalTokens, (_unstakeEpochTime + block.timestamp) + _unstakingLockTime, block.timestamp);
         return true;
     }
 
@@ -231,13 +220,14 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function withdrawUnstakedTokens(address staker) public virtual override whenNotPaused{
         require(staker == _msgSender(), "LiquidStaking: Only staker can withdraw");
-        // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Only staker can withdraw");
         uint256 _withdrawBalance;
-        for (uint256 i=0; i<_unstakingExpiration[staker].length; i=i.add(1)) {
+        uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
+        for (uint256 i=_withdrawCounters[_msgSender()]; i<_unstakingExpirationLength; i=i.add(1)) {
             if (block.timestamp > _unstakingExpiration[staker][i]) {
                 _withdrawBalance = _withdrawBalance.add(_unstakingAmount[staker][i]);
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
+                _withdrawCounters[_msgSender()]++;
             }
         }
         require(_withdrawBalance > 0, "LiquidStaking: UnStaking period still pending");
@@ -251,8 +241,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      *
      */
     function getTotalUnbondedTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+        uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         if(staker == _msgSender()){
-            for (uint256 i=0; i<_unstakingExpiration[staker].length; i=i.add(1)) {
+            for (uint256 i=0; i<_unstakingExpirationLength; i=i.add(1)) {
                 if (block.timestamp > _unstakingExpiration[staker][i]) {
                     unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
                 }

@@ -82,10 +82,10 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-     * @dev Set 'contract address', called from constructor
+     * @dev Set 'contract address', for liquid staking smart contract
      * @param liquidStakingContract: liquidStaking contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the liquidStaking contract address.
+     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
      *
      */
     function setLiquidStakingContract(address liquidStakingContract) public virtual override {
