@@ -4,19 +4,28 @@
 /* eslint-disable func-names */
 /* eslint-disable no-console */
 // require statements for importing packages & global constants
-const Web3 = require("web3");
+//const Web3 = require("web3");
+
+const lqABI = require("../build/contracts/LiquidStaking.json");
+const twABI = require("../build/contracts/TokenWrapper.json");
+const stABI = require("../build/contracts/STokens.json");
 
 const LiquidStakingArtifact = artifacts.require("LiquidStaking");
 const TokenWrapperArtifact = artifacts.require("TokenWrapper");
 const STokensArtifact = artifacts.require("STokens");
+
 const testData = require("./pBridgeTestData");
+
+const LiquidStakingInstance = new web3.eth.Contract(JSON.parse(JSON.stringify(lqABI.abi)), LiquidStakingArtifact.address);
+const TokenWrapperInstance = new web3.eth.Contract(JSON.parse(JSON.stringify(twABI.abi)), TokenWrapperArtifact.address);
+const STokensInstance = new web3.eth.Contract(JSON.parse(JSON.stringify(stABI.abi)), STokensArtifact.address);
+
 
 let action = "";
 let amount = 0;
-let contractArtifact = "";
 const DEFAULTGASPRICEGWEI = 50;
 const DEFAULTGASLIMIT = "400000";
-var web3 = new Web3();
+//var web3 = new Web3();
 
 var bridgeAdminAccount = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
 
@@ -24,7 +33,6 @@ async function iterate(){
     const defaultGasLimit = DEFAULTGASLIMIT;
     for(let k = 0; k<testData.pBridgeTestData.length; k++){
         action = testData.pBridgeTestData[k].action;
-        contractArtifact = "";
         if(action === "stake" || action === "unstake"){
             amount = await web3.utils.toBN(testData.pBridgeTestData[k].amount.toString());
            // amount = testData.pBridgeTestData[k].amount.toString();
@@ -45,17 +53,18 @@ async function iterate(){
                     action,
                     "\n"
                 );
-                console.log("LiquidStakingArtifact address: ", LiquidStakingArtifact.address)
-                const txData = await LiquidStakingArtifact.methods
-                    .stake(testData.pBridgeTestData[k].user.toString(), amount, {from: testData.pBridgeTestData[k].user.toString() })
+
+                const txData = await LiquidStakingInstance.methods
+                    .stake(testData.pBridgeTestData[k].user.toString(), amount)
                     .encodeABI();
                 console.log("txData: ", txData)
-                await createAndSendEthTx(
+                let sign = await createAndSendEthTx(
                     bridgeAdminAccount,
                     LiquidStakingArtifact,
                     txData,
                     defaultGasLimit
                 );
+                console.log("sign: ", sign)
             }else{
                 console.log(
                     "[",
@@ -73,7 +82,7 @@ async function iterate(){
                     action,
                     "\n"
                 );
-                const txData = await LiquidStakingArtifact.methods
+                const txData = await LiquidStakingInstance.methods
                     .unstake(testData.pBridgeTestData[k].user.toString(), amount)
                     .encodeABI();
                 await createAndSendEthTx(
@@ -101,7 +110,7 @@ async function iterate(){
                 action,
                 "\n"
             );
-            const txData = await TokenWrapperArtifact.methods
+            const txData = await TokenWrapperInstance.methods
                 .withdrawUTokens(testData.pBridgeTestData[k].user.toString(), amount, testData.pBridgeTestData[k].cosmosAddr)
                 .encodeABI();
             await createAndSendEthTx(
@@ -124,7 +133,7 @@ async function iterate(){
                 action,
                 "\n"
             );
-            const txData = await STokensArtifact.methods
+            const txData = await STokensInstance.methods
                 .calculateRewards(testData.pBridgeTestData[k].user.toString())
                 .encodeABI();
             await createAndSendEthTx(
@@ -323,5 +332,6 @@ async function createAndSendEthTx(account, contract, txData, defaultGasLimit) {
     console.log("TRANSACTION SENT!");
 }
 
-
-iterate();
+module.exports = async function () {
+    await iterate();
+};
