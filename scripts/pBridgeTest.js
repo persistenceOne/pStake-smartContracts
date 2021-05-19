@@ -30,6 +30,11 @@ const DEFAULTGASLIMIT = "400000";
 var bridgeAdminAccount = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
 
 async function iterate(){
+
+    const LiquidStakingInstance = await LiquidStakingArtifact.deployed();
+    const TokenWrapperInstance = await TokenWrapperArtifact.deployed();
+    const STokensInstance = await STokensArtifact.deployed();
+
     const defaultGasLimit = DEFAULTGASLIMIT;
     for(let k = 0; k<testData.pBridgeTestData.length; k++){
         action = testData.pBridgeTestData[k].action;
@@ -54,9 +59,10 @@ async function iterate(){
                     "\n"
                 );
 
-                const txData = await LiquidStakingInstance.methods
-                    .stake(testData.pBridgeTestData[k].user.toString(), amount)
-                    .encodeABI();
+
+                const txData = await LiquidStakingInstance
+                    .stake(testData.pBridgeTestData[k].user.toString(), amount, {from: testData.pBridgeTestData[k].user.toString(), gas:defaultGasLimit})
+
                 console.log("txData: ", txData)
                 let sign = await createAndSendEthTx(
                     bridgeAdminAccount,
