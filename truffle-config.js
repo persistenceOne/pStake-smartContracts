@@ -48,7 +48,7 @@ module.exports = {
       host: "127.0.0.1", // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-    // from: "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7",
+      // from: "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7",
     },
     // Another network with more advanced options...
     // advanced: {
@@ -69,6 +69,23 @@ module.exports = {
         ),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
+      gasPrice: 3000000000,
+      // confirmations: 1, // # of confs to wait between deployments. (default: 0)
+      timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
+      skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )
+    },
+
+    goerliGeth: {
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: mnemonic,
+          providerOrUrl: "http://15.206.124.254:8545",
+          numberOfAddresses: 10,
+          shareNonce: true,
+          derivationPath: "m/44'/60'/0'/0/",
+        }),
+      network_id: 5, // goerli's id
+      // gas: 8000000, //
       gasPrice: 3000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
