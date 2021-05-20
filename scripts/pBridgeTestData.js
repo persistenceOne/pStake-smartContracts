@@ -46,32 +46,32 @@ module.exports = {
             amount: "3",
         },
         {
-            action: "unstake",
+            action: "unStake",
             user: "0x609d344A04245104C312925D2F5aE04F643A10CB",
             amount: "5",
         },
         {
-            action: "unstake",
+            action: "unStake",
             user: "0x7019943Ca5E81d10EFA8ACdd68B0B67Eb4B0a9f6",
             amount: "8",
         },
         {
-            action: "unstake",
+            action: "unStake",
             user: "0x609d344A04245104C312925D2F5aE04F643A10CB",
             amount: "2",
         },
         {
-            action: "unstake",
+            action: "unStake",
             user: "0x7019943Ca5E81d10EFA8ACdd68B0B67Eb4B0a9f6",
             amount: "3",
         },
         {
-            action: "unstake",
+            action: "unStake",
             user: "0x609d344A04245104C312925D2F5aE04F643A10CB",
             amount: "2",
         },
         {
-            action: "unstake",
+            action: "unStake",
             user: "0x609d344A04245104C312925D2F5aE04F643A10CB",
             amount: "7",
         },
