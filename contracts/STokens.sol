@@ -90,7 +90,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
+    function mint(address to, uint256 tokens) public virtual override returns (bool success) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
         _mint(to, tokens);
         return true;
@@ -107,7 +107,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function burn(address from, uint256 tokens) public  virtual override whenNotPaused returns (bool success) {
+    function burn(address from, uint256 tokens) public  virtual override returns (bool success) {
         require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
         _burn(from, tokens);
         return true;
@@ -217,7 +217,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "ERC20Pausable: token transfer while paused");
+        require(!paused(), "STokens: token transfer while paused");
         super._beforeTokenTransfer(from, to, amount);
         if (from != address(0))
         {

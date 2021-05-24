@@ -44,7 +44,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     * - `amount` cannot be less than zero.
     *
     */
-    function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
+    function mint(address to, uint256 tokens) public virtual override returns (bool success) {
         require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (_msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
@@ -61,7 +61,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function burn(address from, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
+    function burn(address from, uint256 tokens) public virtual override returns (bool success) {
         require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
         _burn(from, tokens);
         return true;
@@ -131,5 +131,23 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
         require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to unpause contracts.");
         _unpause();
         return true;
+    }
+
+    /**
+     * @dev Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * will be to transferred to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     */
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        require(!paused(), "UTokens: token transfer while paused");
+        super._beforeTokenTransfer(from, to, amount);
     }
 }

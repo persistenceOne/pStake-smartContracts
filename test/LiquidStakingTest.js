@@ -35,11 +35,11 @@ const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
 const toAtomAddress = "toAtomAddress"
-let defaultAdmin = "0x5416e2F6376F6B29d8049A68Be46b83491Ad3ebE";
-let bridgeAdmin = "0x5e03D2b9E9509Bf04EAa0e86882Bce5D6B44E127";
-let pauseAdmin = "0x8720D98452f05b961F4C3899aa101c4dC103D8DA";
-let to = "0xf2E94C91a811e0Be5afD5Ff849F35ada84c18f6D";
-let unknownAddress = "0x213F391F66936D6C54cC91C70d4024Ad989d088f";
+let defaultAdmin = "0x5e7B014f78F7fBA36D9DCca1b0671F988F7795E1";
+let bridgeAdmin = "0xd811f274330E1094d1f7d8Af38aAa16Bd5A9980C";
+let pauseAdmin = "0x3ae2C69742eB0F16eCB9108c130C794651347F68";
+let to = "0x51b99EE4682E926EDE9fAf702255049828405339";
+let unknownAddress = "0xB6cBf0aaFf44fc63Ec6922A2f3ecf4E028CC75f6";
 
 
 describe("Liquid Staking", function () {
@@ -64,15 +64,13 @@ describe("Liquid Staking", function () {
 
         tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
         await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
         await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await utokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
-
         await stokens.setRewardRate(rate,{from: defaultAdmin,});
     });
 
@@ -140,7 +138,7 @@ describe("Liquid Staking", function () {
 
         it('Number of staked tokens should be greater than 0', async function () {
             let val = new BN(0);
-            expectRevert(liquidStaking.stake(to,val,{from: to,}),"LiquidStaking: Number of staked tokens should be greater than 0");
+            expectRevert(liquidStaking.stake(to,val,{from: to,}),"LiquidStaking: Requires a min stake amount");
         });
 
         it('Insuffcient balance for account', async function () {
@@ -376,7 +374,7 @@ describe("Liquid Staking", function () {
     describe("UnStaking", function () {
         it('Number of unstaked tokens should be greater than 0', async function () {
             let val = new BN(0);
-            await expectRevert(liquidStaking.unStake(to, val, {from: to,}), "LiquidStaking: Number of unstaked tokens should be greater than 0");
+            await expectRevert(liquidStaking.unStake(to, val, {from: to,}), "LiquidStaking: Requires a min unstake amount");
         },200000);
 
         it('Non-staker cannot withdraw', async function () {
@@ -470,7 +468,7 @@ describe("Liquid Staking", function () {
                     accountAddress:to,
                     tokens: amount,
                 });
-                await expectRevert(tokenWrapper.withdrawUTokens(to,_val,toAtomAddress,{from: to,}),"TokenWrapper: Number of unstaked tokens should be greater than 0");
+                await expectRevert(tokenWrapper.withdrawUTokens(to,_val,toAtomAddress,{from: to,}),"TokenWrapper: Requires a min withdraw amount");
             },200000);
 
             it('Current uToken balance should be greater than staked amount', async function () {
