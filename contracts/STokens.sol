@@ -21,17 +21,17 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
 
     uint256[] private _rewardRate;
-    uint256[] private _rewardBlockNumber;
-    uint256 private _rewardDivisor;
+    uint256[] private _rewardBlockTimestamp;
+    uint256 private _valueDivisor;
 
-    mapping(address => uint256) private _stakedBlocks;
+    mapping(address => uint256) private _rewardsTillTimestamp;
 
     /**
    * @dev Constructor for initializing the SToken contract.
    * @param uaddress - address of the UToken contract.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 rewardDivisor) public virtual initializer {
+    function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
         __ERC20_init("pSTAKE Staked ATOMs", "stkATOMs");
         __AccessControl_init();
         __Pausable_init();
@@ -40,8 +40,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         setUTokensContract(uaddress);
         // to set reward rate to 5e-3 or 0.005
         _rewardRate.push(rewardRate);
-        _rewardBlockNumber.push(block.number);
-        _rewardDivisor = rewardDivisor;
+        _rewardBlockTimestamp.push(block.timestamp);
+        _valueDivisor = valueDivisor;
         _setupDecimals(6);
     }
 
@@ -59,24 +59,24 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         require(rewardRate>0, "STokens: Reward rate should be greater than 0");
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set reward rate");
         _rewardRate.push(rewardRate);
-        _rewardBlockNumber.push(block.number);
+        _rewardBlockTimestamp.push(block.timestamp);
         return true;
     }
 
     /**
     * @dev get reward rate
     */
-    function getRewardRate() public view virtual override returns (uint256[] memory rewardRate, uint256 rewardDivisor) {
+    function getRewardRate() public view virtual override returns (uint256[] memory rewardRate, uint256 valueDivisor) {
         rewardRate = _rewardRate;
-        rewardDivisor = _rewardDivisor;
+        valueDivisor = _valueDivisor;
     }
 
     /**
      * @dev get staked block
      * @param to: account address
      */
-    function getStakedBlock(address to) public view virtual override returns (uint256 stakedBlocks) {
-        stakedBlocks = _stakedBlocks[to];
+    function getRewardsTillTimestamp(address to) public view virtual override returns (uint256 rewardsTillTimestamp) {
+        rewardsTillTimestamp = _rewardsTillTimestamp[to];
     }
 
     /**
@@ -127,7 +127,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             _uTokens.mint(to, _reward);
         }
         // Set the new stakedBlock to the current
-        _stakedBlocks[to] = block.number;
+        _rewardsTillTimestamp[to] = block.timestamp;
         return _reward;
     }
 
@@ -139,43 +139,43 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // Get the current Block
         //uint256 _currentBlock = block.number;
         // Get the time in number of blocks
-        uint256 _lastRewardBlockNumber = _stakedBlocks[to];
+        uint256 _lastRewardTimestamp = _rewardsTillTimestamp[to];
 
-        // uint256 _rewardBlock = _currentBlock.sub(_stakedBlocks[to], "STokens: Error in subtraction");
+        // uint256 _rewardBlock = _currentBlock.sub(_rewardsTillTimestamp[to], "STokens: Error in subtraction");
         // Get the balance of the account
         uint256 _balance = balanceOf(to);
         uint256 _index;
         uint256 _rewardBlock;
         uint256 _simpleInterestOfInterval;
-        for(_index = _rewardBlockNumber.length.sub(1); _index >= 0;){
+        for(_index = _rewardBlockTimestamp.length.sub(1); _index >= 0;){
             // logic applies for all indexes of array except last index
-            if(_index < _rewardBlockNumber.length.sub(1)) {
-                if(_rewardBlockNumber[_index] > _lastRewardBlockNumber) {
-                    _rewardBlock = (_rewardBlockNumber[_index.add(1)]).sub(_rewardBlockNumber[_index]);
-                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
-                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
+            if(_index < _rewardBlockTimestamp.length.sub(1)) {
+                if(_rewardBlockTimestamp[_index] > _lastRewardTimestamp) {
+                    _rewardBlock = (_rewardBlockTimestamp[_index.add(1)]).sub(_rewardBlockTimestamp[_index]);
+                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
-                    _rewardBlock = (_rewardBlockNumber[_index.add(1)]).sub(_lastRewardBlockNumber);
-                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
-                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
+                    _rewardBlock = (_rewardBlockTimestamp[_index.add(1)]).sub(_lastRewardTimestamp);
+                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }
             }
             // logic applies only for the last index of array
             else {
-                if(_rewardBlockNumber[_index] > _lastRewardBlockNumber) {
-                    _rewardBlock = (block.number).sub(_rewardBlockNumber[_index]);
-                   // _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
-                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
+                if(_rewardBlockTimestamp[_index] > _lastRewardTimestamp) {
+                    _rewardBlock = (block.timestamp).sub(_rewardBlockTimestamp[_index]);
+                   // _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
-                    _rewardBlock = (block.number).sub(_lastRewardBlockNumber);
-                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _rewardDivisor);
-                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _rewardDivisor);
+                    _rewardBlock = (block.timestamp).sub(_lastRewardTimestamp);
+                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
+                    _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }

@@ -19,7 +19,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     uint256 private _minWithdraw;
     uint256 private _depositFee;
     uint256 private _withdrawFee;
-    uint256 private _feeDivisor;
+    uint256 private _valueDivisor;
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -31,14 +31,14 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
    * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uAddress, address bridgeAdminAddress, address pauserAddress, uint256 feeDivisor) public virtual initializer  {
+    function initialize(address uAddress, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
          __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
-        _feeDivisor = feeDivisor;
+        _valueDivisor = valueDivisor;
     }
 
     /**
@@ -60,11 +60,12 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * @dev get fees
      *
      */
-    function getFeesAndMinimumValues() public view virtual returns (uint256 depositFee, uint256 withdrawFee, uint256 minWithdraw) {
+    function getProps() public view virtual returns (uint256 depositFee, uint256 withdrawFee, uint256 minDeposit, uint256 minWithdraw, uint256 valueDivisor) {
         depositFee = _depositFee;
         withdrawFee = _withdrawFee;
+        minDeposit = _minDeposit;
         minWithdraw = _minWithdraw;
-        return (depositFee, withdrawFee, minWithdraw);
+        valueDivisor = _valueDivisor;
     }
 
     /**
@@ -130,7 +131,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
-        finalTokens = (((amount.mul(100)).mul(_feeDivisor)).sub(_depositFee)).div(_feeDivisor.mul(100));
+        finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_depositFee)).div(_valueDivisor.mul(100));
         _uTokens.mint(to, finalTokens);
         return finalTokens;
     }
@@ -191,7 +192,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
         require(from == _msgSender(), "TokenWrapper: Withdraw can only be done by Staker");
-        uint256 finalTokens = (((tokens.mul(100)).mul(_feeDivisor)).sub(_withdrawFee)).div(_feeDivisor.mul(100));
+        uint256 finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));
         _uTokens.burn(from, finalTokens);
         emit WithdrawUTokens(from, finalTokens, toAtomAddress, block.timestamp);
     }

@@ -58,7 +58,7 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when unstakeEpoch is set
     */
-    event SetUnstakeEpoch( uint256 unstakeEpoch );
+    event SetUnstakeEpoch( uint256 unstakeEpoch, uint256 unstakeEpochPrevious );
 
     /**
     * @dev Emitted when contract addresses are set
