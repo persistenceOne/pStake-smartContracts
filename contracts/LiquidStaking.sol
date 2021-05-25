@@ -201,9 +201,12 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
         uint256 _unstakeEpochTime = getUnstakeEpochTime();
-        _unstakingExpiration[to].push((_unstakeEpochTime + block.timestamp) + _unstakingLockTime);
+        //_unstakingExpiration[to].push((_unstakeEpochTime + block.timestamp) + _unstakingLockTime);
+        _unstakingExpiration[to].push((_unstakeEpochTime.add(block.timestamp)).add(_unstakingLockTime));
         _unstakingAmount[to].push(finalTokens);
-        emit UnstakeTokens(to, finalTokens, (_unstakeEpochTime + block.timestamp) + _unstakingLockTime, block.timestamp);
+        //emit UnstakeTokens(to, finalTokens, (_unstakeEpochTime + block.timestamp) + _unstakingLockTime, block.timestamp);
+        emit UnstakeTokens(to, finalTokens, ((_unstakeEpochTime.add(block.timestamp)).add(_unstakingLockTime)), block.timestamp);
+
         return true;
     }
 
