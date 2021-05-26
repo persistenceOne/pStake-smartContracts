@@ -166,6 +166,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual whenNotPaused {
+        require(to.length == amount.length, "TokenWrapper: Mismatch array length");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TokenWrapper: Only bridge admin can mint new tokens for a user");
         uint256 i;
         uint256 _finalTokens;
