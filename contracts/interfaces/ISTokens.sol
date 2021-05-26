@@ -26,16 +26,6 @@ interface ISTokens is IERC20Upgradeable {
      */
     function burn(address from, uint256 tokens) external returns (bool);
 
-  /**
-    * @dev Returns the reward rate set by the admin.
-    */
-    function getRewardRate() external view returns (uint256[] memory, uint256);
-
-    /**
-    * @dev Returns the staked block of the user's address.
-    */
-    function getStakedBlock(address to) external view returns (uint256);
-
     /**
      * @dev Sets `reward rate`.
      *

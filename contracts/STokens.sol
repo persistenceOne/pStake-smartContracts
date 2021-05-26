@@ -66,16 +66,16 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     /**
     * @dev get reward rate
     */
-    function getRewardRate() public view virtual override returns (uint256[] memory rewardRate, uint256 valueDivisor) {
+    function getRewardRate() public view virtual returns (uint256[] memory rewardRate, uint256 valueDivisor) {
         rewardRate = _rewardRate;
         valueDivisor = _valueDivisor;
     }
 
     /**
-     * @dev get staked block
+     * @dev get rewards till timestamp
      * @param to: account address
      */
-    function getRewardsTillTimestamp(address to) public view virtual override returns (uint256 rewardsTillTimestamp) {
+    function getRewardsTillTimestamp(address to) public view virtual returns (uint256 rewardsTillTimestamp) {
         rewardsTillTimestamp = _rewardsTillTimestamp[to];
     }
 
