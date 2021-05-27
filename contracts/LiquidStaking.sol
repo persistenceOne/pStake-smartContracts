@@ -246,7 +246,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 _withdrawBalance;
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         for (uint256 i=_withdrawCounters[_msgSender()]; i<_unstakingExpirationLength; i=i.add(1)) {
-            if (block.timestamp > _unstakingExpiration[staker][i]) {
+            (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
+            if (block.timestamp >= _getUnstakeTime) {
                 _withdrawBalance = _withdrawBalance.add(_unstakingAmount[staker][i]);
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
@@ -267,7 +268,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         if(staker == _msgSender()){
             for (uint256 i=0; i<_unstakingExpirationLength; i=i.add(1)) {
-                if (block.timestamp > _unstakingExpiration[staker][i]) {
+                (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
+                if (block.timestamp >= _getUnstakeTime) {
                     unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
                 }
             }
