@@ -70,7 +70,6 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     [
       UTokensInstance.address,
       STokensInstance.address,
-      TokenWrapperInstance.address,
       bridgeAdmin,
       pauseAdmin,
     ],
@@ -109,27 +108,8 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   );
   console.log("setLiquidStakingContract() set for UTokens contract.");
 
-  // set contract addresses in STokens Contract
-  const txReceiptSetWrapperContract2 = await STokensInstance.setWrapperContract(
-    TokenWrapperInstance.address,
-    {
-      from: defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
 
   const txReceiptSetLiquidStakingContract2 = await STokensInstance.setLiquidStakingContract(
-    LiquidStakingInstance.address,
-    {
-      from: defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-
-  // set contract addresses in TokenWrapper Contract
-  const txReceiptSetLiquidStakingContract3 = await TokenWrapperInstance.setLiquidStakingContract(
     LiquidStakingInstance.address,
     {
       from: defaultAdmin,

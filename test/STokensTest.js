@@ -27,11 +27,11 @@ const TokenWrapper = artifacts.require('TokenWrapper');
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
-let defaultAdmin = "0x45fD163832c0F3Bb67f17685A291697d08C9c252";
-let bridgeAdmin = "0x65aa7409C43f8361440B2EC0dA4e1cc0670C9de8";
-let pauseAdmin = "0x26229886F35D551745C227D663F58284D6E082e6";
-let to = "0x4DB38b4a13Cc484965e1EEA8AF597427A44f8145";
-let unknownAddress = "0xb05CCF5775343A2576a852c534Cf55E24E283882";
+let defaultAdmin = "0x9ac68f077dd05cC8847cb2fF414B43D0e761aD1c";
+let bridgeAdmin = "0xA7aB6D6AED3e755900d62701156BA180869EAD38";
+let pauseAdmin = "0xC14DeB556AB620D8F56707bd01f5af018538Af8D";
+let to = "0xD7E6Bbbed5e2B280c26016FDc4D9d818C544965D";
+let unknownAddress = "0x1640cC05Cec99ceDcb82d0Fb58802BAbbbBcCD30";
 
 describe('STokens', () => {
     let amount = new BN(200);
@@ -48,16 +48,14 @@ describe('STokens', () => {
 
         tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, stokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
         await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
         await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await utokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await tokenWrapper.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
     });
     describe("Set smart contract address", function () {
 
@@ -66,10 +64,6 @@ describe('STokens', () => {
             // TEST SCENARIO END
         }, 200000);
 
-        it("Set wrapper contract address: ", async function () {
-            await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin,});
-            // TEST SCENARIO END
-        }, 200000);
 
         it("Set liquidStaking contract address: ", async function () {
             await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin,});
@@ -81,10 +75,6 @@ describe('STokens', () => {
             // TEST SCENARIO END
         }, 200000);
 
-        it("Non owner can set wrapper contract address: ", async function () {
-            await expectRevert(stokens.setWrapperContract(tokenWrapper.address,{from: unknownAddress,}), "STokens: User not authorised to set wrapper contract");
-            // TEST SCENARIO END
-        }, 200000);
 
         it("Non owner can set liquidStaking contract address: ", async function () {
             await expectRevert(stokens.setLiquidStakingContract(liquidStaking.address,{from: unknownAddress,}), "STokens: User not authorised to set liquidStaking contract");
