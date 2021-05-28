@@ -16,8 +16,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     IUTokens private _uTokens;
     ISTokens private _sTokens;
 
-    address private _liquidStakingContract;
-
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
@@ -62,18 +60,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set SToken contract");
         _sTokens = ISTokens(sAddress);
         emit SetContract(sAddress);
-    }
-
-    /*
-     * @dev Set 'contract address', called from constructor
-     * @param sAddress: stoken contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the stoken contract address.
-     *
-     */
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set LiquidStaking contract");
-        _liquidStakingContract = liquidStakingContract;
     }
 
     /**

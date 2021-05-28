@@ -7,7 +7,6 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ILiquidStaking.sol";
-import "./interfaces/ITokenWrapper.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -16,28 +15,29 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
     ISTokens private _sTokens;
-    ITokenWrapper private _tokenWrapper;
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
-    uint256 _unstakinglockTime;
+    uint256 private _unstakinglockTime;
 
     //Mapping to handle the Expiry period
-    mapping(address => uint256[]) _unstakingExpiration;
+    mapping(address => uint256[]) private _unstakingExpiration;
 
     //Mapping to handle the Expiry amount
-    mapping(address => uint256[]) _unstakingAmount;
+    mapping(address => uint256[]) private _unstakingAmount;
+
+    //mapping to handle counters
+    mapping(address => uint256) internal _counters;
 
     /**
    * @dev Constructor for initializing the LiquidStaking contract.
    * @param uAddress - address of the UToken contract.
    * @param sAddress - address of the SToken contract.
-   * @param wrapperAddress - address of the tokenWrapper contract.
    * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address uAddress, address sAddress, address wrapperAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address bridgeAdminAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -45,7 +45,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
-        setWrapperContract(wrapperAddress);
         _unstakinglockTime = 21 days;
     }
 
@@ -73,18 +72,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set SToken contract");
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
-    }
-    /*
-    * @dev Set 'contract address', called from constructor
-    * @param sAddress: stoken contract address
-    *
-    * Emits a {SetContract} event with '_contract' set to the stoken contract address.
-    *
-    */
-    function setWrapperContract(address wrapperAddress) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LiquidStaking: User not authorised to set wrapper contract");
-        _tokenWrapper = ITokenWrapper(wrapperAddress);
-        emit SetWrapperContract(wrapperAddress);
     }
 
     /**
@@ -149,13 +136,16 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function withdrawUnstakedTokens(address staker) public virtual override whenNotPaused{
         require(staker == _msgSender(), "LiquidStaking: Only staker can withdraw");
-        // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Only staker can withdrawr");
         uint256 _withdrawBalance;
-        for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
+        uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
+
+        for (uint256 i = _counters[_msgSender()]; i < _unstakingExpirationLength; i=i.add(1)) {
             if (block.timestamp > _unstakingExpiration[staker][i]) {
-                _withdrawBalance = _withdrawBalance + _unstakingAmount[staker][i];
+                _withdrawBalance = _withdrawBalance.add( _unstakingAmount[staker][i]);
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
+
+                _counters[_msgSender()]++;
             }
         }
         require(_withdrawBalance > 0, "LiquidStaking: UnStaking period still pending");
@@ -170,9 +160,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function getTotalUnbondedTokens(address staker) public view virtual override whenNotPaused returns (uint256 unbondingTokens) {
         if(staker == _msgSender()){
-            for (uint256 i=0; i<_unstakingExpiration[staker].length; i++) {
+            uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
+            for (uint256 i=0; i<_unstakingExpirationLength; i=i.add(1)) {
                 if (block.timestamp > _unstakingExpiration[staker][i]) {
-                    unbondingTokens = unbondingTokens + _unstakingAmount[staker][i];
+                    unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
                 }
             }
         }

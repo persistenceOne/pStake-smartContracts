@@ -15,7 +15,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     address private _liquidStakingContract;
-    address private _wrapperContract;
 
     //Private instance of contract to handle Utokens
     IUTokens private _uTokens;
@@ -75,7 +74,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     */
     function getRewardRate() public view virtual override whenNotPaused returns (uint256 rewardRate) {
         rewardRate = _rewardRate;
-        return rewardRate;
     }
 
     /**
@@ -84,7 +82,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      */
     function getStakedBlock(address to) public view virtual override whenNotPaused returns (uint256 stakedBlocks) {
         stakedBlocks = _stakedBlocks[to];
-        return stakedBlocks;
     }
 
     /**
@@ -151,10 +148,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // Get the balance of the account
         uint256 _balance = balanceOf(to);
         // Calculate the interest if P, R, T are non zero values
-        if(_balance > 0 && _rewardRate > 0 && _rewardBlock > 0) {
-            pendingRewards = (_balance * _rewardRate * _rewardBlock) / 100;
-        }
-        return pendingRewards;
+        pendingRewards = ((_balance.mul(_rewardRate)).mul(_rewardBlock)).div(100);
     }
 
     /**
@@ -208,18 +202,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
-    }
-
-    /*
-     * @dev Set 'contract address', called from constructor
-     * @param wrapperContract: wrapperContract contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the wrapper contract address.
-     *
-     */
-    function setWrapperContract(address wrapperContract) public virtual override whenNotPaused {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set wrapper contract");
-        _wrapperContract = wrapperContract;
     }
 
     /**

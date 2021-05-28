@@ -81,11 +81,8 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-     * @dev Set 'contract address', called from constructor
+     * @dev Set 'contract address'
      * @param liquidStakingContract: liquidStaking contract address
-     *
-     * Emits a {SetContract} event with '_contract' set to the liquidStaking contract address.
-     *
      */
     function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set liquidStaking contract");
