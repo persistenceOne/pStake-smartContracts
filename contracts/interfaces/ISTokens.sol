@@ -71,11 +71,6 @@ interface ISTokens is IERC20Upgradeable {
     function setUTokensContract(address utokenContract) external;
 
     /**
-     * @dev Set Wrapper smart contract.
-     */
-    function setWrapperContract(address wrapperContract) external;
-
-    /**
      * @dev Pause smart contracts
      *
      * Returns a boolean value indicating whether the operation succeeded.
