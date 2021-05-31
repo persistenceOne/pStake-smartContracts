@@ -188,14 +188,14 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * - `tokens` cannot be less than zero.
      *
      */
-    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) public virtual override whenNotPaused {
+    function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
         require(tokens>_minWithdraw, "TokenWrapper: Requires a min withdraw amount");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
         require(from == _msgSender(), "TokenWrapper: Withdraw can only be done by Staker");
         uint256 finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));
         _uTokens.burn(from, finalTokens);
-        emit WithdrawUTokens(from, finalTokens, toAtomAddress, block.timestamp);
+        emit WithdrawUTokens(from, finalTokens, toChainAddress, block.timestamp);
     }
 }
 

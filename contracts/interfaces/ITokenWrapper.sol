@@ -24,7 +24,7 @@ interface ITokenWrapper {
      *
      * Emits a {WithdrawUTokens} event.
      */
-    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) external;
+    function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) external;
 
     /**
     * @dev Emitted when fees are set
@@ -49,6 +49,6 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when UTokens are withdrawn
     */
-    event WithdrawUTokens(address indexed accountAddress, uint256 tokens, string toAtomAddress, uint256 timestamp);
+    event WithdrawUTokens(address indexed accountAddress, uint256 tokens, string toChainAddress, uint256 timestamp);
    
 }
