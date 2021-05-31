@@ -200,26 +200,38 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 finalTokens = (((stok.mul(100)).mul(_valueDivisor)).sub(_unstakeFee)).div(_valueDivisor.mul(100));
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
-        uint256 _unstakeEpochTime = getUnstakeEpochTime();
+        // uint256 _unstakeEpochTime = getUnstakeEpochTime();
         //_unstakingExpiration[to].push((_unstakeEpochTime + block.timestamp) + _unstakingLockTime);
-        _unstakingExpiration[to].push((_unstakeEpochTime.add(block.timestamp)).add(_unstakingLockTime));
+        _unstakingExpiration[to].push(block.timestamp);
         _unstakingAmount[to].push(finalTokens);
         //emit UnstakeTokens(to, finalTokens, (_unstakeEpochTime + block.timestamp) + _unstakingLockTime, block.timestamp);
-        emit UnstakeTokens(to, finalTokens, ((_unstakeEpochTime.add(block.timestamp)).add(_unstakingLockTime)), block.timestamp);
+        emit UnstakeTokens(to, finalTokens, block.timestamp);
 
         return true;
     }
 
     /**
-     * @dev get unstake epoch time
+     * @dev returns the nearest epoch milestone in the future
      */
-    function getUnstakeEpochTime() public view virtual returns (uint256 unstakeEpochTime_) {
-        uint256 _currentTime = block.timestamp;
-        if(_unstakeEpoch > _currentTime) return (_unstakeEpoch.sub(_currentTime));
+    function getUnstakeEpochMilestone(uint256 _unstakeTimestamp) public view virtual returns (uint256 unstakeEpochMilestone) {
+        if(_unstakeTimestamp == 0) return 0;
+        if(_unstakeEpoch > _unstakeTimestamp) return (_unstakeEpoch);
+        uint256 _referenceStartTime = (_unstakeTimestamp).add(_unstakeEpoch.sub(_unstakeEpochPrevious));
+        uint256 _timeDiff = _referenceStartTime.sub(_unstakeEpoch);
+        unstakeEpochMilestone = (_timeDiff.mod(_epochInterval)).add(_referenceStartTime);
+        return (unstakeEpochMilestone);
+    }
 
-        uint256 _timeDiff = _currentTime.sub(_unstakeEpoch);
-        unstakeEpochTime_ = _timeDiff.mod(_epochInterval);
-        return unstakeEpochTime_;
+    /**
+     * @dev returns the time left for unbonding to finish
+     */
+    function getUnstakeTime(uint256 _unstakeTimestamp) public view virtual returns (uint256 unstakeTime ,uint256 unstakeEpoch, uint256 unstakeEpochPrevious) {
+        uint256 _unstakeEpochMilestone = getUnstakeEpochMilestone(_unstakeTimestamp);
+        if(_unstakeEpochMilestone == 0) return (0, unstakeEpoch, unstakeEpochPrevious);
+        unstakeEpoch = _unstakeEpoch;
+        unstakeEpochPrevious = _unstakeEpochPrevious;
+        unstakeTime = _unstakeEpochMilestone.add(_unstakingLockTime);
+        return (unstakeTime, unstakeEpoch, unstakeEpochPrevious);
     }
 
     /**
@@ -234,7 +246,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 _withdrawBalance;
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         for (uint256 i=_withdrawCounters[_msgSender()]; i<_unstakingExpirationLength; i=i.add(1)) {
-            if (block.timestamp > _unstakingExpiration[staker][i]) {
+            (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
+            if (block.timestamp >= _getUnstakeTime) {
                 _withdrawBalance = _withdrawBalance.add(_unstakingAmount[staker][i]);
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
@@ -255,7 +268,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         if(staker == _msgSender()){
             for (uint256 i=0; i<_unstakingExpirationLength; i=i.add(1)) {
-                if (block.timestamp > _unstakingExpiration[staker][i]) {
+                (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
+                if (block.timestamp >= _getUnstakeTime) {
                     unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
                 }
             }

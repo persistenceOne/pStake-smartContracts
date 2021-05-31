@@ -30,6 +30,7 @@ var testAccounts = [
 const lqABI = require("../build/contracts/LiquidStaking.json");
 const twABI = require("../build/contracts/TokenWrapper.json");
 const stABI = require("../build/contracts/STokens.json");
+const utABI = require("../build/contracts/UTokens.json");
 
 const testData = require("./pBridgeTestData");
 
@@ -48,6 +49,11 @@ const STokensInstance = new web3.eth.Contract(
     stABI.networks["5"].address
 );
 
+const UTokensInstance = new web3.eth.Contract(
+    JSON.parse(JSON.stringify(utABI.abi)),
+    utABI.networks["5"].address
+);
+
 function convertMS(ms) {
     let d, h, m, s;
     s = Math.floor(ms / 1000);
@@ -59,6 +65,58 @@ function convertMS(ms) {
     h = h % 24;
     h += d * 24;
     return h + 'h:' + m + 'm:' + s + 's';
+}
+
+async function test1(){
+    try{
+        let nonce = await web3.eth.getTransactionCount("0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B");
+
+        let txnOptions = {
+            to: twABI.networks["5"].address,
+            from: "0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B",
+            gas:500000,
+            gasPrice: '200000000000',
+            nonce,
+            chainId: 5
+        };
+        let amount = await web3.utils.toBN(
+            "10000"
+        );
+        console.log("came....")
+        console.log("txnOptions....", txnOptions)
+        let txn = await TokenWrapperInstance.methods.generateUTokens("0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7","100000000000").send(txnOptions);
+        console.log("txn hash: ", txn)
+        console.log("txn hash: ", txn.transactionHash)
+        console.log("transaction successful status: ", txn.status);
+
+        await new Promise((r) => setTimeout(r, 100));
+
+        nonce = await web3.eth.getTransactionCount("0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7");
+
+        txnOptions = {
+            to: lqABI.networks["5"].address,
+            from: "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7",
+            gas:500000,
+            gasPrice: '200000000000',
+            nonce,
+            chainId: 5
+        };
+        amount = await web3.utils.toBN(
+            "10000"
+        );
+        console.log("came....")
+        console.log("txnOptions....", txnOptions)
+        txn = await LiquidStakingInstance.methods.setUnstakeEpoch("1622104841","1622104841").send(txnOptions);
+        console.log("txn hash: ", txn)
+        console.log("txn hash: ", txn.transactionHash)
+        console.log("transaction successful status: ", txn.status);
+
+
+    }
+    catch (e){
+        console.log("error: ", e)
+    }
+
 }
 
 async function test(){
@@ -167,5 +225,5 @@ async function test(){
     }
 }
 
-test();
+test1();
 
