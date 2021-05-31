@@ -139,6 +139,7 @@ contract Bech32Validation is Initializable {
     }
     function checksumValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_) public pure returns(bool) {
         bool isValid;
+        bytes memory checksummedDataBytes;
 
         // convert addressDigestBytes to addressDigest
         // uint[] addressDigest = decode(_dataDigestBytes);
@@ -146,25 +147,36 @@ contract Bech32Validation is Initializable {
         bytes memory dataSliceBytes = addressDigestBytes_.slice(hrpBytes_.length + 1, (addressDigestBytes_.length - 6 - hrpBytes_.length - 1));
 
         // convert data slice bytes to uint[]
-        uint[] memory dataSlice = toUintFromBytes(dataSliceBytes);
+        // uint[] memory dataSlice = toUintFromBytes(dataSliceBytes);
+        uint[] memory dataSlice = decode(dataSliceBytes);
+        if(dataSlice.length == 0) return false;
+
 
         // convert hrp Bytes to uint[]
         uint[] memory hrp = toUintFromBytes(hrpBytes_);
 
         // calculate checksummed data
-        bytes memory checksummedDataBytes = encode(dataSlice, hrp);
+        checksummedDataBytes = encode(hrp, dataSlice);
         isValid = dataBytes.equal(checksummedDataBytes);
+        // isValid = dataSliceBytes.equal(checksummedDataBytes);
+
         return isValid;
     }
 
-    function decode(bytes memory addressDigestBytes) public pure returns(uint[] memory decodedBytes) {
-        decodedBytes = new uint[](addressDigestBytes.length);
+    function decodeStr(string memory addressDigestStr_) public pure returns(uint[] memory decodedBytes) {
+        bytes memory _addressDigestBytes = bytes(addressDigestStr_);
+        decodedBytes = decode(_addressDigestBytes);
+        return decodedBytes;
+    }
+
+    function decode(bytes memory addressDigestBytes_) public pure returns(uint[] memory decodedBytes) {
+        decodedBytes = new uint[](addressDigestBytes_.length);
         uint[] memory nullBytes;
         uint charsetIndex;
 
-        for (uint addressDigestBytesIndex = 0; addressDigestBytesIndex < addressDigestBytes.length; addressDigestBytesIndex++) {
+        for (uint addressDigestBytesIndex = 0; addressDigestBytesIndex < addressDigestBytes_.length; addressDigestBytesIndex++) {
             for (charsetIndex = 0; charsetIndex < CHARSET.length; charsetIndex++) {
-                if(addressDigestBytes[addressDigestBytesIndex] == CHARSET[charsetIndex])
+                if(addressDigestBytes_[addressDigestBytesIndex] == CHARSET[charsetIndex])
                 break;
             }
             if(charsetIndex == CHARSET.length) return nullBytes;
@@ -270,6 +282,8 @@ contract Bech32Validation is Initializable {
     // encode to the bech32 alphabet list
     function encode(uint[] memory hrp, uint[] memory data) internal pure returns (bytes memory) {
         uint[] memory combined = concat(data, createChecksum(hrp, data));
+        // uint[] memory combined = data;
+
         // TODO: prepend hrp
 
         // convert uint[] to bytes
