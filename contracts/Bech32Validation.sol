@@ -36,14 +36,14 @@ contract Bech32Validation is Initializable {
     bytes controlDigitBytes;
     uint dataSize;
 
-    function __Bech32Validation_init_unchained() public virtual initializer {
+    function initialize() public virtual initializer {
         hrpBytes = "cosmos";
         controlDigitBytes = "1"; 
         dataSize = 38;
     }
 
-    function isBech32Valid(string memory blockchainAddress) public view returns(bool) {
-        bytes memory blockchainAddressBytes = bytes(blockchainAddress);
+    function isBech32AddressValid(string memory blockchainAddress) public view returns(bool) {
+       // bytes memory blockchainAddressBytes = bytes(blockchainAddress);
         // return bech32Validate(blockchainAddressBytes, hrpBytes, controlDigitBytes, dataSize);
         return bech32ValidateStr(blockchainAddress);
     }

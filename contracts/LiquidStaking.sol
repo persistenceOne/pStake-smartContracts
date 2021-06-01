@@ -44,6 +44,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
    * @param uAddress - address of the UToken contract.
    * @param sAddress - address of the SToken contract.
    * @param pauserAddress - address of the pauser admin.
+   * @param valueDivisor - valueDivisor set to 10^9.
    */
     function initialize(address uAddress, address sAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
         __AccessControl_init();
@@ -62,7 +63,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param stakeFee: stake fee
      * @param unstakeFee: unstake fee
      *
-     * Emits a {SetFee} event with 'fee' set to the stake and unstake.
+     * Emits a {SetFees} event with 'fee' set to the stake and unstake.
      *
      */
     function setFees(uint256 stakeFee, uint256 unstakeFee) public virtual returns (bool success) {
@@ -127,7 +128,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @dev Set 'contract address', called from constructor
      * @param uAddress: utoken contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the utoken contract address.
+     * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
      *
      */
     function setUTokensContract(address uAddress) public virtual override {
@@ -140,7 +141,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @dev Set 'contract address', called from constructor
      * @param sAddress: stoken contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the stoken contract address.
+     * Emits a {SetSTokensContract} event with '_contract' set to the stoken contract address.
      *
      */
     function setSTokensContract(address sAddress) public virtual override {

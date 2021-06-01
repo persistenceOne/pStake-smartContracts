@@ -28,48 +28,76 @@ ZWeb3.initialize(web3.currentProvider);
 const { expect } = require("chai");
 const LiquidStaking = artifacts.require('LiquidStaking');
 const TokenWrapper = artifacts.require('TokenWrapper');
-/*const sTokens = artifacts.require('STokens');
-const uTokens = artifacts.require('UTokens');*/
-
+const Bech32 = artifacts.require("Bech32Validation");
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
-let defaultAdmin = "0xF45b7d1DF227887Da9E8C1dD7f39C5131A3c0C0A";
-let bridgeAdmin = "0x4b6365B9A20bEdb0528989DE2b837E6fA9D53A04";
-let pauseAdmin = "0x31B94bb5085AF4c60e2354A94c3E69912A26F082";
-let to = "0x78Dc60A2d97eE1681A8Eb2d7651037f627929d8C";
-let unknownAddress = "0xf9f06Cd23e1fb23e5e180De7Fd3A32dD216505F1";
+let toChainAddress = "cosmos1dgtl8dqky0cucr9rlllw9cer9ysrkjnjagz5zp";
+
+let defaultAdmin = "0x5B6F3d90E21d86dc60d4c54B048C68C8cDD3C9f4";
+let bridgeAdmin = "0x6Cac2100411d57c0Da91520B58fef6F72cE226Da";
+let pauseAdmin = "0x2c472d2045033bd7911A1A2feC0dCd29350d22B8";
+let to = "0xCe407Af69C9999245e78FB0e0C3c0C3668Bd47C2";
+let unknownAddress = "0x3Ba4E408F357a0649A15aB97427Ee35B455F070E";
 
 
 describe("Token Wrapper", function () {
     this.timeout(0);
-    let rewardRate = new BN(3000000);
+    let _rewardRate = new BN(3000000);
+    let rewardDivisor = new BN(1000000000)
     let liquidStaking;
     let tokenWrapper;
+    let bech32;
     let utokens;
     let stokens;
     let amt = new BN(150);
     let amount = new BN(200);
     let val = new BN(50);
-    let rate = 2;
+    let rate = new BN(2000000);
     beforeEach(async function () {
         this.project = await TestHelper()
 
         utokens = await deployProxy(uTokens, [bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin,rewardRate], { initializer: 'initialize' });
+        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin, _rewardRate, rewardDivisor], { initializer: 'initialize' });
 
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        bech32 = await deployProxy(Bech32, { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bech32.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
+
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
         await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
         await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await utokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
+        await stokens.setRewardRate(rate,{from: defaultAdmin,});
     });
+
+    describe("Bech32 Validation", function () {
+        it('Validating bech32 Address.', async function () {
+            let generate = await tokenWrapper.generateUTokens(to, amount, {from: bridgeAdmin,});
+            let balance = await utokens.balanceOf(to);
+            expect(balance == amount)
+            expectEvent(generate, "GenerateUTokens", {
+                accountAddress: to,
+                tokens: amount,
+            });
+
+            let withdraw = await tokenWrapper.withdrawUTokens(to, val, toChainAddress, {from: to,});
+            const gasUsed = generate.receipt.gasUsed;
+            console.log("gasUsed: ", gasUsed)
+            console.log("withdraw: ", withdraw)
+            expectEvent(withdraw, "WithdrawUTokens", {
+                accountAddress: to,
+                tokens: val,
+                toChainAddress: toChainAddress,
+            });
+
+        });
+    });
+
 
     describe("uTokens", function () {
         it('Only bridge admin can mint new uTokens for a user.', async function () {

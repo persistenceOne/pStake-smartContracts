@@ -30,6 +30,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @dev Constructor for initializing the SToken contract.
    * @param uaddress - address of the UToken contract.
    * @param pauserAddress - address of the pauser admin.
+   * @param rewardRate - set rewardRate.
+   * @param valueDivisor - valueDivisor set to 10^9.
    */
     function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
         __ERC20_init("pSTAKE Staked ATOMs", "stkATOMs");
@@ -233,7 +235,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * @dev Set 'contract address', called from constructor
     * @param uTokenContract: utoken contract address
     *
-    * Emits a {SetContract} event with '_contract' set to the utoken contract address.
+    * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
     *
     */
     function setUTokensContract(address uTokenContract) public virtual override {
@@ -246,7 +248,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @dev Set 'contract address', called from constructor
      * @param liquidStakingContract: liquidStaking contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the liquidStaking contract address.
+     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
      *
      */
     //This function need to be called after deployment, only admin can call the same

@@ -29,6 +29,7 @@ var testAccounts = [
 
 const lqABI = require("../build/contracts/LiquidStaking.json");
 const twABI = require("../build/contracts/TokenWrapper.json");
+const bech32ABI = require("../build/contracts/Bech32Validation.json");
 const stABI = require("../build/contracts/STokens.json");
 const utABI = require("../build/contracts/UTokens.json");
 
@@ -42,6 +43,11 @@ const LiquidStakingInstance = new web3.eth.Contract(
 const TokenWrapperInstance = new web3.eth.Contract(
     JSON.parse(JSON.stringify(twABI.abi)),
     twABI.networks["5"].address
+);
+
+const Bech32Instance = new web3.eth.Contract(
+    JSON.parse(JSON.stringify(bech32ABI.abi)),
+    bech32ABI.networks["5"].address
 );
 
 const STokensInstance = new web3.eth.Contract(
@@ -67,7 +73,7 @@ function convertMS(ms) {
     return h + 'h:' + m + 'm:' + s + 's';
 }
 
-async function test1(){
+async function initialize(){
     try{
         let nonce = await web3.eth.getTransactionCount("0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B");
 
@@ -111,6 +117,39 @@ async function test1(){
         console.log("txn hash: ", txn.transactionHash)
         console.log("transaction successful status: ", txn.status);
 
+
+    }
+    catch (e){
+        console.log("error: ", e)
+    }
+
+}
+
+async function test1(){
+    try{
+        let nonce = await web3.eth.getTransactionCount("0x3F5fdb1c4B40b04f54082482DCBF9732c1199eB6");
+
+        let txnOptions = {
+            to: utABI.networks["5"].address,
+            from: "0x3F5fdb1c4B40b04f54082482DCBF9732c1199eB6",
+            gas:500000,
+            gasPrice: '200000000000',
+            nonce,
+            chainId: 5
+        };
+        let amount = await web3.utils.toBN(
+            "10000"
+        );
+        console.log("came....")
+        console.log("txnOptions....", txnOptions)
+        let txn = await UTokensInstance.methods.transfer("0x609d344A04245104C312925D2F5aE04F643A10CB", "100").send(txnOptions);
+        console.log("txn hash: ", txn)
+        console.log("txn hash: ", txn.transactionHash)
+        console.log("transaction successful status: ", txn.status);
+
+        let x = await UTokensInstance.methods.balanceOf("0x609d344A04245104C312925D2F5aE04F643A10CB").call();
+
+        console.log("balance: ", x.toString())
 
     }
     catch (e){

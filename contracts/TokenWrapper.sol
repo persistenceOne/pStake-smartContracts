@@ -6,6 +6,7 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ITokenWrapper.sol";
+import "./Bech32Validation.sol";
 
 contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgradeable {
 
@@ -13,6 +14,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
+    Bech32Validation private _bech32Validation;
 
     // defining the fees and minimum values
     uint256 private _minDeposit;
@@ -27,17 +29,20 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     /*
    * @dev Constructor for initializing the TokenWrapper contract.
    * @param uAddress - address of the UToken contract.
+   * @param bech32Address - address of the bech32 contract.
    * @param sAddress - address of the SToken contract.
    * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
+   * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uAddress, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
+    function initialize(address uAddress, address bech32Address, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
          __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
+        setBech32BalidationContract(bech32Address);
         _valueDivisor = valueDivisor;
     }
 
@@ -84,16 +89,29 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     /*
-     * @dev Set 'contract address', called from constructor
+     * @dev Set 'contract address', called for utokens smart contract
      * @param uAddress: utoken contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the utoken contract address.
+     * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
      *
      */
     function setUTokensContract(address uAddress) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
+    }
+
+    /*
+     * @dev Set 'contract address', called from constructor
+     * @param bech32Address: bech32 contract address
+     *
+     * Emits a {SetBech32Contract} event with '_contract' set to the bech32 contract address.
+     *
+     */
+    function setBech32BalidationContract(address bech32Address) public virtual override {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set bech32 contract");
+        _bech32Validation = Bech32Validation(bech32Address);
+        emit SetBech32Contract(bech32Address);
     }
 
     /**
@@ -155,7 +173,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     /**
-     * @dev Mint new utokens for the provided 'address' and 'amount' iin batch
+     * @dev Mint new utokens for the provided 'address' and 'amount' in batch
      * @param to: account address, amount: number of tokens
      *
      * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
@@ -190,6 +208,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
         require(tokens>_minWithdraw, "TokenWrapper: Requires a min withdraw amount");
+        bool isAddressValid = _bech32Validation.isBech32AddressValid(toChainAddress);
+        require(isAddressValid == true, "TokenWrapper: Invalid chain address ");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
         require(from == _msgSender(), "TokenWrapper: Withdraw can only be done by Staker");

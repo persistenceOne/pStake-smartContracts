@@ -68,10 +68,10 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-    * @dev Set 'contract address', called from constructor
+    * @dev Set 'contract address', called for stokens smart contract
     * @param stokenContract: stoken contract address
     *
-    * Emits a {SetContract} event with '_contract' set to the stoken contract address.
+    * Emits a {SetSTokensContract} event with '_contract' set to the stoken contract address.
     *
     */
     //These functions need to be called after deployment, only admin can call the same
@@ -95,10 +95,10 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-     * @dev Set 'contract address', called from constructor
+     * @dev Set 'contract address', called for token wrapper smart contract
      * @param wrapperTokensContract: tokenWrapper contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the tokenWrapper contract address.
+     * Emits a {SetWrapperContract} event with '_contract' set to the tokenWrapper contract address.
      *
      */
     function setWrapperContract(address wrapperTokensContract) public virtual override {
