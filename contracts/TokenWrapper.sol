@@ -7,14 +7,16 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ITokenWrapper.sol";
 import "./Bech32Validation.sol";
+import "./Bech32.sol";
 
 contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
+    using Bech32 for string;
 
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
-    Bech32Validation private _bech32Validation;
+    // Bech32Validation private _bech32Validation;
 
     // defining the fees and minimum values
     uint256 private _minDeposit;
@@ -25,6 +27,10 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    bytes hrpBytes;
+    bytes controlDigitBytes;
+    uint dataBytesSize;
 
     /*
    * @dev Constructor for initializing the TokenWrapper contract.
@@ -42,8 +48,12 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
-        setBech32BalidationContract(bech32Address);
+        // setBech32BalidationContract(bech32Address);
         _valueDivisor = valueDivisor;
+        // set bech32 validationattributes
+        hrpBytes = "cosmos";
+        controlDigitBytes = "1"; 
+        dataBytesSize = 38;
     }
 
     /**
@@ -99,19 +109,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
-    }
-
-    /*
-     * @dev Set 'contract address', called from constructor
-     * @param bech32Address: bech32 contract address
-     *
-     * Emits a {SetBech32Contract} event with '_contract' set to the bech32 contract address.
-     *
-     */
-    function setBech32BalidationContract(address bech32Address) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set bech32 contract");
-        _bech32Validation = Bech32Validation(bech32Address);
-        emit SetBech32Contract(bech32Address);
     }
 
     /**
@@ -208,7 +205,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
         require(tokens>_minWithdraw, "TokenWrapper: Requires a min withdraw amount");
-        bool isAddressValid = _bech32Validation.isBech32AddressValid(toChainAddress);
+        bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
         require(isAddressValid == true, "TokenWrapper: Invalid chain address ");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
