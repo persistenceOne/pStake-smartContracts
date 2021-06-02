@@ -48,8 +48,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-    * @dev set reward rate
-    * @param rate: reward rate
+    * @dev set reward rate called by admin
+    * @param rewardRate: reward rate
     *
     *
     * Requirements:
@@ -66,7 +66,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /**
-    * @dev get reward rate
+    * @dev get reward rate and value divisor
     */
     function getRewardRate() public view virtual returns (uint256[] memory rewardRate, uint256 valueDivisor) {
         rewardRate = _rewardRate;
@@ -82,10 +82,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /**
-     * @dev Mint new stokens for the provided 'address' and 'amount'
-     * @param to: account address, amount: number of tokens
+     * @dev Mint new stokens for the provided 'address' and 'tokens'
+     * @param to: account address, tokens: number of tokens
      *
-     * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     * Emits a {MintTokens} event with 'to' set to address and 'tokens' set to amount of tokens.
      *
      * Requirements:
      *
@@ -99,10 +99,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-     * @dev Burn stokens for the provided 'address' and 'amount'
-     * @param to: account address, amount: number of tokens
+     * @dev Burn stokens for the provided 'address' and 'tokens'
+     * @param to: account address, tokens: number of tokens
      *
-     * Emits a {BurnTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     * Emits a {BurnTokens} event with 'to' set to address and 'tokens' set to amount of tokens.
      *
      * Requirements:
      *
@@ -138,12 +138,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @param to: account address
      */
     function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards){
-        // Get the current Block
-        //uint256 _currentBlock = block.number;
         // Get the time in number of blocks
         uint256 _lastRewardTimestamp = _rewardsTillTimestamp[to];
-
-        // uint256 _rewardBlock = _currentBlock.sub(_rewardsTillTimestamp[to], "STokens: Error in subtraction");
         // Get the balance of the account
         uint256 _balance = balanceOf(to);
         uint256 _index;
@@ -154,13 +150,11 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             if(_index < _rewardBlockTimestamp.length.sub(1)) {
                 if(_rewardBlockTimestamp[_index] > _lastRewardTimestamp) {
                     _rewardBlock = (_rewardBlockTimestamp[_index.add(1)]).sub(_rewardBlockTimestamp[_index]);
-                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
                     _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
                     _rewardBlock = (_rewardBlockTimestamp[_index.add(1)]).sub(_lastRewardTimestamp);
-                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
                     _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
@@ -170,13 +164,11 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             else {
                 if(_rewardBlockTimestamp[_index] > _lastRewardTimestamp) {
                     _rewardBlock = (block.timestamp).sub(_rewardBlockTimestamp[_index]);
-                   // _simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
                     _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
                     _rewardBlock = (block.timestamp).sub(_lastRewardTimestamp);
-                    //_simpleInterestOfInterval = (_balance * _rewardRate[_index] * _rewardBlock) / (100 * _valueDivisor);
                     _simpleInterestOfInterval = (((_balance.mul(_rewardRate[_index])).mul(_rewardBlock))).div(100 * _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;

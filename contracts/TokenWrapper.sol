@@ -16,7 +16,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
-    // Bech32Validation private _bech32Validation;
 
     // defining the fees and minimum values
     uint256 private _minDeposit;
@@ -35,22 +34,19 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     /*
    * @dev Constructor for initializing the TokenWrapper contract.
    * @param uAddress - address of the UToken contract.
-   * @param bech32Address - address of the bech32 contract.
-   * @param sAddress - address of the SToken contract.
    * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uAddress, address bech32Address, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
+    function initialize(address uAddress, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
          __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
-        // setBech32BalidationContract(bech32Address);
         _valueDivisor = valueDivisor;
-        // set bech32 validationattributes
+        // setting bech32 validationattributes
         hrpBytes = "cosmos";
         controlDigitBytes = "1"; 
         dataBytesSize = 38;
@@ -59,6 +55,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     /**
      * @dev Set 'fees', called from admin
      * @param withdrawFee: withdraw fee
+     * @param depositFee: deposit fee
      *
      * Emits a {SetFees} event with 'fee' set to the withdraw.
      *
@@ -72,7 +69,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     /**
-     * @dev get fees
+     * @dev get fees, minimum set values and value divisor
      *
      */
     function getProps() public view virtual returns (uint256 depositFee, uint256 withdrawFee, uint256 minDeposit, uint256 minWithdraw, uint256 valueDivisor) {
@@ -85,7 +82,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     /**
      * @dev Set 'minimum values', called from admin
-     * @param minWithdraw: stake minimum value
+     * @param minDeposit: deposit minimum value
+     * @param minWithdraw: withdraw minimum value
      *
      * Emits a {SetMinimumValues} event with 'minimum value' set to withdraw.
      *
@@ -138,7 +136,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     /**
-     * @dev Mint new utokens for the provided 'address' and 'amount'
+     * @dev common function added to be called by generateUTokens and generateUTokensInBatch and mints new utokens for the provided 'address' and 'amount'
      * @param to: account address, amount: number of tokens
      * Requirements:
      *
@@ -155,7 +153,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * @dev Mint new utokens for the provided 'address' and 'amount'
      * @param to: account address, amount: number of tokens
      *
-     * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     * Emits a {GenerateUTokens} event with 'to' set to address and 'amount' set to amount of tokens.
      *
      * Requirements:
      *
@@ -171,9 +169,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
 
     /**
      * @dev Mint new utokens for the provided 'address' and 'amount' in batch
-     * @param to: account address, amount: number of tokens
+     * @param to[]: array of account addresses, amount[]: array of tokens
      *
-     * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     * Emits a {GenerateUTokens} event with 'to' set to address and 'amount' set to amount of tokens.
      *
      * Requirements:
      *
@@ -193,10 +191,10 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     /**
-     * @dev Burn utokens for the provided 'address' and 'amount'
-     * @param from: account address, tokens: number of tokens, toAtomAddress: atom wallet address
+     * @dev Burn utokens for the provided 'address' and 'tokens'
+     * @param from: account address, tokens: number of tokens, toChainAddress: atom wallet address
      *
-     * Emits a {BurnTokens} event with 'from' set to address and 'tokens' set to amount of tokens.
+     * Emits a {WithdrawUTokens} event with 'from' set to address, 'finalTokens' set to amount of tokens and 'toChainAddress'
      *
      * Requirements:
      *
@@ -205,6 +203,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
         require(tokens>_minWithdraw, "TokenWrapper: Requires a min withdraw amount");
+        //check if toChainAddress is valid address
         bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
         require(isAddressValid == true, "TokenWrapper: Invalid chain address ");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);

@@ -36,18 +36,28 @@ contract Bech32Validation is Initializable {
     bytes controlDigitBytes;
     uint dataSize;
 
+    /*
+  * @dev Constructor for initializing the Bech32Validation contract.
+  * sets hrpBytes, controlDigitBytes and dataSize value
+  */
     function initialize() public virtual initializer {
         hrpBytes = "cosmos";
         controlDigitBytes = "1"; 
         dataSize = 38;
     }
 
+    /**
+     * @dev Return bool value based on address validation
+     * @param blockchainAddress: account address
+     */
     function isBech32AddressValid(string memory blockchainAddress) public view returns(bool) {
-       // bytes memory blockchainAddressBytes = bytes(blockchainAddress);
-        // return bech32Validate(blockchainAddressBytes, hrpBytes, controlDigitBytes, dataSize);
         return bech32ValidateStr(blockchainAddress);
     }
 
+    /**
+     * @dev splits the address with the hrp and validates the address
+     * @param addressDigestStr_: account address
+     */
     function bech32ValidateStr(string memory addressDigestStr_) public view returns(bool) {
         bool isValid;
 
@@ -70,6 +80,13 @@ contract Bech32Validation is Initializable {
         return isValid;
     }
 
+    /**
+     * @dev split hrp and compare with the bytes hrp stored
+     * @param addressDigestBytes_: account address in bytes
+     * @param hrpBytes_: hrp in bytes
+     * @param controlDigitBytes_: set digit bytes (initially set to 1)
+     * @param dataSize_: data size (initially set to 38)
+     */
     function bech32Validate(bytes memory addressDigestBytes_, bytes memory hrpBytes_, bytes memory controlDigitBytes_, uint dataSize_) public pure returns(bool) {
         bool isValid;
 
@@ -92,51 +109,83 @@ contract Bech32Validation is Initializable {
         return isValid;
     }
 
-
-
-
+    /**
+     * @dev converted address to bytes and validates its length and validates hrp
+     * @param addressDigestStr_: account address
+     */
     function hrpValidateStr(string memory addressDigestStr_) public view returns(bool) {
         bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
         if(addressDigestBytes_.length != 45) return false;
         return hrpValidate(addressDigestBytes_, hrpBytes);
     }
 
+    /**
+     * @dev slices the account address in bytes and compares it with hrpBytes
+     * @param addressDigestBytes_: account address n bytes
+     * @param hrpBytes_: hrp converted to bytes
+     */
     function hrpValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_) public pure returns(bool) {
         bytes memory hrpDigestBytes = addressDigestBytes_.slice(0, hrpBytes_.length);
         if(!hrpDigestBytes.equal(hrpBytes_)) return false;
         return true;
     }
 
-
-
+    /**
+     * @dev Returns account address converted to bytes and validates control digits
+     * @param addressDigestStr_: account address
+     */
     function controlDigitValidateStr(string memory addressDigestStr_) public view returns(bool) {
         bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
         return controlDigitValidate(addressDigestBytes_, hrpBytes, controlDigitBytes);
     }
+
+    /**
+     * @dev slices the account address in bytes and compares it with control digest bytes
+     * @param addressDigestBytes_: account address converted to bytes
+     * @param hrpBytes_: hrp in bytes
+     * @param controlDigit_: control digit in bytes
+     */
     function controlDigitValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_, bytes memory controlDigit_) public pure returns(bool) {
         bytes memory _controlDigestBytes = addressDigestBytes_.slice(hrpBytes_.length, 1);
         if(!_controlDigestBytes.equal(controlDigit_)) return false;
         return true;
     }
 
-
-
+    /**
+     * @dev validates the dara size
+     * @param addressDigestStr_: account address
+     */
     function dataSizeValidateStr(string memory addressDigestStr_) public view returns(bool) {
         bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
         return dataSizeValidate(addressDigestBytes_, hrpBytes, dataSize);
     }
+
+    /**
+     * @dev validates the dara size
+     * @param addressDigestBytes_: account address in bytes
+     * @param hrpBytes_: hrp in bytes
+     * @param dataSize_: data size in bytes
+     */
     function dataSizeValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_, uint dataSize_) public pure returns(bool) {
         bytes memory _dataDigestBytes = addressDigestBytes_.slice(hrpBytes_.length+1, (addressDigestBytes_.length-hrpBytes_.length-1));
         if(_dataDigestBytes.length != dataSize_) return false;
         return true;
     }
 
-
-
+    /**
+     * @dev validates the checksun
+     * @param addressDigestStr_: account address
+     */
     function checksumValidateStr(string memory addressDigestStr_) public view returns(bool) {
         bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
         return checksumValidate(addressDigestBytes_, hrpBytes);
     }
+
+    /**
+     * @dev calculates checksummed data and return bool
+     * @param addressDigestBytes_: account address in bytes
+     * @param hrpBytes_: hrp in bytes
+     */
     function checksumValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_) public pure returns(bool) {
         bool isValid;
         bytes memory checksummedDataBytes;
@@ -151,7 +200,6 @@ contract Bech32Validation is Initializable {
         uint[] memory dataSlice = decode(dataSliceBytes);
         if(dataSlice.length == 0) return false;
 
-
         // convert hrp Bytes to uint[]
         uint[] memory hrp = toUintFromBytes(hrpBytes_);
 
@@ -163,12 +211,20 @@ contract Bech32Validation is Initializable {
         return isValid;
     }
 
+    /**
+     * @dev decodes the account address and returns decoded bytes
+     * @param addressDigestStr_: account address
+     */
     function decodeStr(string memory addressDigestStr_) public pure returns(uint[] memory decodedBytes) {
         bytes memory _addressDigestBytes = bytes(addressDigestStr_);
         decodedBytes = decode(_addressDigestBytes);
         return decodedBytes;
     }
 
+    /**
+     * @dev decodes the account address and returns decoded bytes array
+     * @param addressDigestBytes_: account address in bytes
+     */
     function decode(bytes memory addressDigestBytes_) public pure returns(uint[] memory decodedBytes) {
         decodedBytes = new uint[](addressDigestBytes_.length);
         uint[] memory nullBytes;
@@ -185,11 +241,19 @@ contract Bech32Validation is Initializable {
         return decodedBytes;
     }
 
+    /**
+     * @dev converts string to uint and returns data digest array
+     * @param dataDigestStr_: data digest
+     */
     function toUintFromStr(string memory dataDigestStr_) public pure returns(uint[] memory dataDigest) {
         bytes memory _dataDigestBytes = bytes(dataDigestStr_);
         return toUintFromBytes(_dataDigestBytes);
     }
 
+    /**
+     * @dev converts bytes to uint and returns data digest array
+     * @param dataDigestBytes_: data digest in bytes
+     */
     function toUintFromBytes(bytes memory dataDigestBytes_) public pure returns(uint[] memory dataDigest) {
         dataDigest = new uint[](dataDigestBytes_.length);
         for (uint dataDigestIndex = 0; dataDigestIndex < dataDigestBytes_.length; dataDigestIndex++) {
@@ -198,6 +262,10 @@ contract Bech32Validation is Initializable {
         return dataDigest;
     }
 
+    /**
+     * @dev converts bytes2 to uint and returns data digest array
+     * @param dataDigestBytes_: data digest in bytes
+     */
     function toUintFromBytes2(bytes memory dataDigestBytes_) public pure returns(uint[] memory dataDigest) {
         dataDigest = new uint[](dataDigestBytes_.length);
         for (uint dataDigestIndex = 0; dataDigestIndex < dataDigestBytes_.length; dataDigestIndex++) {
@@ -206,6 +274,10 @@ contract Bech32Validation is Initializable {
         return dataDigest;
     }
 
+    /**
+     * @dev checks the polymod and return int value
+     * @param values: values in array
+     */
     function polymod(uint[] memory values) internal pure returns(uint) {
         uint32[5] memory GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
         uint chk = 1;
@@ -221,6 +293,10 @@ contract Bech32Validation is Initializable {
         return chk;
     }
 
+    /**
+     * @dev expands the hrp and return int[] value
+     * @param hrp: hrp in array
+     */
     function hrpExpand(uint[] memory hrp) internal pure returns (uint[] memory) {
         uint[] memory ret = new uint[](hrp.length+hrp.length+1);
         for (uint p = 0; p < hrp.length; p++) {
@@ -233,7 +309,11 @@ contract Bech32Validation is Initializable {
         return ret;
     }
 
-    // combines two strings together
+    /**
+     * @dev  combines two strings together
+     * @param left: left int value in array
+     * @param right: right int value in array
+     */
     function concat(uint[] memory left, uint[] memory right) internal pure returns(uint[] memory) {
         uint[] memory ret = new uint[](left.length + right.length);
 
@@ -250,7 +330,12 @@ contract Bech32Validation is Initializable {
         return ret;
     }
 
-    // add trailing padding to the data
+    /**
+     * @dev  add trailing padding to the data
+     * @param array: array int value in array
+     * @param val: value
+     * @param num: num
+     */
     function extend(uint[] memory array, uint val, uint num) internal pure returns(uint[] memory) {
         uint[] memory ret = new uint[](array.length + num);
 
@@ -268,7 +353,11 @@ contract Bech32Validation is Initializable {
         return ret;
     }
 
-    // create checksum
+    /**
+    * @dev  create checksum
+    * @param hrp: hrp int value in array
+    * @param data: data int value in array
+    */
     function createChecksum(uint[] memory hrp, uint[] memory data) internal pure returns (uint[] memory) {
         uint[] memory values = extend(concat(hrpExpand(hrp), data), 0, 6);
         uint mod = polymod(values) ^ 1;
@@ -279,7 +368,11 @@ contract Bech32Validation is Initializable {
         return ret;
     }
 
-    // encode to the bech32 alphabet list
+    /**
+    * @dev  encode to the bech32 alphabet list
+    * @param hrp: hrp int value in array
+    * @param data: data int value in array
+    */
     function encode(uint[] memory hrp, uint[] memory data) internal pure returns (bytes memory) {
         uint[] memory combined = concat(data, createChecksum(hrp, data));
         // uint[] memory combined = data;
@@ -295,6 +388,12 @@ contract Bech32Validation is Initializable {
         return ret;
     }
 
+    /**
+    * @dev  converts the data
+    * @param data: data int value in array
+    * @param inBits: inBits
+    * @param outBits: outBits
+    */
     function convert(uint[] memory data, uint inBits, uint outBits) internal pure returns (uint[] memory) {
         uint value = 0;
         uint bits = 0;
@@ -312,8 +411,6 @@ contract Bech32Validation is Initializable {
                 j += 1;
             }
         }
-
         return ret;
     }
-
 }

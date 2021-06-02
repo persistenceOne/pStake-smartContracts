@@ -75,7 +75,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     }
 
     /**
-     * @dev get fees, min values and epoch props
+     * @dev get fees, min values, value divisor and epoch props
      *
      */
     function getStakeUnstakeProps() public view virtual returns (
@@ -112,6 +112,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     /**
     * @dev Set 'unstake epoch', called from admin
     * @param unstakeEpoch: unstake epoch
+    * @param unstakeEpochPrevious: unstake epoch previous(initially set to same value as unstakeEpoch)
     *
     * Emits a {SetUnstakeEpoch} event with 'unstakeEpoch'
     *
@@ -162,10 +163,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     * - 'utok' plus new balance should be equal to the old balance
     */
     function stake(address to, uint256 utok) public virtual override whenNotPaused returns(bool)  {
-        // Check the supplied amount is greater than 0
+        // Check the supplied amount is greater than minimum stake value
         require(utok>_minStake, "LiquidStaking: Requires a min stake amount");
         require(to == _msgSender(), "LiquidStaking: Staking can only be done by Staker");
-        // require(hasRole(STAKER_ROLE, _msgSender()), "LiquidStaking: Staking can only be done by Staker");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
         require(_currentUTokenBalance>=utok, "LiquidStaking: Insuffcient balance for account");
@@ -201,11 +201,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 finalTokens = (((stok.mul(100)).mul(_valueDivisor)).sub(_unstakeFee)).div(_valueDivisor.mul(100));
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, stok);
-        // uint256 _unstakeEpochTime = getUnstakeEpochTime();
-        //_unstakingExpiration[to].push((_unstakeEpochTime + block.timestamp) + _unstakingLockTime);
         _unstakingExpiration[to].push(block.timestamp);
         _unstakingAmount[to].push(finalTokens);
-        //emit UnstakeTokens(to, finalTokens, (_unstakeEpochTime + block.timestamp) + _unstakingLockTime, block.timestamp);
         emit UnstakeTokens(to, finalTokens, block.timestamp);
 
         return true;
@@ -231,12 +228,15 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         if(_unstakeEpochMilestone == 0) return (0, unstakeEpoch, unstakeEpochPrevious);
         unstakeEpoch = _unstakeEpoch;
         unstakeEpochPrevious = _unstakeEpochPrevious;
+        //adding 21 days with epoch difference
         unstakeTime = _unstakeEpochMilestone.add(_unstakingLockTime);
         return (unstakeTime, unstakeEpoch, unstakeEpochPrevious);
     }
 
     /**
      * @dev Lock the unstaked tokens for 21 days, user can withdraw the same (Mint uTokens with 21 days locking period)
+     *
+     * @param staker: user address for withdraw
      *
      * Requirements:
      *
@@ -247,8 +247,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 _withdrawBalance;
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         for (uint256 i=_withdrawCounters[_msgSender()]; i<_unstakingExpirationLength; i=i.add(1)) {
+            //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
             (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
             if (block.timestamp >= _getUnstakeTime) {
+                //if 21 days + epoch difference has passed, then add the balance and then mint uTokens
                 _withdrawBalance = _withdrawBalance.add(_unstakingAmount[staker][i]);
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
@@ -269,8 +271,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         if(staker == _msgSender()){
             for (uint256 i=0; i<_unstakingExpirationLength; i=i.add(1)) {
+                //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
                 (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
                 if (block.timestamp >= _getUnstakeTime) {
+                    //if 21 days + epoch difference has passed, then check the token amount and send back
                     unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
                 }
             }

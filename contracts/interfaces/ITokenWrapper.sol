@@ -13,12 +13,6 @@ interface ITokenWrapper {
     function setUTokensContract(address uAddress) external;
 
     /**
-    * @dev Set bech32 smart contract.
-    * Emits a {SetBech32Contract} event.
-    */
-    function setBech32BalidationContract(address bech32Address) external;
-
-    /**
      * @dev Generates `amount` tokens to the caller's address `to`.
      *
      * Emits a {GenerateUTokens} event.
@@ -46,11 +40,6 @@ interface ITokenWrapper {
      * @dev Emitted when contract addresses are set
      */
     event SetUTokensContract( address indexed _contract );
-
-    /**
-     * @dev Emitted when contract addresses are set
-     */
-    event SetBech32Contract( address indexed _contract );
 
     /**
     * @dev Emitted when uTokens are generated

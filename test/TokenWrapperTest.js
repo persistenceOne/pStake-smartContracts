@@ -32,13 +32,13 @@ const Bech32 = artifacts.require("Bech32Validation");
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
-let toChainAddress = "cosmos1dgtl8dqky0cucr9rlllw9cer9ysrkjnjagz5zp";
+let toChainAddress = "cosmospub1addwnpepq272xswjqka4wm6x8nvuwshdquh0q8xrxlafz7lj32snvtg2jswl6x5ywwu";
 
-let defaultAdmin = "0x5B6F3d90E21d86dc60d4c54B048C68C8cDD3C9f4";
-let bridgeAdmin = "0x6Cac2100411d57c0Da91520B58fef6F72cE226Da";
-let pauseAdmin = "0x2c472d2045033bd7911A1A2feC0dCd29350d22B8";
-let to = "0xCe407Af69C9999245e78FB0e0C3c0C3668Bd47C2";
-let unknownAddress = "0x3Ba4E408F357a0649A15aB97427Ee35B455F070E";
+let defaultAdmin = "0xd3ad2807FD92F641f68eBaA873510D57D29d7E8c";
+let bridgeAdmin = "0xe7783704F01B64EEfA54F67AB13aD33167eff0E0";
+let pauseAdmin = "0x518a0Ac0B7b58a0c3952B0BCed567e4459B65787";
+let to = "0xB16584E4516859A8B49aCecD7E8d41f295182b1B";
+let unknownAddress = "0x92dE6bAbF15168d7D42F74812a1a36eA02e5B093";
 
 
 describe("Token Wrapper", function () {
@@ -61,9 +61,7 @@ describe("Token Wrapper", function () {
 
         stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin, _rewardRate, rewardDivisor], { initializer: 'initialize' });
 
-        bech32 = await deployProxy(Bech32, { initializer: 'initialize' });
-
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bech32.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
         liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
@@ -112,7 +110,7 @@ describe("Token Wrapper", function () {
 
         it('Number of tokens should be greater than 0', async function () {
             let val = new BN(0);
-            await expectRevert(tokenWrapper.generateUTokens(to, val, {from: bridgeAdmin,}), "TokenWrapper: Number of tokens should be greater than 0");
+            await expectRevert(tokenWrapper.generateUTokens(to, val, {from: bridgeAdmin,}), "TokenWrapper: Requires a min deposit amount");
         });
 
         it('Non bridge admin cannot mint new tokens for a user', async function () {

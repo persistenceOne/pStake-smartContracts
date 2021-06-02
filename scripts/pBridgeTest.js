@@ -29,7 +29,7 @@ var testAccounts = [
 
 const lqABI = require("../build/contracts/LiquidStaking.json");
 const twABI = require("../build/contracts/TokenWrapper.json");
-const bech32ABI = require("../build/contracts/Bech32Validation.json");
+//const bech32ABI = require("../build/contracts/Bech32Validation.json");
 const stABI = require("../build/contracts/STokens.json");
 const utABI = require("../build/contracts/UTokens.json");
 
@@ -45,10 +45,10 @@ const TokenWrapperInstance = new web3.eth.Contract(
     twABI.networks["5"].address
 );
 
-const Bech32Instance = new web3.eth.Contract(
+/*const Bech32Instance = new web3.eth.Contract(
     JSON.parse(JSON.stringify(bech32ABI.abi)),
     bech32ABI.networks["5"].address
-);
+);*/
 
 const STokensInstance = new web3.eth.Contract(
     JSON.parse(JSON.stringify(stABI.abi)),
@@ -95,7 +95,7 @@ async function initialize(){
         console.log("txn hash: ", txn.transactionHash)
         console.log("transaction successful status: ", txn.status);
 
-        await new Promise((r) => setTimeout(r, 100));
+       /* await new Promise((r) => setTimeout(r, 100));
 
         nonce = await web3.eth.getTransactionCount("0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7");
 
@@ -115,8 +115,7 @@ async function initialize(){
         txn = await LiquidStakingInstance.methods.setUnstakeEpoch("1622104841","1622104841").send(txnOptions);
         console.log("txn hash: ", txn)
         console.log("txn hash: ", txn.transactionHash)
-        console.log("transaction successful status: ", txn.status);
-
+        console.log("transaction successful status: ", txn.status);*/
 
     }
     catch (e){
@@ -264,5 +263,5 @@ async function test(){
     }
 }
 
-test1();
+initialize();
 

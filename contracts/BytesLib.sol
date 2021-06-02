@@ -5,6 +5,12 @@ pragma solidity ^0.7.0;
 
 
 library BytesLib {
+
+    /**
+     * @dev combine two string
+     * @param _preBytes: _preBytes
+     * @param _postBytes: _postBytes
+     */
     function concat(
         bytes memory _preBytes,
         bytes memory _postBytes
@@ -83,6 +89,11 @@ library BytesLib {
         return tempBytes;
     }
 
+    /**
+     * @dev combine storage
+     * @param _preBytes: _preBytes
+     * @param _postBytes: _postBytes
+     */
     function concatStorage(bytes storage _preBytes, bytes memory _postBytes) internal {
         assembly {
             // Read the first 32 bytes of _preBytes storage, which is the length
@@ -220,6 +231,11 @@ library BytesLib {
         }
     }
 
+    /**
+     * @dev slice the bytes with start point
+     * @param _start: _start
+     * @param _length: _length
+     */
     function slice(
         bytes memory _bytes,
         uint256 _start,
@@ -289,6 +305,11 @@ library BytesLib {
         return tempBytes;
     }
 
+    /**
+     * @dev converts bytes to address
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toAddress(bytes memory _bytes, uint256 _start) internal pure returns (address) {
         require(_bytes.length >= _start + 20, "toAddress_outOfBounds");
         address tempAddress;
@@ -300,6 +321,11 @@ library BytesLib {
         return tempAddress;
     }
 
+    /**
+     * @dev converts bytes to uint8
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint8(bytes memory _bytes, uint256 _start) internal pure returns (uint8) {
         require(_bytes.length >= _start + 1 , "toUint8_outOfBounds");
         uint8 tempUint;
@@ -311,6 +337,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to uint16
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint16(bytes memory _bytes, uint256 _start) internal pure returns (uint16) {
         require(_bytes.length >= _start + 2, "toUint16_outOfBounds");
         uint16 tempUint;
@@ -322,6 +353,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to uint32
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint32(bytes memory _bytes, uint256 _start) internal pure returns (uint32) {
         require(_bytes.length >= _start + 4, "toUint32_outOfBounds");
         uint32 tempUint;
@@ -333,6 +369,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to uint64
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint64(bytes memory _bytes, uint256 _start) internal pure returns (uint64) {
         require(_bytes.length >= _start + 8, "toUint64_outOfBounds");
         uint64 tempUint;
@@ -344,6 +385,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to uint96
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint96(bytes memory _bytes, uint256 _start) internal pure returns (uint96) {
         require(_bytes.length >= _start + 12, "toUint96_outOfBounds");
         uint96 tempUint;
@@ -355,6 +401,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to uint128
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint128(bytes memory _bytes, uint256 _start) internal pure returns (uint128) {
         require(_bytes.length >= _start + 16, "toUint128_outOfBounds");
         uint128 tempUint;
@@ -366,6 +417,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to uint256
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toUint256(bytes memory _bytes, uint256 _start) internal pure returns (uint256) {
         require(_bytes.length >= _start + 32, "toUint256_outOfBounds");
         uint256 tempUint;
@@ -377,6 +433,11 @@ library BytesLib {
         return tempUint;
     }
 
+    /**
+     * @dev converts bytes to bytes32
+     * @param _start: _start
+     * @param _bytes: _bytes
+     */
     function toBytes32(bytes memory _bytes, uint256 _start) internal pure returns (bytes32) {
         require(_bytes.length >= _start + 32, "toBytes32_outOfBounds");
         bytes32 tempBytes32;
@@ -388,6 +449,11 @@ library BytesLib {
         return tempBytes32;
     }
 
+    /**
+     * @dev compares two bytes
+     * @param _preBytes: _preBytes
+     * @param _postBytes: _postBytes
+     */
     function equal(bytes memory _preBytes, bytes memory _postBytes) internal pure returns (bool) {
         bool success = true;
 
@@ -431,6 +497,11 @@ library BytesLib {
         return success;
     }
 
+    /**
+     * @dev compares two storage
+     * @param _preBytes: _preBytes
+     * @param _postBytes: _postBytes
+     */
     function equalStorage(
         bytes storage _preBytes,
         bytes memory _postBytes

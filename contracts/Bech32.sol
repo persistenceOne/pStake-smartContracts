@@ -19,6 +19,13 @@ library Bech32 {
 
     bytes constant CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
 
+    /**
+     * @dev validates if address is valid
+     * @param blockchainAddress_: account address
+     * @param hrpBytes_: hrp in bytes
+     * @param controlDigitBytes_: control Digit in Bytes
+     * @param dataBytesSize_: data size in Bytes
+     */
     function isBech32AddressValid(string memory blockchainAddress_, bytes memory hrpBytes_, bytes memory controlDigitBytes_, uint256 dataBytesSize_) internal pure returns(bool) {
         // return bech32ValidateStr(blockchainAddress);
         bytes memory _addressBytesLocal = bytes(blockchainAddress_);
@@ -49,6 +56,10 @@ library Bech32 {
         return isValid;
     }
 
+    /**
+     * @dev decodes the account address and returns decoded bytes array
+     * @param addressDigestBytes_: account address in bytes
+     */
     function decode(bytes memory addressDigestBytes_) internal pure returns(uint[] memory decodedBytes) {
         decodedBytes = new uint[](addressDigestBytes_.length);
         uint[] memory nullBytes;
@@ -65,6 +76,10 @@ library Bech32 {
         return decodedBytes;
     }
 
+    /**
+    * @dev converts bytes to uint and returns data digest array
+    * @param dataDigestBytes_: data digest in bytes
+    */
     function toUintFromBytes(bytes memory dataDigestBytes_) internal pure returns(uint[] memory dataDigest) {
         dataDigest = new uint[](dataDigestBytes_.length);
         for (uint dataDigestIndex = 0; dataDigestIndex < dataDigestBytes_.length; dataDigestIndex++) {
@@ -73,6 +88,10 @@ library Bech32 {
         return dataDigest;
     }
 
+    /**
+     * @dev checks the polymod and return int value
+     * @param values: values in array
+     */
     function polymod(uint[] memory values) internal pure returns(uint) {
         uint32[5] memory GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
         uint chk = 1;
@@ -88,6 +107,10 @@ library Bech32 {
         return chk;
     }
 
+    /**
+     * @dev expands the hrp and return int[] value
+     * @param hrp: hrp in array
+     */
     function hrpExpand(uint[] memory hrp) internal pure returns (uint[] memory) {
         uint[] memory ret = new uint[](hrp.length+hrp.length+1);
         for (uint p = 0; p < hrp.length; p++) {
@@ -100,7 +123,11 @@ library Bech32 {
         return ret;
     }
 
-    // combines two strings together
+    /**
+      * @dev  combines two strings together
+      * @param left: left int value in array
+      * @param right: right int value in array
+      */
     function concat(uint[] memory left, uint[] memory right) internal pure returns(uint[] memory) {
         uint[] memory ret = new uint[](left.length + right.length);
 
@@ -117,7 +144,12 @@ library Bech32 {
         return ret;
     }
 
-    // add trailing padding to the data
+    /**
+     * @dev  add trailing padding to the data
+     * @param array: array int value in array
+     * @param val: value
+     * @param num: num
+     */
     function extend(uint[] memory array, uint val, uint num) internal pure returns(uint[] memory) {
         uint[] memory ret = new uint[](array.length + num);
 
@@ -135,7 +167,11 @@ library Bech32 {
         return ret;
     }
 
-    // create checksum
+    /**
+    * @dev  create checksum
+    * @param hrp: hrp int value in array
+    * @param data: data int value in array
+    */
     function createChecksum(uint[] memory hrp, uint[] memory data) internal pure returns (uint[] memory) {
         uint[] memory values = extend(concat(hrpExpand(hrp), data), 0, 6);
         uint mod = polymod(values) ^ 1;
@@ -146,7 +182,11 @@ library Bech32 {
         return ret;
     }
 
-    // encode to the bech32 alphabet list
+    /**
+    * @dev  encode to the bech32 alphabet list
+    * @param hrp: hrp int value in array
+    * @param data: data int value in array
+    */
     function encode(uint[] memory hrp, uint[] memory data) internal pure returns (bytes memory) {
         uint[] memory combined = concat(data, createChecksum(hrp, data));
         // uint[] memory combined = data;
@@ -162,6 +202,12 @@ library Bech32 {
         return ret;
     }
 
+    /**
+    * @dev  converts the data
+    * @param data: data int value in array
+    * @param inBits: inBits
+    * @param outBits: outBits
+    */
     function convert(uint[] memory data, uint inBits, uint outBits) internal pure returns (uint[] memory) {
         uint value = 0;
         uint bits = 0;

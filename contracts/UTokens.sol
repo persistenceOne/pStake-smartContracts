@@ -35,9 +35,9 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
 
     /**
     * @dev Mint new utokens for the provided 'address' and 'amount'
-    * @param to: account address, amount: number of tokens
+    * @param to: account address, tokens: number of tokens
     *
-    * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+    * Emits a {MintTokens} event with 'to' set to address and 'tokens' set to amount of tokens.
     *
     * Requirements:
     *
@@ -52,9 +52,9 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
 
     /*
      * @dev Burn utokens for the provided 'address' and 'amount'
-     * @param to: account address, amount: number of tokens
+     * @param from: account address, tokens: number of tokens
      *
-     * Emits a {BurnTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     * Emits a {BurnTokens} event with 'from' set to address and 'tokens' set to amount of tokens.
      *
      * Requirements:
      *
