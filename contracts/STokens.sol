@@ -34,7 +34,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param valueDivisor - valueDivisor set to 10^9.
    */
     function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
-        __ERC20_init("pSTAKE Staked ATOMs", "stkATOMs");
+        __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

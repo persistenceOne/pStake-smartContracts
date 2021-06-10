@@ -24,7 +24,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
    * @param pauserAddress - address of the pauser admin.
    */
     function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
-        __ERC20_init("pSTAKE Unstaked ATOMs", "ustkATOMs");
+        __ERC20_init("pSTAKE Unstaked ATOM", "ustkATOM");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

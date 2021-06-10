@@ -1,6 +1,5 @@
 const LiquidStakingArtifact = artifacts.require("LiquidStaking");
 const TokenWrapperArtifact = artifacts.require("TokenWrapper");
-const Bech32Artifact = artifacts.require("Bech32Validation");
 const STokensArtifact = artifacts.require("STokens");
 const UTokensArtifact = artifacts.require("UTokens");
 
@@ -8,7 +7,6 @@ const { BN } = web3.utils.BN;
 const { deployProxy, upgradeProxy } = require("@openzeppelin/truffle-upgrades");
 var UTokensInstance,
   STokensInstance,
-  Bech32Instance,
   TokenWrapperInstance,
  LiquidStakingInstance;
 
@@ -44,7 +42,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "goerli") {
-    let gasPriceGoerli = 1e11;
+    let gasPriceGoerli = 5e12121
+    ;
     let gasLimitGoerli = 4000000;
     await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
   }
@@ -84,16 +83,9 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   );
   console.log("STokens deployed: ", STokensInstance.address);
 
-    Bech32Instance = await deployProxy(
-        Bech32Artifact,
-        { deployer, initializer: "initialize" }
-    );
-
-    console.log("Bech32 deployed: ", Bech32Instance.address);
-
     TokenWrapperInstance = await deployProxy(
     TokenWrapperArtifact,
-    [UTokensInstance.address, Bech32Instance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
+    [UTokensInstance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
     { deployer, initializer: "initialize" }
   );
   console.log("TokenWrapper deployed: ", TokenWrapperInstance.address);
