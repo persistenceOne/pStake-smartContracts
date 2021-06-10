@@ -62,7 +62,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
   let defaultAdmin = accounts[0];
-  let bridgeAdmin = accounts[1];
+  let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
   let pauseAdmin = accounts[2];
   let rewardRate = new BN(3000000)
   let rewardDivisor = new BN(1000000000)
@@ -141,8 +141,19 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       gas: gasLimit,
     }
   );
-
     console.log("setLiquidStakingContract() set for STokens contract.");
+
+    const txReceiptSetEpochTs = await LiquidStakingInstance.setUnstakeEpoch(
+        "1623324050","1623324050",
+        {
+            from: defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("SetEpochTs() set for LiquidStaking contract.");
+
+
 
   console.log("ALL DONE.");
 }
