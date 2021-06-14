@@ -341,34 +341,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         uint256 _totalRewardBalance = _holderContractRewardBalance[whitelistedAddress].add(_additionalRewardBalance);
 
         if(userAddress != address(0)) {
-            uint256 _lpBalanceTimeShare;
-            uint256 _lpTotalSupplyTimeShare;
-            uint256 _lpNewSupplyTimeShare;
+            // CALCULATE LPTIMESHARE OF LP BALANCE OF USER & LP TOTAL SUPPLY OF CONTRACT::
 
-            // CALCULATE LPTIMESHARE OF LP BALANCE OF USER::
-
-            // get the user's last timestamp for LPTimeShare calculation
-            //uint256 _lastLPBalanceShareTimestamp = _holderContractLPBalanceTimestamps[whitelistedAddress][userAddress];
-            uint256 _lastLPBalanceShareTimeInterval = block.timestamp.sub(_holderContractLPBalanceTimestamps[whitelistedAddress][userAddress]);
-            // calculate the time share of balance of user
-            // (dont use _calculatePendingRewards since reward rate is irrelevant here)
-            if(_lpTokenBalance != 0 &&  _lastLPBalanceShareTimeInterval != 0) {
-                _lpBalanceTimeShare = _lpTokenBalance.mul(_lastLPBalanceShareTimeInterval);
-            }
-
-            // CALCULATE LPTIMESHARE OF LP TOTAL SUPPLY OF CONTRACT::
-            // get the LP total Supply's last timestamp for LPTimeShare calculation
-           // uint256 _lastLPSupplyShareTimestamp = _holderContractLPSupplyTimestamp[whitelistedAddress];
-            uint256 _lastLPSupplyShareTimeInterval = block.timestamp.sub(_holderContractLPSupplyTimestamp[whitelistedAddress]);
-            // calculate the new incoming time share of total supply of contract
-            // (dont use _calculatePendingRewards since reward rate is irrelevant here)
-            if(_lpTokenSupply != 0 &&  _lastLPSupplyShareTimeInterval != 0) {
-                _lpNewSupplyTimeShare = _lpTokenSupply.mul(_lastLPSupplyShareTimeInterval);
-            }
-            // calculate the total time share of total supply of contract
-            _lpTotalSupplyTimeShare = _holderContractTotalLPTimeShare[whitelistedAddress].add(_lpNewSupplyTimeShare);
-            assert(_lpTotalSupplyTimeShare != 0);
-
+            (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare) = getLPTimeShares(whitelistedAddress, userAddress);
             if(_lpBalanceTimeShare > 0 && _lpTotalSupplyTimeShare > 0) {
                 // calculate the reward share for the user
                 uint256 _userReward = (_totalRewardBalance.mul(_lpBalanceTimeShare)).div(_lpTotalSupplyTimeShare);
@@ -394,6 +369,33 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         _holderContractTotalRewardsTimestamp[whitelistedAddress] = block.timestamp;
         return true;
     }
+
+    function getLPTimeShares(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare){
+        uint256 _lpNewSupplyTimeShare;
+        uint256 _lastLPBalanceShareTimeInterval = block.timestamp.sub(_holderContractLPBalanceTimestamps[whitelistedAddress][userAddress]);
+        // calculate the time share of balance of user
+        // (dont use _calculatePendingRewards since reward rate is irrelevant here)
+        if(_lpTokenBalance != 0 &&  _lastLPBalanceShareTimeInterval != 0) {
+            lpBalanceTimeShare = _lpTokenBalance.mul(_lastLPBalanceShareTimeInterval);
+        }
+
+        // CALCULATE LPTIMESHARE OF LP TOTAL SUPPLY OF CONTRACT::
+        // get the LP total Supply's last timestamp for LPTimeShare calculation
+        // uint256 _lastLPSupplyShareTimestamp = _holderContractLPSupplyTimestamp[whitelistedAddress];
+        uint256 _lastLPSupplyShareTimeInterval = block.timestamp.sub(_holderContractLPSupplyTimestamp[whitelistedAddress]);
+        // calculate the new incoming time share of total supply of contract
+        // (dont use _calculatePendingRewards since reward rate is irrelevant here)
+        if(_lpTokenSupply != 0 &&  _lastLPSupplyShareTimeInterval != 0) {
+            _lpNewSupplyTimeShare = _lpTokenSupply.mul(_lastLPSupplyShareTimeInterval);
+        }
+
+        // calculate the total time share of total supply of contract
+        lpTotalSupplyTimeShare = _holderContractTotalLPTimeShare[whitelistedAddress].add(_lpNewSupplyTimeShare);
+        assert(lpTotalSupplyTimeShare != 0);
+
+    }
+
+
 
 
     function getHolderAttributes(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
