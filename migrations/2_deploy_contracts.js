@@ -10,11 +10,6 @@ var UTokensInstance,
   TokenWrapperInstance,
  LiquidStakingInstance;
 
-let uTokenAddress = "0xAA507982e7a0abEbD4737d839fe2C3E6e71d9278";
-let sTokenAddress = "0xfAC7974De13271B26e463B351bF8e9965D983b95";
-let tokenWrapperAddress = "0x9BEA27B3953015D2BEe98496D48a7319d80e2A6F";
-let liquidStakingAddress = "0xac749a63F87Fe0A978Cb1002c2DFe9fdC5Bd52e4";
-
 /*[ '0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7',
     '0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B',
     '0xCC6F6821F903b1FC3C0c9597b26C84E31AC98B36',
@@ -42,8 +37,7 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "goerli") {
-    let gasPriceGoerli = 5e12121
-    ;
+    let gasPriceGoerli = 5e12121;
     let gasLimitGoerli = 4000000;
     await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
   }
@@ -64,7 +58,8 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   let defaultAdmin = accounts[0];
   let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
   let pauseAdmin = accounts[2];
-  let rewardRate = new BN(3000000)
+  //let rewardRate = new BN(3000000) //0.003
+  let rewardRate = new BN(15432) //1.5432 * 10^-5
   let rewardDivisor = new BN(1000000000)
 
   console.log(bridgeAdmin, "bridgeAdmin")
@@ -143,7 +138,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   );
     console.log("setLiquidStakingContract() set for STokens contract.");
 
-    const txReceiptSetEpochTs = await LiquidStakingInstance.setUnstakeEpoch(
+/*    const txReceiptSetEpochTs = await LiquidStakingInstance.setUnstakeEpoch(
         "1623324050","1623324050",
         {
             from: defaultAdmin,
@@ -151,7 +146,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
             gas: gasLimit,
         }
     );
-    console.log("SetEpochTs() set for LiquidStaking contract.");
+    console.log("SetEpochTs() set for LiquidStaking contract.");*/
 
 
 
