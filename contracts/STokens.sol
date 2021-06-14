@@ -343,10 +343,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         if(userAddress != address(0)) {
             // CALCULATE LPTIMESHARE OF LP BALANCE OF USER & LP TOTAL SUPPLY OF CONTRACT::
 
-            (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare) = getLPTimeShares(whitelistedAddress, userAddress);
-            if(_lpBalanceTimeShare > 0 && _lpTotalSupplyTimeShare > 0) {
+            (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare) = getLPTimeShares(whitelistedAddress, userAddress, _lpTokenBalance, _lpTokenSupply);
+            if(lpBalanceTimeShare > 0 && lpTotalSupplyTimeShare > 0) {
                 // calculate the reward share for the user
-                uint256 _userReward = (_totalRewardBalance.mul(_lpBalanceTimeShare)).div(_lpTotalSupplyTimeShare);
+                uint256 _userReward = (_totalRewardBalance.mul(lpBalanceTimeShare)).div(lpTotalSupplyTimeShare);
 
                 // Mint new uTokens and send to the callers account
                 emit CalculateRewards(userAddress, _userReward, block.timestamp);
@@ -355,7 +355,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             }
 
             // update the value of time share of total supply of contract
-            _holderContractTotalLPTimeShare[whitelistedAddress] = _lpTotalSupplyTimeShare.sub(_lpBalanceTimeShare);
+            _holderContractTotalLPTimeShare[whitelistedAddress] = lpTotalSupplyTimeShare.sub(lpBalanceTimeShare);
             // update the timestamp of user's lp balance
             _holderContractLPBalanceTimestamps[whitelistedAddress][userAddress] = block.timestamp;
 
@@ -370,13 +370,13 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return true;
     }
 
-    function getLPTimeShares(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare){
+    function getLPTimeShares(address whitelistedAddress, address userAddress, uint256 lpTokenBalance, uint256 lpTokenSupply) public view returns (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare){
         uint256 _lpNewSupplyTimeShare;
         uint256 _lastLPBalanceShareTimeInterval = block.timestamp.sub(_holderContractLPBalanceTimestamps[whitelistedAddress][userAddress]);
         // calculate the time share of balance of user
         // (dont use _calculatePendingRewards since reward rate is irrelevant here)
-        if(_lpTokenBalance != 0 &&  _lastLPBalanceShareTimeInterval != 0) {
-            lpBalanceTimeShare = _lpTokenBalance.mul(_lastLPBalanceShareTimeInterval);
+        if(lpTokenBalance != 0 &&  _lastLPBalanceShareTimeInterval != 0) {
+            lpBalanceTimeShare = lpTokenBalance.mul(_lastLPBalanceShareTimeInterval);
         }
 
         // CALCULATE LPTIMESHARE OF LP TOTAL SUPPLY OF CONTRACT::
@@ -385,8 +385,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         uint256 _lastLPSupplyShareTimeInterval = block.timestamp.sub(_holderContractLPSupplyTimestamp[whitelistedAddress]);
         // calculate the new incoming time share of total supply of contract
         // (dont use _calculatePendingRewards since reward rate is irrelevant here)
-        if(_lpTokenSupply != 0 &&  _lastLPSupplyShareTimeInterval != 0) {
-            _lpNewSupplyTimeShare = _lpTokenSupply.mul(_lastLPSupplyShareTimeInterval);
+        if(lpTokenSupply != 0 &&  _lastLPSupplyShareTimeInterval != 0) {
+            _lpNewSupplyTimeShare = lpTokenSupply.mul(_lastLPSupplyShareTimeInterval);
         }
 
         // calculate the total time share of total supply of contract
