@@ -33,13 +33,13 @@ interface ISTokens is IERC20Upgradeable {
      */
     function setRewardRate(uint256 rate) external returns (bool);
 
-      /**
-     * @dev Calculates rewards `amount` tokens to the caller's address `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {TriggeredCalculateRewards} event.
-     */
+    /**
+   * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+   *
+   * Returns a boolean value indicating whether the operation succeeded.
+   *
+   * Emits a {TriggeredCalculateRewards} event.
+   */
     function calculateRewards(address to) external returns (bool);
 
     /**
@@ -64,6 +64,35 @@ interface ISTokens is IERC20Upgradeable {
      * @dev Emitted when contract addresses are set
      */
     event SetLiquidStakingContract( address indexed _contract );
+
+    /**
+    * @dev Emitted when a new whitelisted address is added
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event UpdateWhitelistedAddress(address indexed whitelistedAddress, address indexed lpTokenERC20ContractAddress, address indexed sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig, uint256 timestamp);
+
+    /**
+    * @dev Emitted when a new whitelisted address is added
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    // event AddWhitelistedAddress(address indexed whitelistedAddress, uint256 timestamp);
+
+    /**
+    * @dev Emitted when a new whitelisted address is removed
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event RemoveWhitelistedAddress(address indexed whitelistedAddress, address indexed lpTokenERC20ContractAddress, address indexed sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig, uint256 timestamp);
+
+
+    /**
+    * @dev Emitted when a new whitelisted address is removed
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event GenerateHolderRewards(address indexed whitelistedAddress, address indexed accountAddress, uint256 timestamp);
 
     /**
      * @dev Emitted when `rewards` tokens are moved to account
