@@ -56,6 +56,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         _unstakingLockTime = 21 days;
         _epochInterval = 3 days;
         _valueDivisor = valueDivisor;
+        _unstakeEpoch = block.timestamp;
+        _unstakeEpochPrevious = block.timestamp;
     }
 
     /**

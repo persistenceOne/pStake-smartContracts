@@ -14,11 +14,11 @@ contract HolderUniswap is IHolder, Initializable{
     using SafeMathUpgradeable for uint256;
     IERC20Upgradeable sTokenContract;
 
-    function initialize(address _sTokenContractAddress, address _pauserAddress) public virtual initializer {
+    function initialize(address _sTokenContractAddress) public virtual initializer {
         sTokenContract = IERC20Upgradeable(_sTokenContractAddress);
     }
 
-    function getHolderAttributes(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
+    function getHolderAttributes(address whitelistedAddress, address userAddress) public view override returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
         lpBalance = IUniswapV2ERC20(whitelistedAddress).balanceOf(userAddress);
         lpSupply = IUniswapV2ERC20(whitelistedAddress).totalSupply();
         sTokenSupply = sTokenContract.balanceOf(whitelistedAddress);
