@@ -35,70 +35,76 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
 
     /**
     * @dev Mint new utokens for the provided 'address' and 'amount'
-    * @param to: account address, amount: number of tokens
+    * @param to: account address, tokens: number of tokens
     *
-    * Emits a {MintTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+    * Emits a {MintTokens} event with 'to' set to address and 'tokens' set to amount of tokens.
     *
     * Requirements:
     *
     * - `amount` cannot be less than zero.
     *
     */
-    function mint(address to, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _liquidStakingContract) || (hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (tx.origin == to && _msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
+    function mint(address to, uint256 tokens) public virtual override returns (bool success) {
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (_msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
         _mint(to, tokens);
         return true;
     }
 
     /*
      * @dev Burn utokens for the provided 'address' and 'amount'
-     * @param to: account address, amount: number of tokens
+     * @param from: account address, tokens: number of tokens
      *
-     * Emits a {BurnTokens} event with 'to' set to address and 'amount' set to amount of tokens.
+     * Emits a {BurnTokens} event with 'from' set to address and 'tokens' set to amount of tokens.
      *
      * Requirements:
      *
      * - `amount` cannot be less than zero.
      *
      */
-    function burn(address from, uint256 tokens) public virtual override whenNotPaused returns (bool success) {
+    function burn(address from, uint256 tokens) public virtual override returns (bool success) {
         require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
         _burn(from, tokens);
         return true;
     }
 
     /*
-    * @dev Set 'contract address', called from constructor
+    * @dev Set 'contract address', called for stokens smart contract
     * @param stokenContract: stoken contract address
     *
-    * Emits a {SetContract} event with '_contract' set to the stoken contract address.
+    * Emits a {SetSTokensContract} event with '_contract' set to the stoken contract address.
     *
     */
     //These functions need to be called after deployment, only admin can call the same
-    function setSTokenContract(address stokenContract) public virtual override whenNotPaused {
+    function setSTokenContract(address stokenContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set SToken contract");
         _stokenContract = stokenContract;
+        emit SetSTokensContract(stokenContract);
     }
 
     /*
-     * @dev Set 'contract address'
+     * @dev Set 'contract address', for liquid staking smart contract
      * @param liquidStakingContract: liquidStaking contract address
+     *
+     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
+     *
      */
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override whenNotPaused {
+    function setLiquidStakingContract(address liquidStakingContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set liquidStaking contract");
         _liquidStakingContract = liquidStakingContract;
+        emit SetLiquidStakingContract(liquidStakingContract);
     }
 
     /*
-     * @dev Set 'contract address', called from constructor
+     * @dev Set 'contract address', called for token wrapper smart contract
      * @param wrapperTokensContract: tokenWrapper contract address
      *
-     * Emits a {SetContract} event with '_contract' set to the tokenWrapper contract address.
+     * Emits a {SetWrapperContract} event with '_contract' set to the tokenWrapper contract address.
      *
      */
-    function setWrapperContract(address wrapperTokensContract) public virtual override whenNotPaused {
+    function setWrapperContract(address wrapperTokensContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set wrapper contract");
         _wrapperContract = wrapperTokensContract;
+        emit SetWrapperContract(wrapperTokensContract);
     }
 
     /**
@@ -108,7 +114,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
       *
       * - The contract must not be paused.
       */
-    function pause() public virtual override returns (bool success) {
+    function pause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
         _pause();
         return true;
@@ -121,9 +127,27 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      * - The contract must be paused.
      */
-    function unpause() public virtual override returns (bool success) {
+    function unpause() public virtual returns (bool success) {
         require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to unpause contracts.");
         _unpause();
         return true;
+    }
+
+    /**
+     * @dev Hook that is called before any transfer of tokens. This includes
+     * minting and burning.
+     *
+     * Calling conditions:
+     *
+     * - when `from` and `to` are both non-zero, `amount` of ``from``'s tokens
+     * will be to transferred to `to`.
+     * - when `from` is zero, `amount` tokens will be minted for `to`.
+     * - when `to` is zero, `amount` of ``from``'s tokens will be burned.
+     * - `from` and `to` are never both zero.
+     *
+     */
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
+        require(!paused(), "UTokens: token transfer while paused");
+        super._beforeTokenTransfer(from, to, amount);
     }
 }

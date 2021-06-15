@@ -4,7 +4,7 @@ pragma solidity ^0.7.0;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
- * @dev Interface of the IUTokens.
+ * @dev Interface of the ISTokens.
  */
 interface ISTokens is IERC20Upgradeable {
 
@@ -34,33 +34,13 @@ interface ISTokens is IERC20Upgradeable {
     function setRewardRate(uint256 rate) external returns (bool);
 
     /**
-    * @dev Returns the staked block of the user's address.
-    */
-    function getStakedBlock(address to) external view returns (uint256);
-
-    /**
-    * @dev Returns the reward rate set by the admin.
-    */
-    function getRewardRate() external view returns (uint256);
-
-    /**
-     * @dev Returns the pending reward owned by `account`..
-     */
-    function calculatePendingRewards(address to) external view returns (uint256);
-
-    /**
-     * @dev Calculates rewards `amount` tokens to the caller's address `to`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {TriggeredCalculateRewards} event.
-     */
+   * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+   *
+   * Returns a boolean value indicating whether the operation succeeded.
+   *
+   * Emits a {TriggeredCalculateRewards} event.
+   */
     function calculateRewards(address to) external returns (bool);
-
-    /**
-    * @dev Set LiquidStaking smart contract.
-    */
-    function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Set UTokens smart contract.
@@ -71,27 +51,48 @@ interface ISTokens is IERC20Upgradeable {
     function setUTokensContract(address utokenContract) external;
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {pause} event.
-     */
-    function pause() external returns (bool);
-
-    /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
-     */
-    function unpause() external returns (bool);
+    * @dev Set LiquidStaking smart contract.
+    */
+    function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Emitted when contract addresses are set
      */
-    event SetContract( address indexed _contract );
+    event SetUTokensContract( address indexed _contract );
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetLiquidStakingContract( address indexed _contract );
+
+    /**
+    * @dev Emitted when a new whitelisted address is added
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event UpdateWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, address indexed lpTokenERC20ContractAddress, address indexed sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig, uint256 timestamp);
+
+    /**
+    * @dev Emitted when a new whitelisted address is added
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    // event AddWhitelistedAddress(address indexed whitelistedAddress, uint256 timestamp);
+
+    /**
+    * @dev Emitted when a new whitelisted address is removed
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event RemoveWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, address indexed lpTokenERC20ContractAddress, address indexed sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig, uint256 timestamp);
+
+
+    /**
+    * @dev Emitted when a new whitelisted address is removed
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event GenerateHolderRewards(address indexed whitelistedAddress, address indexed accountAddress, uint256 timestamp);
 
     /**
      * @dev Emitted when `rewards` tokens are moved to account

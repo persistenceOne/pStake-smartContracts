@@ -13,4 +13,3 @@ This contract is used for staking, unstaking and withdrawal of unbonded tokens. 
 ## TokenWrapper Contract
 This contract is used for deposit and withdraw operations of ustkTokens. This enables transfer of value between two blockchains when the protocol token is converted to its pegged representative or vice versa. The contract contains functions for generating and withdrawing uTokens 
 
-

@@ -42,20 +42,19 @@ interface IUTokens is IERC20Upgradeable {
     function setWrapperContract(address wrapperTokensContract) external;
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Pause} event.
+     * @dev Emitted when contract addresses are set
      */
-    function pause() external returns (bool);
+    event SetSTokensContract( address indexed _contract );
+
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
+     * @dev Emitted when contract addresses are set
      */
-    function unpause() external returns (bool);
+    event SetWrapperContract( address indexed _contract );
+
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetLiquidStakingContract( address indexed _contract );
 }

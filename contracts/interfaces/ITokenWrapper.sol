@@ -2,41 +2,15 @@
 pragma solidity ^0.7.0;
 
 /**
- * @dev Interface of the IUTokens.
+ * @dev Interface of the ITokenWrapper.
  */
 interface ITokenWrapper {
 
     /**
     * @dev Set UTokens smart contract.
-    * Emits a {SetContract} event.
+    * Emits a {SetUTokensContract} event.
     */
     function setUTokensContract(address uAddress) external;
-
-    /**
-     * @dev Set STokens smart contract.
-     *
-     *
-     * Emits a {SetContract} event.
-     */
-    function setSTokensContract(address sAddress) external;
-
-    /**
-    * @dev Pause smart contracts
-    *
-    * Returns a boolean value indicating whether the operation succeeded.
-    *
-    * Emits a {pause} event.
-    */
-    function pause() external returns (bool);
-
-    /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
-     */
-    function unpause() external returns (bool);
 
     /**
      * @dev Generates `amount` tokens to the caller's address `to`.
@@ -50,7 +24,22 @@ interface ITokenWrapper {
      *
      * Emits a {WithdrawUTokens} event.
      */
-    function withdrawUTokens(address from, uint256 tokens, string memory toAtomAddress) external;
+    function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) external;
+
+    /**
+    * @dev Emitted when fees are set
+    */
+    event SetFees( uint256 depositFee, uint256 withdrawFee );
+
+    /**
+    * @dev Emitted when minimum values are set
+    */
+    event SetMinimumValues( uint256 minDeposit, uint256 minWithdraw );
+
+     /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetUTokensContract( address indexed _contract );
 
     /**
     * @dev Emitted when uTokens are generated
@@ -60,10 +49,6 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when UTokens are withdrawn
     */
-    event WithdrawUTokens(address indexed accountAddress, uint256 tokens, string toAtomAddress, uint256 timestamp);
-
-    /**
-      * @dev Emitted when contract addresses are set
-      */
-    event SetContract( address indexed _contract );
+    event WithdrawUTokens(address indexed accountAddress, uint256 tokens, string toChainAddress, uint256 timestamp);
+   
 }

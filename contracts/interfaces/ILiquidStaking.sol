@@ -2,10 +2,9 @@
 pragma solidity ^0.7.0;
 
 /**
- * @dev Interface of the IUTokens.
+ * @dev Interface of the ILiquidStaking.
  */
 interface ILiquidStaking {
-
 
     /**
      *  @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
@@ -33,11 +32,6 @@ interface ILiquidStaking {
     function withdrawUnstakedTokens(address staker) external;
 
     /**
-    * @dev Returns the unbonded tokens.
-    */
-    function getTotalUnbondedTokens(address staker) external view returns (uint256);
-
-    /**
     * @dev Set UTokens smart contract.
     * Emits a {SetContract} event.
     */
@@ -52,22 +46,19 @@ interface ILiquidStaking {
     function setSTokensContract(address sAddress) external;
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {pause} event.
-     */
-    function pause() external returns (bool);
+    * @dev Emitted when fees are set
+    */
+    event SetFees( uint256 stakeFee, uint256 unstakeFee );
 
     /**
-     * @dev Pause smart contracts
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     *
-     * Emits a {Unpaused} event.
-     */
-    function unpause() external returns (bool);
+    * @dev Emitted when minimum values are set
+    */
+    event SetMinimumValues( uint256 minStake, uint256 minUnstake );
+
+    /**
+    * @dev Emitted when unstakeEpoch is set
+    */
+    event SetUnstakeEpoch( uint256 unstakeEpoch, uint256 unstakeEpochPrevious );
 
     /**
     * @dev Emitted when contract addresses are set
@@ -92,5 +83,5 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when unstaked tokens are withdrawn
     */
-    event WithdrawUnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+        event WithdrawUnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 }
