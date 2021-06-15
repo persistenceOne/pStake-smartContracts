@@ -62,14 +62,19 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
+      // provider: () =>
+      //   new HDWalletProvider(
+      //     "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
+      //     `https://ropsten.infura.io/v3/c1a795f858814218840034fe273cb040`
+      //   ),
       provider: () =>
-        new HDWalletProvider(
-          mnemonic,
-          `https://ropsten.infura.io/v3/c1a795f858814218840034fe273cb040`
-        ),
+          new HDWalletProvider(
+              mnemonic,
+              `https://ropsten.infura.io/v3/99b84774f49e4a1191ce1734a12a0518`
+          ),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
-      gasPrice: 3000000000,
+      gasPrice: 100000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )

@@ -31,13 +31,13 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "ropsten") {
-    let gasPriceRopsten = 3e10;
-    let gasLimitRopsten = 4000000;
+    let gasPriceRopsten = 1e11;
+    let gasLimitRopsten = 5000000;
     await deployAll(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
   }
 
   if (network === "goerli") {
-    let gasPriceGoerli = 5e12121;
+    let gasPriceGoerli = 5e12;
     let gasLimitGoerli = 4000000;
     await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
   }
@@ -57,10 +57,10 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   );
   let defaultAdmin = accounts[0];
   let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
-  let pauseAdmin = accounts[2];
+  let pauseAdmin = accounts[0];
   //let rewardRate = new BN(3000000) //0.003
   let rewardRate = new BN(15432) //1.5432 * 10^-5
-  let rewardDivisor = new BN(1000000000)
+  let rewardDivisor = new BN("1000000000")
 
   console.log(bridgeAdmin, "bridgeAdmin")
 
