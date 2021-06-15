@@ -53,11 +53,11 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
-        _unstakingLockTime = 21 days;
-        _epochInterval = 3 days;
+        _unstakingLockTime = 21 hours;
+        _epochInterval = 3 hours;
         _valueDivisor = valueDivisor;
-        _unstakeEpoch = block.timestamp;
-        _unstakeEpochPrevious = block.timestamp;
+        _unstakeEpoch = 1623840663;
+        _unstakeEpochPrevious = 1623840663;
     }
 
     /**
