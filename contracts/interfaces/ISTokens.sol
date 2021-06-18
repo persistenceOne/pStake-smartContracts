@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
@@ -70,7 +70,7 @@ interface ISTokens is IERC20Upgradeable {
     *
     * Returns a boolean value indicating whether the operation succeeded.
     */
-    event UpdateWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, address indexed lpTokenERC20ContractAddress, address indexed sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig, uint256 timestamp);
+    event UpdateWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, uint256 timestamp);
 
     /**
     * @dev Emitted when a new whitelisted address is added
@@ -84,7 +84,7 @@ interface ISTokens is IERC20Upgradeable {
     *
     * Returns a boolean value indicating whether the operation succeeded.
     */
-    event RemoveWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, address indexed lpTokenERC20ContractAddress, address indexed sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig, uint256 timestamp);
+    event RemoveWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, uint256 timestamp);
 
 
     /**

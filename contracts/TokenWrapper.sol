@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
@@ -61,7 +61,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setFees(uint256 depositFee, uint256 withdrawFee) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set fees");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW1");
         _depositFee = depositFee;
         _withdrawFee = withdrawFee;
         emit SetFees(depositFee, withdrawFee);
@@ -89,7 +89,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set minimum values");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW2");
         _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
         emit SetMinimumValues(minDeposit, minWithdraw);
@@ -104,7 +104,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setUTokensContract(address uAddress) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TokenWrapper: User not authorised to set UToken contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
     }
@@ -117,7 +117,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to pause contracts");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "TW4");
         _pause();
         return true;
     }
@@ -130,7 +130,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "TokenWrapper: User not authorised to unpause contracts");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "TW5");
         _unpause();
         return true;
     }
@@ -161,8 +161,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "TokenWrapper: Requires a min deposit amount");
-        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TokenWrapper: Only bridge admin can mint new tokens for a user");
+        require(amount>0, "TW6");
+        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW7");
         uint256 _finalTokens = _generateUTokens(to, amount);
         emit GenerateUTokens(to, _finalTokens, block.timestamp);
     }
@@ -179,12 +179,12 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual whenNotPaused {
-        require(to.length == amount.length, "TokenWrapper: Mismatch array length");
-        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TokenWrapper: Only bridge admin can mint new tokens for a user");
+        require(to.length == amount.length, "TW8");
+        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW9");
         uint256 i;
         uint256 _finalTokens;
         for ( i=0; i<to.length; i=i.add(1)) {
-            require(amount[i]>0, "TokenWrapper: Requires a min deposit amount");
+            require(amount[i]>0, "TW10");
             _finalTokens = _generateUTokens(to[i], amount[i]);
         }
         emit GenerateUTokens(to[i.sub(1)], _finalTokens, block.timestamp);
@@ -202,13 +202,13 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
-        require(tokens>_minWithdraw, "TokenWrapper: Requires a min withdraw amount");
+        require(tokens>_minWithdraw, "TW11");
         //check if toChainAddress is valid address
         bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
-        require(isAddressValid == true, "TokenWrapper: Invalid chain address ");
+        require(isAddressValid == true, "TW12");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
-        require(_currentUTokenBalance>=tokens, "TokenWrapper: Insuffcient balance for account");
-        require(from == _msgSender(), "TokenWrapper: Withdraw can only be done by Staker");
+        require(_currentUTokenBalance>=tokens, "TW13");
+        require(from == _msgSender(), "TW14");
         uint256 finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));
         _uTokens.burn(from, finalTokens);
         emit WithdrawUTokens(from, finalTokens, toChainAddress, block.timestamp);

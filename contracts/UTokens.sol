@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
@@ -45,7 +45,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     *
     */
     function mint(address to, uint256 tokens) public virtual override returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (_msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UTokens: User not authorised to mint UTokens");
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (_msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UT1");
         _mint(to, tokens);
         return true;
     }
@@ -62,7 +62,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      */
     function burn(address from, uint256 tokens) public virtual override returns (bool success) {
-        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UTokens: User not authorised to burn UTokens");
+        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UT2");
         _burn(from, tokens);
         return true;
     }
@@ -76,7 +76,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     */
     //These functions need to be called after deployment, only admin can call the same
     function setSTokenContract(address stokenContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set SToken contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UT3");
         _stokenContract = stokenContract;
         emit SetSTokensContract(stokenContract);
     }
@@ -89,7 +89,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      */
     function setLiquidStakingContract(address liquidStakingContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set liquidStaking contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UT4");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
     }
@@ -102,7 +102,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      */
     function setWrapperContract(address wrapperTokensContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UTokens: User not authorised to set wrapper contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UT5");
         _wrapperContract = wrapperTokensContract;
         emit SetWrapperContract(wrapperTokensContract);
     }
@@ -115,7 +115,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "UT6");
         _pause();
         return true;
     }
@@ -128,7 +128,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UTokens: User not authorised to unpause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "UT7");
         _unpause();
         return true;
     }
@@ -147,7 +147,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "UTokens: token transfer while paused");
+        require(!paused(), "UT8");
         super._beforeTokenTransfer(from, to, amount);
     }
 }

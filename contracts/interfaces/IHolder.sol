@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 
 /**
@@ -15,6 +15,13 @@ interface IHolder {
      * Emits an event.
      */
     function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);
+
+    /**
+     * @dev generates holder rewards
+     *
+     * Returns bool while generating holder rewards
+     */
+    function generateHolderRewards(address whitelistedAddress, address userAddress)  external returns (bool);
 
 
 

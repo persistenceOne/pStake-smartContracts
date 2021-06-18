@@ -1,21 +1,62 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 import "./interfaces/IHolder.sol";
-// import "./interfaces/ISTokens.sol"
+import "./interfaces/ISTokens.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/Uniswap/IUniswapV2ERC20.sol";
 import "./interfaces/Uniswap/IUniswapV2Pair.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
-contract HolderUniswap is IHolder, Initializable{
+contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
 
     using SafeMathUpgradeable for uint256;
     IERC20Upgradeable sTokenContract;
 
-    function initialize(address _sTokenContractAddress) public virtual initializer {
+    // constants defining access control ROLES
+    bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
+    // variables pertaining to moving reward rate logic
+    uint256[] private _rewardRate;
+    uint256[] private _rewardBlockTimestamp;
+    uint256 private _valueDivisor;
+    mapping(address => uint256) private _rewardsTillTimestamp;
+
+    mapping(address => address[3]) private _holderContractAddresses;
+    mapping(address => bytes4[3]) private _holderContractFuncSigs;
+    mapping(address => uint256) private _holderContractRewardBalance;
+    mapping(address => uint256) private _holderContractTotalLPTimeShare;
+    mapping(address => mapping(address => uint256)) private _holderContractLPBalanceTimestamps;
+    mapping(address => uint256) private _holderContractLPSupplyTimestamp;
+    mapping(address => uint256) private _holderContractTotalRewardsTimestamp;
+
+    function initialize(address _sTokenContractAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
+        __AccessControl_init();
         sTokenContract = IERC20Upgradeable(_sTokenContractAddress);
+        // to set reward rate to 5e-3 or 0.005
+        _rewardRate.push(rewardRate);
+        _rewardBlockTimestamp.push(block.timestamp);
+        _valueDivisor = valueDivisor;
+    }
+
+    /*
+   * @dev set reward rate called by admin
+   * @param rewardRate: reward rate
+   *
+   *
+   * Requirements:
+   *
+   * - `rate` cannot be less than or equal to zero.
+   *
+   */
+    function setRewardRate(uint256 rewardRate) public virtual returns (bool success) {
+        require(rewardRate>0, "HU1");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "HU2");
+        _rewardRate.push(rewardRate);
+        _rewardBlockTimestamp.push(block.timestamp);
+        return true;
     }
 
     function getHolderAttributes(address whitelistedAddress, address userAddress) public view override returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
@@ -23,5 +64,170 @@ contract HolderUniswap is IHolder, Initializable{
         lpSupply = IUniswapV2ERC20(whitelistedAddress).totalSupply();
         sTokenSupply = sTokenContract.balanceOf(whitelistedAddress);
     }
+
+    /**
+    * @dev Calculate pending rewards from the provided 'principal' & 'lastRewardTimestamp'. The rate is the moving reward rate.
+    * @param principal: principal amount
+    * @param lastRewardTimestamp: timestamp of last reward calculation performed
+    */
+    function _calculatePendingRewards(uint256 principal, uint256 lastRewardTimestamp) internal view returns (uint256 pendingRewards){
+        uint256 _index;
+        uint256 _rewardBlocks;
+        uint256 _simpleInterestOfInterval;
+        for(_index = _rewardBlockTimestamp.length.sub(1); _index >= 0;){
+            // logic applies for all indexes of array except last index
+            if(_index < _rewardBlockTimestamp.length.sub(1)) {
+                if(_rewardBlockTimestamp[_index] > lastRewardTimestamp) {
+                    _rewardBlocks = (_rewardBlockTimestamp[_index.add(1)]).sub(_rewardBlockTimestamp[_index]);
+                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
+                }
+                else {
+                    _rewardBlocks = (_rewardBlockTimestamp[_index.add(1)]).sub(lastRewardTimestamp);
+                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
+                    break;
+                }
+            }
+            // logic applies only for the last index of array
+            else {
+                if(_rewardBlockTimestamp[_index] > lastRewardTimestamp) {
+                    _rewardBlocks = (block.timestamp).sub(_rewardBlockTimestamp[_index]);
+                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
+                }
+                else {
+                    _rewardBlocks = (block.timestamp).sub(lastRewardTimestamp);
+                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
+                    break;
+                }
+            }
+
+            if(_index == 0) break;
+            else {
+                _index = _index.sub(1);
+            }
+        }
+        return pendingRewards;
+    }
+
+    /**
+    * @dev redeem rewards from holder contract
+    * @param whitelistedAddress: contract address of the liquidity pool/product
+    */
+    function generateHolderRewards(address whitelistedAddress, address userAddress) public override returns (bool){
+
+        // CALCULATE TOTAL REWARD OF WHITELISTED CONTRACT USING STOKEN RESERVE TOTAL SUPPLY::
+
+        uint256 _sTokenReserveSupply;
+        uint256 _lpTokenBalance;
+        uint256 _lpTokenSupply;
+
+        // get the lpBalance, lpSupply and sTokenReserveSupply to calculate reward shares
+        (_sTokenReserveSupply, _lpTokenBalance, _lpTokenSupply) =  getHolderAttributes(whitelistedAddress, userAddress);
+
+
+        // get the last reward timestamp of sToken reserve
+        uint256 _sTokenReserveTimestamp = _holderContractTotalRewardsTimestamp[whitelistedAddress];
+        uint256 _additionalRewardBalance;
+
+        // calculate the new rewards accrued and get the value of updated total rewards (without saving to state)
+        if(_sTokenReserveSupply != 0)
+            _additionalRewardBalance = _calculatePendingRewards(_sTokenReserveSupply, _sTokenReserveTimestamp);
+        uint256 _totalRewardBalance = _holderContractRewardBalance[whitelistedAddress].add(_additionalRewardBalance);
+
+        /*  if(userAddress != address(0)) {
+             // CALCULATE LPTIMESHARE OF LP BALANCE OF USER & LP TOTAL SUPPLY OF CONTRACT::
+
+             (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare) = getLPTimeShares(whitelistedAddress, userAddress, _lpTokenBalance, _lpTokenSupply);
+             if(lpBalanceTimeShare > 0 && lpTotalSupplyTimeShare > 0) {
+                 // calculate the reward share for the user
+                 uint256 _userReward = (_totalRewardBalance.mul(lpBalanceTimeShare)).div(lpTotalSupplyTimeShare);
+
+                 // Mint new uTokens and send to the callers account
+                 emit CalculateRewards(userAddress, _userReward, block.timestamp);
+                 _uTokens.mint(userAddress, _userReward);
+                 _totalRewardBalance = _totalRewardBalance.sub(_userReward);
+             }
+
+             // update the value of time share of total supply of contract
+             _holderContractTotalLPTimeShare[whitelistedAddress] = lpTotalSupplyTimeShare.sub(lpBalanceTimeShare);
+             // update the timestamp of user's lp balance
+             _holderContractLPBalanceTimestamps[whitelistedAddress][userAddress] = block.timestamp;
+
+         } */
+
+        // update the reward balance of whitelisted contract
+        _holderContractRewardBalance[whitelistedAddress] = _totalRewardBalance;
+
+        // update the reward timestamp of whitelisted contract
+        _holderContractLPSupplyTimestamp[whitelistedAddress] = block.timestamp;
+        _holderContractTotalRewardsTimestamp[whitelistedAddress] = block.timestamp;
+        return true;
+    }
+
+    function getLPTimeShares(address whitelistedAddress, address userAddress, uint256 lpTokenBalance, uint256 lpTokenSupply) public view returns (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare){
+        uint256 _lpNewSupplyTimeShare;
+        uint256 _lastLPBalanceShareTimeInterval = block.timestamp.sub(_holderContractLPBalanceTimestamps[whitelistedAddress][userAddress]);
+        // calculate the time share of balance of user
+        // (dont use _calculatePendingRewards since reward rate is irrelevant here)
+        if(lpTokenBalance != 0 &&  _lastLPBalanceShareTimeInterval != 0) {
+            lpBalanceTimeShare = lpTokenBalance.mul(_lastLPBalanceShareTimeInterval);
+        }
+
+        // CALCULATE LPTIMESHARE OF LP TOTAL SUPPLY OF CONTRACT::
+        // get the LP total Supply's last timestamp for LPTimeShare calculation
+        // uint256 _lastLPSupplyShareTimestamp = _holderContractLPSupplyTimestamp[whitelistedAddress];
+        uint256 _lastLPSupplyShareTimeInterval = block.timestamp.sub(_holderContractLPSupplyTimestamp[whitelistedAddress]);
+        // calculate the new incoming time share of total supply of contract
+        // (dont use _calculatePendingRewards since reward rate is irrelevant here)
+        if(lpTokenSupply != 0 &&  _lastLPSupplyShareTimeInterval != 0) {
+            _lpNewSupplyTimeShare = lpTokenSupply.mul(_lastLPSupplyShareTimeInterval);
+        }
+
+        // calculate the total time share of total supply of contract
+        lpTotalSupplyTimeShare = _holderContractTotalLPTimeShare[whitelistedAddress].add(_lpNewSupplyTimeShare);
+        assert(lpTotalSupplyTimeShare != 0);
+
+    }
+
+    /* function getHolderAttributes(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
+        // copy all holder logic attributes to local variables
+        address _lpTokenERC20ContractAddress = _holderContractAddresses[whitelistedAddress][1];
+        address _sTokenReserveContractAddress = _holderContractAddresses[whitelistedAddress][2];
+
+        bytes4 _lpTokenBalanceFuncSig = _holderContractFuncSigs[whitelistedAddress][0];
+        bytes4 _lpTokenSupplyFuncSig = _holderContractFuncSigs[whitelistedAddress][1];
+        bytes4 _sTokenSupplyFuncSig = _holderContractFuncSigs[whitelistedAddress][2];
+
+        // get the SToken Reserve Supply
+        (bool success, bytes memory data) =
+        _sTokenReserveContractAddress.staticcall(abi.encodeWithSelector(_sTokenSupplyFuncSig, whitelistedAddress));
+        require(success && data.length >= 32, "ST7");
+        sTokenSupply =  abi.decode(data, (uint256));
+
+        // get the LP Token balance of user
+        if(userAddress != address(0)) {
+            (bool success2, bytes memory data2) =
+            _lpTokenERC20ContractAddress.staticcall(abi.encodeWithSelector(_lpTokenBalanceFuncSig, userAddress));
+            require(success2 && data2.length >= 32, "ST8");
+            lpBalance =  abi.decode(data2, (uint256));
+        }
+        else
+            lpBalance = 0;
+
+        // get the LP Token total supply of ERC20-LP-Contract
+        if(userAddress != address(0)) {
+
+            (bool success3, bytes memory data3) =
+            _lpTokenERC20ContractAddress.staticcall(abi.encodeWithSelector(_lpTokenSupplyFuncSig));
+            require(success3 && data3.length >= 32, "ST9");
+            lpSupply =  abi.decode(data3, (uint256));
+        }
+        else
+            lpSupply = 0;
+
+    } */
 
 }
