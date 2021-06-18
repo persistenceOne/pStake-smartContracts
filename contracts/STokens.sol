@@ -32,13 +32,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     timestamp value of last reward calculation for LP contract as per reserve
     timestamp value of last reward calculation for user as per liquidity
     */
-    mapping(address => address[3]) private _holderContractAddresses;
-    mapping(address => bytes4[3]) private _holderContractFuncSigs;
-    mapping(address => uint256) private _holderContractRewardBalance;
-    mapping(address => uint256) private _holderContractTotalLPTimeShare;
-    mapping(address => mapping(address => uint256)) private _holderContractLPBalanceTimestamps;
-    mapping(address => uint256) private _holderContractLPSupplyTimestamp;
-    mapping(address => uint256) private _holderContractTotalRewardsTimestamp;
+    mapping(address => address) private _holderContractAddress;
+
 
 
     // variables capturing data of other contracts in the product
@@ -267,7 +262,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
                 _calculateRewards(to);
             }
             else {
-                generateHolderRewards(to, from);
+                IHolder(_holderContractAddress[to]).generateHolderRewards(to, from);
             }
 
         }
@@ -285,7 +280,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
             if(to != address(0) && whitelistedAddresses.contains(to)){
                 _calculateRewards(from);
-                generateHolderRewards(to, from);
+                IHolder(_holderContractAddress[to]).generateHolderRewards(to, from);
             }
 
         }
@@ -293,152 +288,21 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         if(from != address(0) && whitelistedAddresses.contains(from)){
 
             if(to == address(0)){
-                generateHolderRewards(from, to);
+                IHolder(_holderContractAddress[to]).generateHolderRewards(from, to);
             }
 
             if(to != address(0) && !whitelistedAddresses.contains(to)){
-                generateHolderRewards(from, to);
+                IHolder(_holderContractAddress[to]).generateHolderRewards(from, to);
                 _calculateRewards(to);
             }
 
             if(to != address(0) && whitelistedAddresses.contains(to)){
-                generateHolderRewards(from, address(0));
-                generateHolderRewards(to, address(0));
+                IHolder(_holderContractAddress[to]).generateHolderRewards(from, address(0));
+                IHolder(_holderContractAddress[to]).generateHolderRewards(to, address(0));
             }
 
         }
     }
-
-
-    /**
-    * @dev redeem rewards from holder contract
-    * @param whitelistedAddress: contract address of the liquidity pool/product
-    */
-    function generateHolderRewards(address whitelistedAddress, address userAddress) internal returns (bool){
-
-        // CALCULATE TOTAL REWARD OF WHITELISTED CONTRACT USING STOKEN RESERVE TOTAL SUPPLY::
-
-        uint256 _sTokenReserveSupply;
-        uint256 _lpTokenBalance;
-        uint256 _lpTokenSupply;
-
-        // get the lpBalance, lpSupply and sTokenReserveSupply to calculate reward shares
-        if(_holderContractAddresses[whitelistedAddress][0] == address(this))
-            (_sTokenReserveSupply, _lpTokenBalance, _lpTokenSupply) =  getHolderAttributes(whitelistedAddress, userAddress);
-        else {
-            address _holderContract = _holderContractAddresses[whitelistedAddress][0];
-            (_sTokenReserveSupply, _lpTokenBalance, _lpTokenSupply) =  IHolder(_holderContract).getHolderAttributes(whitelistedAddress, userAddress);
-        }
-
-
-        // get the last reward timestamp of sToken reserve
-        uint256 _sTokenReserveTimestamp = _holderContractTotalRewardsTimestamp[whitelistedAddress];
-        uint256 _additionalRewardBalance;
-
-        // calculate the new rewards accrued and get the value of updated total rewards (without saving to state)
-        if(_sTokenReserveSupply != 0)
-            _additionalRewardBalance = _calculatePendingRewards(_sTokenReserveSupply, _sTokenReserveTimestamp);
-        uint256 _totalRewardBalance = _holderContractRewardBalance[whitelistedAddress].add(_additionalRewardBalance);
-
-        if(userAddress != address(0)) {
-            // CALCULATE LPTIMESHARE OF LP BALANCE OF USER & LP TOTAL SUPPLY OF CONTRACT::
-
-            (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare) = getLPTimeShares(whitelistedAddress, userAddress, _lpTokenBalance, _lpTokenSupply);
-            if(lpBalanceTimeShare > 0 && lpTotalSupplyTimeShare > 0) {
-                // calculate the reward share for the user
-                uint256 _userReward = (_totalRewardBalance.mul(lpBalanceTimeShare)).div(lpTotalSupplyTimeShare);
-
-                // Mint new uTokens and send to the callers account
-                emit CalculateRewards(userAddress, _userReward, block.timestamp);
-                _uTokens.mint(userAddress, _userReward);
-                _totalRewardBalance = _totalRewardBalance.sub(_userReward);
-            }
-
-            // update the value of time share of total supply of contract
-            _holderContractTotalLPTimeShare[whitelistedAddress] = lpTotalSupplyTimeShare.sub(lpBalanceTimeShare);
-            // update the timestamp of user's lp balance
-            _holderContractLPBalanceTimestamps[whitelistedAddress][userAddress] = block.timestamp;
-
-        }
-
-        // update the reward balance of whitelisted contract
-        _holderContractRewardBalance[whitelistedAddress] = _totalRewardBalance;
-
-        // update the reward timestamp of whitelisted contract
-        _holderContractLPSupplyTimestamp[whitelistedAddress] = block.timestamp;
-        _holderContractTotalRewardsTimestamp[whitelistedAddress] = block.timestamp;
-        return true;
-    }
-
-    function getLPTimeShares(address whitelistedAddress, address userAddress, uint256 lpTokenBalance, uint256 lpTokenSupply) public view returns (uint256 lpBalanceTimeShare, uint256 lpTotalSupplyTimeShare){
-        uint256 _lpNewSupplyTimeShare;
-        uint256 _lastLPBalanceShareTimeInterval = block.timestamp.sub(_holderContractLPBalanceTimestamps[whitelistedAddress][userAddress]);
-        // calculate the time share of balance of user
-        // (dont use _calculatePendingRewards since reward rate is irrelevant here)
-        if(lpTokenBalance != 0 &&  _lastLPBalanceShareTimeInterval != 0) {
-            lpBalanceTimeShare = lpTokenBalance.mul(_lastLPBalanceShareTimeInterval);
-        }
-
-        // CALCULATE LPTIMESHARE OF LP TOTAL SUPPLY OF CONTRACT::
-        // get the LP total Supply's last timestamp for LPTimeShare calculation
-        // uint256 _lastLPSupplyShareTimestamp = _holderContractLPSupplyTimestamp[whitelistedAddress];
-        uint256 _lastLPSupplyShareTimeInterval = block.timestamp.sub(_holderContractLPSupplyTimestamp[whitelistedAddress]);
-        // calculate the new incoming time share of total supply of contract
-        // (dont use _calculatePendingRewards since reward rate is irrelevant here)
-        if(lpTokenSupply != 0 &&  _lastLPSupplyShareTimeInterval != 0) {
-            _lpNewSupplyTimeShare = lpTokenSupply.mul(_lastLPSupplyShareTimeInterval);
-        }
-
-        // calculate the total time share of total supply of contract
-        lpTotalSupplyTimeShare = _holderContractTotalLPTimeShare[whitelistedAddress].add(_lpNewSupplyTimeShare);
-        assert(lpTotalSupplyTimeShare != 0);
-
-    }
-
-
-
-
-    function getHolderAttributes(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
-        // copy all holder logic attributes to local variables
-        address _lpTokenERC20ContractAddress = _holderContractAddresses[whitelistedAddress][1];
-        address _sTokenReserveContractAddress = _holderContractAddresses[whitelistedAddress][2];
-
-        bytes4 _lpTokenBalanceFuncSig = _holderContractFuncSigs[whitelistedAddress][0];
-        bytes4 _lpTokenSupplyFuncSig = _holderContractFuncSigs[whitelistedAddress][1];
-        bytes4 _sTokenSupplyFuncSig = _holderContractFuncSigs[whitelistedAddress][2];
-
-        // get the SToken Reserve Supply
-        (bool success, bytes memory data) =
-        _sTokenReserveContractAddress.staticcall(abi.encodeWithSelector(_sTokenSupplyFuncSig, whitelistedAddress));
-        require(success && data.length >= 32, "ST7");
-        sTokenSupply =  abi.decode(data, (uint256));
-
-        // get the LP Token balance of user
-        if(userAddress != address(0)) {
-            (bool success2, bytes memory data2) =
-            _lpTokenERC20ContractAddress.staticcall(abi.encodeWithSelector(_lpTokenBalanceFuncSig, userAddress));
-            require(success2 && data2.length >= 32, "ST8");
-            lpBalance =  abi.decode(data2, (uint256));
-        }
-        else
-            lpBalance = 0;
-
-        // get the LP Token total supply of ERC20-LP-Contract
-        if(userAddress != address(0)) {
-
-            (bool success3, bytes memory data3) =
-            _lpTokenERC20ContractAddress.staticcall(abi.encodeWithSelector(_lpTokenSupplyFuncSig));
-            require(success3 && data3.length >= 32, "ST9");
-            lpSupply =  abi.decode(data3, (uint256));
-        }
-        else
-            lpSupply = 0;
-
-    }
-
-
-
-
 
     /*
     * @dev Set 'whitelisted address', performed by admin only
@@ -447,20 +311,14 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * Emits a {UpdateWhitelistedAddress} event
     *
     */
-    function updateWhitelistedAddress(address whitelistedAddress, address holderContractAddress, address lpTokenERC20ContractAddress, address sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig ) public virtual returns (bool success){
+    function updateWhitelistedAddress(address whitelistedAddress, address holderContractAddress) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST10");
         // lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
         require(whitelistedAddress != address(0), "ST11");
         if(!whitelistedAddresses.contains(whitelistedAddress)) whitelistedAddresses.add(whitelistedAddress);
         // add the contract addresses to holder mapping variable
-        _holderContractAddresses[whitelistedAddress][0] = holderContractAddress;
-        _holderContractAddresses[whitelistedAddress][1] = lpTokenERC20ContractAddress;
-        _holderContractAddresses[whitelistedAddress][2] = sTokenReserveContractAddress;
-        // add the function signatures to holder mapping variable
-        _holderContractFuncSigs[whitelistedAddress][0] = lpTokenBalanceFuncSig;
-        _holderContractFuncSigs[whitelistedAddress][1] = lpTokenSupplyFuncSig;
-        _holderContractFuncSigs[whitelistedAddress][2] = sTokenSupplyFuncSig;
-        emit UpdateWhitelistedAddress(whitelistedAddress, holderContractAddress, lpTokenERC20ContractAddress, sTokenReserveContractAddress, lpTokenBalanceFuncSig, lpTokenSupplyFuncSig, sTokenSupplyFuncSig, block.timestamp);
+        _holderContractAddress[whitelistedAddress] = holderContractAddress;
+        emit UpdateWhitelistedAddress(whitelistedAddress, holderContractAddress, block.timestamp);
         return true;
     }
 
@@ -477,21 +335,12 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         require(whitelistedAddress != address(0), "ST13");
         // remove whitelistedAddress from the list
         whitelistedAddresses.remove(whitelistedAddress);
-
-        address _holderContractAddress = _holderContractAddresses[whitelistedAddress][0];
-        address _lpTokenERC20ContractAddress = _holderContractAddresses[whitelistedAddress][1];
-        address _sTokenReserveContractAddress = _holderContractAddresses[whitelistedAddress][2];
-
-        bytes4 _lpTokenBalanceFuncSig = _holderContractFuncSigs[whitelistedAddress][0];
-        bytes4 _lpTokenSupplyFuncSig = _holderContractFuncSigs[whitelistedAddress][1];
-        bytes4 _sTokenSupplyFuncSig = _holderContractFuncSigs[whitelistedAddress][2];
+        address _holderContractAddressLocal = _holderContractAddress[whitelistedAddress];
 
         // delete holder contract values
-        delete _holderContractAddresses[whitelistedAddress];
-        // delete holder function signature values
-        delete _holderContractFuncSigs[whitelistedAddress];
+        delete _holderContractAddress[whitelistedAddress];
 
-        emit RemoveWhitelistedAddress(whitelistedAddress, _holderContractAddress, _lpTokenERC20ContractAddress, _sTokenReserveContractAddress, _lpTokenBalanceFuncSig, _lpTokenSupplyFuncSig, _sTokenSupplyFuncSig, block.timestamp);
+        emit RemoveWhitelistedAddress(whitelistedAddress, _holderContractAddressLocal, block.timestamp);
         return true;
     }
 

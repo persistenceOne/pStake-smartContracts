@@ -250,7 +250,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         if(_unstakeEpochMilestone == 0) return (0, unstakeEpoch, unstakeEpochPrevious);
         unstakeEpoch = _unstakeEpoch;
         unstakeEpochPrevious = _unstakeEpochPrevious;
-        //adding 21 days with epoch difference
+        //adding unstakingLockTime with epoch difference
         unstakeTime = _unstakeEpochMilestone.add(_unstakingLockTime);
         return (unstakeTime, unstakeEpoch, unstakeEpochPrevious);
     }
