@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 /**
  * @dev Interface of the ILiquidStaking.
@@ -51,6 +51,11 @@ interface ILiquidStaking {
     event SetFees( uint256 stakeFee, uint256 unstakeFee );
 
     /**
+   * @dev Emitted when unstaking lock time is set
+   */
+    event SetUnstakingLockTime( uint256 unstakingLockTime);
+
+    /**
     * @dev Emitted when minimum values are set
     */
     event SetMinimumValues( uint256 minStake, uint256 minUnstake );
@@ -58,7 +63,7 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when unstakeEpoch is set
     */
-    event SetUnstakeEpoch( uint256 unstakeEpoch, uint256 unstakeEpochPrevious );
+    event SetUnstakeEpoch( uint256 unstakeEpoch, uint256 unstakeEpochPrevious, uint256 epochInterval);
 
     /**
     * @dev Emitted when contract addresses are set

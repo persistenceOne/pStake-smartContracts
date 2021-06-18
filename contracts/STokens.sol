@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >= 0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
@@ -84,8 +84,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     *
     */
     function setRewardRate(uint256 rewardRate) public virtual override returns (bool success) {
-        require(rewardRate>0, "STokens: Reward rate should be greater than 0");
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set reward rate");
+        require(rewardRate>0, "ST1");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST2");
         _rewardRate.push(rewardRate);
         _rewardBlockTimestamp.push(block.timestamp);
         return true;
@@ -122,7 +122,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function mint(address to, uint256 tokens) public virtual override returns (bool success) {
-        require(tx.origin == to && _msgSender() == _liquidStakingContract, "STokens: User not authorised to mint STokens");
+        require(tx.origin == to && _msgSender() == _liquidStakingContract, "ST3");
         _mint(to, tokens);
         return true;
     }
@@ -140,7 +140,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function burn(address from, uint256 tokens) public  virtual override returns (bool success) {
-        require(tx.origin == from && _msgSender() == _liquidStakingContract, "STokens: User not authorised to burn STokens");
+        require(tx.origin == from && _msgSender() == _liquidStakingContract, "ST4");
         _burn(from, tokens);
         return true;
     }
@@ -173,7 +173,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
-        require(to == _msgSender(), "STokens: only staker can initiate their own rewards calculation");
+        require(to == _msgSender(), "ST5");
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
         return true;
@@ -257,7 +257,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "STokens: token transfer while paused");
+        require(!paused(), "ST6");
         super._beforeTokenTransfer(from, to, amount);
         if(from == address(0)){
             // cannot have a scenario of transfer from address(0) to address(0)
@@ -410,14 +410,14 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // get the SToken Reserve Supply
         (bool success, bytes memory data) =
         _sTokenReserveContractAddress.staticcall(abi.encodeWithSelector(_sTokenSupplyFuncSig, whitelistedAddress));
-        require(success && data.length >= 32);
+        require(success && data.length >= 32, "ST7");
         sTokenSupply =  abi.decode(data, (uint256));
 
         // get the LP Token balance of user
         if(userAddress != address(0)) {
             (bool success2, bytes memory data2) =
             _lpTokenERC20ContractAddress.staticcall(abi.encodeWithSelector(_lpTokenBalanceFuncSig, userAddress));
-            require(success2 && data2.length >= 32);
+            require(success2 && data2.length >= 32, "ST8");
             lpBalance =  abi.decode(data2, (uint256));
         }
         else
@@ -428,7 +428,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
             (bool success3, bytes memory data3) =
             _lpTokenERC20ContractAddress.staticcall(abi.encodeWithSelector(_lpTokenSupplyFuncSig));
-            require(success3 && data3.length >= 32);
+            require(success3 && data3.length >= 32, "ST9");
             lpSupply =  abi.decode(data3, (uint256));
         }
         else
@@ -448,9 +448,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     *
     */
     function updateWhitelistedAddress(address whitelistedAddress, address holderContractAddress, address lpTokenERC20ContractAddress, address sTokenReserveContractAddress, bytes4 lpTokenBalanceFuncSig, bytes4 lpTokenSupplyFuncSig, bytes4 sTokenSupplyFuncSig ) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to update whitelisted address");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST10");
         // lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
-        require(whitelistedAddress != address(0), "STokens: Address is zero");
+        require(whitelistedAddress != address(0), "ST11");
         if(!whitelistedAddresses.contains(whitelistedAddress)) whitelistedAddresses.add(whitelistedAddress);
         // add the contract addresses to holder mapping variable
         _holderContractAddresses[whitelistedAddress][0] = holderContractAddress;
@@ -473,8 +473,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
   *
   */
     function removeWhitelistedAddress(address whitelistedAddress) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to add whitelisted address");
-        require(whitelistedAddress != address(0), "STokens: Address is zero");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST12");
+        require(whitelistedAddress != address(0), "ST13");
         // remove whitelistedAddress from the list
         whitelistedAddresses.remove(whitelistedAddress);
 
@@ -504,7 +504,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     *
     */
     function setUTokensContract(address uTokenContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set UToken contract address");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST14");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);
     }
@@ -518,7 +518,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      */
     //This function need to be called after deployment, only admin can call the same
     function setLiquidStakingContract(address liquidStakingContract) public virtual override{
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "STokens: User not authorised to set liquidStaking contract");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
     }
@@ -531,7 +531,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to pause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ST16");
         _pause();
         return true;
     }
@@ -544,7 +544,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "STokens: User not authorised to unpause contracts.");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ST17");
         _unpause();
         return true;
     }
