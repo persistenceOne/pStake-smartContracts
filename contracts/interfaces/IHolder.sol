@@ -14,15 +14,19 @@ interface IHolder {
      *
      * Emits an event.
      */
-    function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);
+    // maybe not required since this is not a critical function of Holder Logic
+    // function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);
 
     /**
      * @dev generates holder rewards
      *
      * Returns bool while generating holder rewards
      */
-    function generateHolderRewards(address whitelistedAddress, address userAddress)  external returns (bool);
+    function calculateHolderRewards(address whitelistedAddress, address userAddress)  external returns (bool);
 
-
+     /**
+    * @dev Emitted when holder rewards are calculated and credited
+    */
+    event CalculateHolderRewards(address indexed holderAddress, uint256 tokens, uint256 timestamp);
 
 }

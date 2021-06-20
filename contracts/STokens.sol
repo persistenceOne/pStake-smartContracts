@@ -79,7 +79,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     *
     */
     function setRewardRate(uint256 rewardRate) public virtual override returns (bool success) {
-        require(rewardRate>0, "ST1");
+        // range checks for rewardRate. Since rewardRate cannot be more than 100%, the max cap 
+        // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
+        require(rewardRate <= _valueDivisor.mul(100), "ST1");
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST2");
         _rewardRate.push(rewardRate);
         _rewardBlockTimestamp.push(block.timestamp);
@@ -148,14 +150,18 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function _calculateRewards(address to) internal returns (uint256){
         // Calculate the rewards pending
         uint256 _reward = calculatePendingRewards(to);
+
+        // Set the new stakedBlock to the current, 
+        // as per Checks-Effects-Interactions pattern
+        _rewardsTillTimestamp[to] = block.timestamp;
+
         // mint uTokens only if reward is greater than zero
         if(_reward>0) {
             // Mint new uTokens and send to the callers account
-            emit CalculateRewards(to, _reward, block.timestamp);
             _uTokens.mint(to, _reward);
         }
-        // Set the new stakedBlock to the current
-        _rewardsTillTimestamp[to] = block.timestamp;
+
+        emit CalculateRewards(to, _reward, block.timestamp);
         return _reward;
     }
 
@@ -262,7 +268,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
                 _calculateRewards(to);
             }
             else {
-                IHolder(_holderContractAddress[to]).generateHolderRewards(to, from);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _rewardBlockTimestamp);
             }
 
         }
@@ -280,7 +286,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
             if(to != address(0) && whitelistedAddresses.contains(to)){
                 _calculateRewards(from);
-                IHolder(_holderContractAddress[to]).generateHolderRewards(to, from);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from);
             }
 
         }
@@ -288,17 +294,17 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         if(from != address(0) && whitelistedAddresses.contains(from)){
 
             if(to == address(0)){
-                IHolder(_holderContractAddress[to]).generateHolderRewards(from, to);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to);
             }
 
             if(to != address(0) && !whitelistedAddresses.contains(to)){
-                IHolder(_holderContractAddress[to]).generateHolderRewards(from, to);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to);
                 _calculateRewards(to);
             }
 
             if(to != address(0) && whitelistedAddresses.contains(to)){
-                IHolder(_holderContractAddress[to]).generateHolderRewards(from, address(0));
-                IHolder(_holderContractAddress[to]).generateHolderRewards(to, address(0));
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0));
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, address(0));
             }
 
         }

@@ -44,11 +44,11 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when uTokens are generated
     */
-    event GenerateUTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+    event GenerateUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 finalTokens, uint256 timestamp);
 
     /**
     * @dev Emitted when UTokens are withdrawn
     */
-    event WithdrawUTokens(address indexed accountAddress, uint256 tokens, string toChainAddress, uint256 timestamp);
+    event WithdrawUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 finalTokens, string indexed toChainAddress, uint256 timestamp);
    
 }

@@ -70,6 +70,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function setFees(uint256 stakeFee, uint256 unstakeFee) public virtual returns (bool success) {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ1");
+        // range checks for fees. Since fee cannot be more than 100%, the max cap 
+        // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
+        require(stakeFee <= _valueDivisor.mul(100) && unstakeFee <= _valueDivisor.mul(100), "LQ2");
         _stakeFee = stakeFee;
         _unstakeFee = unstakeFee;
         emit SetFees(stakeFee, unstakeFee);
@@ -81,10 +84,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param unstakingLockTime: varies from 21 hours to 21 days
      *
      * Emits a {SetUnstakeProps} event with 'fee' set to the stake and unstake.
-     *
+     * 
      */
     function setUnstakingLockTime(uint256 unstakingLockTime) public virtual returns (bool success) {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ2");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ3");
         _unstakingLockTime = unstakingLockTime;
         emit SetUnstakingLockTime(unstakingLockTime);
         return true;
@@ -118,7 +121,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      *
      */
     function setMinimumValues(uint256 minStake, uint256 minUnstake) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ3");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
         _minStake = minStake;
         _minUnstake = minUnstake;
         emit SetMinimumValues(minStake, minUnstake);
@@ -135,9 +138,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     *
     */
     function setUnstakeEpoch(uint256 unstakeEpoch, uint256 unstakeEpochPrevious, uint256 epochInterval) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
-        require(unstakeEpochPrevious <= unstakeEpoch, "LQ5");
-        if(unstakeEpoch == 0 && epochInterval != 0) revert("LQ6");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ5");
+        require(unstakeEpochPrevious <= unstakeEpoch, "LQ6");
+        if(unstakeEpoch == 0 && epochInterval != 0) revert("LQ7");
         _unstakeEpoch = unstakeEpoch;
         _unstakeEpochPrevious = unstakeEpochPrevious;
         _epochInterval = epochInterval;
@@ -153,7 +156,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      *
      */
     function setUTokensContract(address uAddress) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ8");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
     }
@@ -166,7 +169,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      *
      */
     function setSTokensContract(address sAddress) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ8");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ9");
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
     }
@@ -184,17 +187,20 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     */
     function stake(address to, uint256 amount) public virtual override whenNotPaused returns(bool)  {
         // Check the supplied amount is greater than minimum stake value
-        require(amount>_minStake, "LQ9");
-        require(to == _msgSender(), "LQ10");
+        require(to == _msgSender(), "LQ11");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
-        require(_currentUTokenBalance>=amount, "LQ11");
-        uint256 finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_stakeFee)).div(_valueDivisor.mul(100));
-        emit StakeTokens(to, finalTokens, block.timestamp);
+        uint256 _finalTokens = amount.add((amount.mul(_stakeFee)).div(_valueDivisor.mul(100)));
+        // the value which should be greater than or equal to _minStake
+        // is amount since minval applies to number of sTokens to be minted
+        require(amount >= _minStake, "LQ10");
+        // uint256 finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_stakeFee)).div(_valueDivisor.mul(100));
+        require(_currentUTokenBalance >= _finalTokens, "LQ12");
+        emit StakeTokens(to, tokens, finalTokens, block.timestamp);
         // Burn the uTokens as specified with the amount
-        _uTokens.burn(to, amount);
+        _uTokens.burn(to, _finalTokens);
         // Mint the sTokens for the account specified
-        _sTokens.mint(to, finalTokens);
+        _sTokens.mint(to, amount);
         return true;
     }
 
@@ -211,19 +217,25 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function unStake(address to, uint256 amount) public virtual override whenNotPaused returns(bool) {
         // Check the supplied amount is greater than 0
-        require(to == _msgSender(), "LQ12");
-        require(amount>_minUnstake, "LQ13");
-        require(_unstakeEpoch!=0, "LQ14");
-        require(_unstakeEpochPrevious!=0, "LQ15");
+        require(to == _msgSender(), "LQ13");
+        require(_unstakeEpoch!=0, "LQ15");
+        require(_unstakeEpochPrevious!=0, "LQ16");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
-        require(_currentSTokenBalance>=amount, "LQ16");
-        uint256 finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_unstakeFee)).div(_valueDivisor.mul(100));
+        uint256 _finalTokens = amount.add((amount.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
+        // the value which should be greater than or equal to _minSUnstake
+        // is amount since minval applies to number of uTokens to be withdrawn
+        require(amount >= _minUnstake, "LQ14");
+        require(_currentSTokenBalance >= _finalTokens, "LQ17");
+        // uint256 _finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_unstakeFee)).div(_valueDivisor.mul(100));
         // Burn the sTokens as specified with the amount
-        _sTokens.burn(to, amount);
+        _sTokens.burn(to, _finalTokens);
         _unstakingExpiration[to].push(block.timestamp);
-        _unstakingAmount[to].push(finalTokens);
-        emit UnstakeTokens(to, finalTokens, block.timestamp);
+        // array will hold amount and not _finalTokens because that is the amount of 
+        // uTokens pending to be credited after withdraw period
+        _unstakingAmount[to].push(amount);
+        // the event needs to capture _finalTokens that were and not amount
+        emit UnstakeTokens(to, amount, _finalTokens, block.timestamp);
 
         return true;
     }
@@ -265,7 +277,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
      */
     function withdrawUnstakedTokens(address staker) public virtual override whenNotPaused{
-        require(staker == _msgSender(), "LQ17");
+        require(staker == _msgSender(), "LQ18");
         uint256 _withdrawBalance;
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         for (uint256 i=_withdrawCounters[_msgSender()]; i<_unstakingExpirationLength; i=i.add(1)) {
@@ -279,7 +291,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
                 _withdrawCounters[_msgSender()]++;
             }
         }
-        require(_withdrawBalance > 0, "LQ18");
+        require(_withdrawBalance > 0, "LQ19");
         emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
         _uTokens.mint(_msgSender(), _withdrawBalance);
     }
@@ -289,10 +301,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondedTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+    function getTotalUnbondedTokens(address staker) public view virtual override returns (uint256 unbondingTokens) {
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
-        if(staker == _msgSender()){
-            for (uint256 i=0; i<_unstakingExpirationLength; i=i.add(1)) {
+            for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
                 //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
                 (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
                 if (block.timestamp >= _getUnstakeTime) {
@@ -300,7 +311,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
                     unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
                 }
             }
-        }
         return unbondingTokens;
     }
 
@@ -312,7 +322,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "LQ19");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "LQ20");
         _pause();
         return true;
     }
@@ -325,7 +335,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "LQ20");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "LQ21");
         _unpause();
         return true;
     }

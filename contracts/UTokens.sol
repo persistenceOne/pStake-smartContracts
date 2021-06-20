@@ -11,8 +11,12 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
 
     using SafeMathUpgradeable for uint256;
 
+    
+
+    // constants defining access control ROLES
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant HOLDER_ROLE = keccak256("HOLDER_ROLE");
 
     address private _stokenContract;
     address private _liquidStakingContract;
@@ -45,7 +49,11 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     *
     */
     function mint(address to, uint256 tokens) public virtual override returns (bool success) {
-        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract)  || (_msgSender() == _stokenContract) || (tx.origin == to && _msgSender()==_liquidStakingContract), "UT1");
+        require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract) // minted by bridge  
+        || (_msgSender() == _stokenContract) // minted by STokens contract
+        || (tx.origin == to && _msgSender() == _liquidStakingContract) // minted by LS contract withdrawUnbonded()
+        || hasRole(HOLDER_ROLE, _msgSender()), "UT1"); // minted by holder contract
+
         _mint(to, tokens);
         return true;
     }
