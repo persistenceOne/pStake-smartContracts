@@ -36,12 +36,21 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
     mapping(address => mapping(address => uint256)) private _holderContractLPBalanceTimestamps;
     mapping(address => uint256) private _holderContractLPSupplyTimestamp;
 
+    /**
+   * @dev Constructor for initializing the Holder Uniswap contract.
+   * @param _sTokenContractAddress - address of the SToken contract.
+   * @param valueDivisor - valueDivisor set to 10^9.
+   */
     function initialize(address _sTokenContractAddress, uint256 valueDivisor) public virtual initializer {
         __AccessControl_init();
         sTokenContract = IERC20Upgradeable(_sTokenContractAddress);
         _valueDivisor = valueDivisor;
     }
 
+    /**
+     * @dev get holder contract attributes
+     *
+     */
     function getHolderAttributes(address whitelistedAddress, address userAddress) public view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply){
         lpBalance = IUniswapV2ERC20(whitelistedAddress).balanceOf(userAddress);
         lpSupply = IUniswapV2ERC20(whitelistedAddress).totalSupply();
@@ -52,6 +61,8 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
     * @dev Calculate pending rewards from the provided 'principal' & 'lastRewardTimestamp'. The rate is the moving reward rate.
     * @param principal: principal amount
     * @param lastRewardTimestamp: timestamp of last reward calculation performed
+    * @param rewardRate: reward rate in an array
+    * @param _rewardBlockTimestamp: reward block timestamp in an array
     */
     function _calculatePendingRewards(uint256 principal, uint256 lastRewardTimestamp, uint256[] memory rewardRate, uint256[] memory _rewardBlockTimestamp) internal view returns (uint256 pendingRewards){
         uint256 _index;
@@ -98,6 +109,8 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
     /**
     * @dev redeem rewards from holder contract
     * @param whitelistedAddress: contract address of the liquidity pool/product
+    * @param rewardRate: reward rate in an array
+    * @param rewardBlockTimestamp: reward block timestamp in an array
     */
     function calculateHolderRewards(address whitelistedAddress, address userAddress, uint256[] calldata rewardRate, uint256[] calldata rewardBlockTimestamp) public override returns (bool){
 
@@ -118,6 +131,41 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
         if(_sTokenReserveSupply != 0)
             _additionalRewardBalance = _calculatePendingRewards(_sTokenReserveSupply, _sTokenReserveTimestamp, rewardRate, rewardBlockTimestamp);
 
+        bool rewardBalance = calculateRewardsBalance(whitelistedAddress, _additionalRewardBalance);
+
+        /*// add the additional rewards generated to the existing total pool
+        uint256 _totalRewardBalance = _holderContractRewardBalance[whitelistedAddress].add(_additionalRewardBalance);
+
+        // update the reward timestamp of whitelisted contract
+        _holderContractTotalRewardsTimestamp[whitelistedAddress] = block.timestamp;
+
+        // update the reward balance of whitelisted contract
+        // _holderContractRewardBalance[whitelistedAddress] = _totalRewardBalance;
+
+        // OR
+
+        // Directly send the rewards to the holder address (this address itself)
+        if(_additionalRewardBalance>0) {
+            // Mint new uTokens and send to the callers account
+            _uTokens.mint(address(this), _additionalRewardBalance);
+        }
+
+        // find the simple schematic of transfer of value between SToken contract and holder contract, for whitelisted address
+        *//* issue with separated holder logic:
+        1. need to send rewardRate and rewardTimestamps dynamic array to holder contract func also 
+        2. holder contract need to execute mint function
+         *//*
+
+        emit CalculateHolderRewards(address(this), _additionalRewardBalance, block.timestamp);*/
+        return rewardBalance;
+    }
+
+    /**
+    * @dev redeem rewards from holder contract
+    * @param whitelistedAddress: contract address of the liquidity pool/product
+    * @param _additionalRewardBalance: rewards balance
+    */
+    function calculateRewardsBalance(address whitelistedAddress, uint256 _additionalRewardBalance) internal returns (bool){
         // add the additional rewards generated to the existing total pool
         uint256 _totalRewardBalance = _holderContractRewardBalance[whitelistedAddress].add(_additionalRewardBalance);
 
@@ -136,26 +184,25 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
         }
 
         // find the simple schematic of transfer of value between SToken contract and holder contract, for whitelisted address
-        /* issue with separated holder logic: 
-        1. need to send rewardRate and rewardTimestamps dynamic array to holder contract func also 
+        /* issue with separated holder logic:
+        1. need to send rewardRate and rewardTimestamps dynamic array to holder contract func also
         2. holder contract need to execute mint function
          */
 
-        emit CalculateHolderRewards(address(this), _additionalRewardBalance, block.timestamp);
-
-
+        emit CalculateHolderRewards(address(this), _totalRewardBalance,  _additionalRewardBalance, block.timestamp);
         return true;
+
     }
 
-    /*
-    * @dev Set 'contract address', called from admin
-    * @param uTokenContract: utoken contract address
-    *
-    * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
-    *
-    */
+        /*
+        * @dev Set 'contract address', called from admin
+        * @param uTokenContract: utoken contract address
+        *
+        * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
+        *
+        */
     function setUTokensContract(address uTokenContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST14");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "HU1");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);
     }

@@ -35,7 +35,7 @@ interface IHolder {
      /**
     * @dev Emitted when holder rewards are calculated and credited
     */
-    event CalculateHolderRewards(address indexed holderAddress, uint256 tokens, uint256 timestamp);
+    event CalculateHolderRewards(address indexed holderAddress, uint256 totalRewardBalance, uint256 tokens, uint256 timestamp);
 
     /**
      * @dev Emitted when contract addresses are set
