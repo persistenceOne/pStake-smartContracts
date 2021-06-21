@@ -196,7 +196,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(amount >= _minStake, "LQ10");
         // uint256 finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_stakeFee)).div(_valueDivisor.mul(100));
         require(_currentUTokenBalance >= _finalTokens, "LQ12");
-        emit StakeTokens(to, tokens, finalTokens, block.timestamp);
+        emit StakeTokens(to, amount, _finalTokens, block.timestamp);
         // Burn the uTokens as specified with the amount
         _uTokens.burn(to, _finalTokens);
         // Mint the sTokens for the account specified
@@ -222,7 +222,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(_unstakeEpochPrevious!=0, "LQ16");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
-        uint256 _finalTokens = amount.add((amount.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
+        uint256 _finalTokens = amount.add((amount.mul(_unstakeFee)).div(_valueDivisor.mul(100)));
         // the value which should be greater than or equal to _minSUnstake
         // is amount since minval applies to number of uTokens to be withdrawn
         require(amount >= _minUnstake, "LQ14");
@@ -301,7 +301,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondedTokens(address staker) public view virtual override returns (uint256 unbondingTokens) {
+    function getTotalUnbondedTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
             for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
                 //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed

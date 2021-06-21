@@ -148,9 +148,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
         // the tokens to be generated to the user's address will be after the fee processing
-        _finalTokens = amount.sub((amount.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
+        uint256 _finalTokens = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
         // finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_depositFee)).div(_valueDivisor.mul(100));
-        _uTokens.mint(to, finalTokens);
+        _uTokens.mint(to, _finalTokens);
         return finalTokens;
     }
 

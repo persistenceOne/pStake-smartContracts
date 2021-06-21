@@ -34,8 +34,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     */
     mapping(address => address) private _holderContractAddress;
 
-
-
     // variables capturing data of other contracts in the product
     address private _liquidStakingContract;
     IUTokens private _uTokens;
@@ -286,7 +284,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
             if(to != address(0) && whitelistedAddresses.contains(to)){
                 _calculateRewards(from);
-                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _rewardBlockTimestamp);
             }
 
         }
@@ -294,17 +292,17 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         if(from != address(0) && whitelistedAddresses.contains(from)){
 
             if(to == address(0)){
-                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _rewardBlockTimestamp);
             }
 
             if(to != address(0) && !whitelistedAddresses.contains(to)){
-                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _rewardBlockTimestamp);
                 _calculateRewards(to);
             }
 
             if(to != address(0) && whitelistedAddresses.contains(to)){
-                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0));
-                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, address(0));
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _rewardBlockTimestamp);
+                IHolder(_holderContractAddress[to]).calculateHolderRewards(to, address(0), _rewardRate, _rewardBlockTimestamp);
             }
 
         }

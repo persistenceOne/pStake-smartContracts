@@ -22,11 +22,24 @@ interface IHolder {
      *
      * Returns bool while generating holder rewards
      */
-    function calculateHolderRewards(address whitelistedAddress, address userAddress)  external returns (bool);
+    function calculateHolderRewards(address whitelistedAddress, address userAddress, uint256[] calldata rewardRate, uint256[] calldata rewardBlockTimestamp)  external returns (bool);
+
+    /**
+    * @dev Set UTokens smart contract.
+    *
+    *
+    * Emits a {SetContract} event.
+    */
+    function setUTokensContract(address utokenContract) external;
 
      /**
     * @dev Emitted when holder rewards are calculated and credited
     */
     event CalculateHolderRewards(address indexed holderAddress, uint256 tokens, uint256 timestamp);
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetUTokensContract( address indexed _contract );
 
 }
