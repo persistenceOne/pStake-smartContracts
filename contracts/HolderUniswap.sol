@@ -61,7 +61,7 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
      * @dev get SToken reserve supply of the whitelisted contract 
      *
      */
-    function getSTokenSupply(address to, address from, uint256 amount) public view returns (uint256 sTokenSupply){
+    function getSTokenSupply(address to, address from, uint256 amount) public override view returns (uint256 sTokenSupply){
         sTokenSupply = sTokenContract.balanceOf(to);
         return sTokenSupply;
     }

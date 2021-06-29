@@ -32,6 +32,11 @@ interface IHolder {
     */
     function setUTokensContract(address utokenContract) external;
 
+    /**
+    * @dev returns stoken supply
+    */
+    function getSTokenSupply(address to, address from, uint256 amount) external returns (uint256);
+
      /**
     * @dev Emitted when holder rewards are calculated and credited
     */

@@ -170,10 +170,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @param to: holder address
      */
     function _calculateHolderRewards(address to, address from, uint256 amount) internal returns (uint256){
-        _sTokenSupply = IHolder(_holderContractAddress[to]).getSTokenSupply(to, from, amount);
+        uint256 _sTokenSupply = IHolder(_holderContractAddress[to]).getSTokenSupply(to, from, amount);
 
         // calculate the reward applying the moving reward rate
-        _newRewards = _calculatePendingRewards(_sTokenSupply, _rewardPoolLastTimestamp[to]);
+        uint256 _newRewards = _calculatePendingRewards(_sTokenSupply, _rewardPoolLastTimestamp[to]);
 
         // Mint new uTokens and send to the holder contract account as updated reward pool
         if(_newRewards > 0) {
@@ -285,8 +285,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         require(!paused(), "ST6");
         super._beforeTokenTransfer(from, to, amount);
-        uint256 _sTokenSupply;
-        uint256 _timePeriod;
+       // uint256 _sTokenSupply;
+       // uint256 _timePeriod;
         if(from == address(0)){
             // cannot have a scenario of transfer from address(0) to address(0)
             // if(to == address(0)){}
