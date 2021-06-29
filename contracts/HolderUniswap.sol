@@ -58,6 +58,15 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
     }
 
     /**
+     * @dev get SToken reserve supply of the whitelisted contract 
+     *
+     */
+    function getSTokenSupply(address to, address from, uint256 amount) public view returns (uint256 sTokenSupply){
+        sTokenSupply = sTokenContract.balanceOf(to);
+        return sTokenSupply;
+    }
+
+    /**
     * @dev Calculate pending rewards from the provided 'principal' & 'lastRewardTimestamp'. The rate is the moving reward rate.
     * @param principal: principal amount
     * @param lastRewardTimestamp: timestamp of last reward calculation performed
