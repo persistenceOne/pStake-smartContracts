@@ -93,8 +93,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
-        require((_valueDivisor / minDeposit <= (10**6)), "TW4");
-        require((_valueDivisor / minWithdraw <= (10**6)), "TW5");
+        require(minDeposit >= 1, "TW4");
+        require(minWithdraw >= 1, "TW5");
         _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
         emit SetMinimumValues(minDeposit, minWithdraw);
