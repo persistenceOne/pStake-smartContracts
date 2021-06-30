@@ -22,7 +22,7 @@ interface IHolder {
      *
      * Returns bool while generating holder rewards
      */
-    function calculateHolderRewards(address whitelistedAddress, address userAddress, uint256[] calldata rewardRate, uint256[] calldata rewardBlockTimestamp)  external returns (bool);
+    // function calculateHolderRewards(address whitelistedAddress, address userAddress, uint256[] calldata rewardRate, uint256[] calldata rewardBlockTimestamp)  external returns (bool);
 
     /**
     * @dev Set UTokens smart contract.
@@ -35,7 +35,7 @@ interface IHolder {
     /**
     * @dev returns stoken supply
     */
-    function getSTokenSupply(address to, address from, uint256 amount) external returns (uint256);
+    function getSTokenSupply(address to, address from, uint256 amount) external view returns (uint256);
 
      /**
     * @dev Emitted when holder rewards are calculated and credited
