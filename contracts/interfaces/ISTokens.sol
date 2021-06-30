@@ -102,6 +102,13 @@ interface ISTokens is IERC20Upgradeable {
     event CalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 
     /**
+     * @dev Emitted when `rewards` tokens are moved to holder account
+     *
+     * Note that `value` may be zero.
+     */
+    event CalculateHolderRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+
+    /**
      * @dev Emitted when `rewards` tokens are moved to account
      *
      * Note that `value` may be zero.

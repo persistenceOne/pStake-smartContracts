@@ -62,6 +62,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function setFees(uint256 depositFee, uint256 withdrawFee) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW1");
+        // range checks for fees. Since fee cannot be more than 100%, the max cap 
+        // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
+        require(depositFee <= _valueDivisor.mul(100) && withdrawFee <= _valueDivisor.mul(100), "TW2");
         _depositFee = depositFee;
         _withdrawFee = withdrawFee;
         emit SetFees(depositFee, withdrawFee);
@@ -89,7 +92,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW2");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
+        require(minDeposit >= 1, "TW4");
+        require(minWithdraw >= 1, "TW5");
         _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
         emit SetMinimumValues(minDeposit, minWithdraw);
@@ -104,7 +109,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function setUTokensContract(address uAddress) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW6");
         _uTokens = IUTokens(uAddress);
         emit SetUTokensContract(uAddress);
     }
@@ -117,7 +122,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "TW4");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "TW7");
         _pause();
         return true;
     }
@@ -130,7 +135,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "TW5");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "TW8");
         _unpause();
         return true;
     }
@@ -144,7 +149,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
-        finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_depositFee)).div(_valueDivisor.mul(100));
+        // the tokens to be generated to the user's address will be after the fee processing
+        finalTokens = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
+        // finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_depositFee)).div(_valueDivisor.mul(100));
         _uTokens.mint(to, finalTokens);
         return finalTokens;
     }
@@ -161,10 +168,10 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "TW6");
-        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW7");
+        require(amount>0, "TW9");
+        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
         uint256 _finalTokens = _generateUTokens(to, amount);
-        emit GenerateUTokens(to, _finalTokens, block.timestamp);
+        emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
     }
 
     /**
@@ -179,15 +186,15 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual whenNotPaused {
-        require(to.length == amount.length, "TW8");
-        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW9");
+        require(to.length == amount.length, "TW11");
+        require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW12");
         uint256 i;
         uint256 _finalTokens;
         for ( i=0; i<to.length; i=i.add(1)) {
-            require(amount[i]>0, "TW10");
+            require(amount[i]>0, "TW13");
             _finalTokens = _generateUTokens(to[i], amount[i]);
         }
-        emit GenerateUTokens(to[i.sub(1)], _finalTokens, block.timestamp);
+        emit GenerateUTokens(to[i.sub(1)], amount[i.sub(1)], _finalTokens, block.timestamp);
     }
 
     /**
@@ -202,16 +209,19 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
-        require(tokens>_minWithdraw, "TW11");
+        require(tokens > _minWithdraw, "TW14");
         //check if toChainAddress is valid address
         bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
-        require(isAddressValid == true, "TW12");
+        require(isAddressValid == true, "TW15");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
-        require(_currentUTokenBalance>=tokens, "TW13");
-        require(from == _msgSender(), "TW14");
-        uint256 finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));
-        _uTokens.burn(from, finalTokens);
-        emit WithdrawUTokens(from, finalTokens, toChainAddress, block.timestamp);
+        // final tokens is the amount of tokens to be burned, including the fee
+        uint256 _finalTokens = tokens.add((tokens.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
+        require(_currentUTokenBalance >= _finalTokens, "TW16");
+        require(from == _msgSender(), "TW17");
+        // uint256 _finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));
+        
+        _uTokens.burn(from, _finalTokens);
+        emit WithdrawUTokens(from, tokens, _finalTokens, toChainAddress, block.timestamp);
     }
 }
 

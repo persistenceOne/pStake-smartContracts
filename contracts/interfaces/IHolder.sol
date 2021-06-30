@@ -14,15 +14,37 @@ interface IHolder {
      *
      * Emits an event.
      */
-    function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);
+    // maybe not required since this is not a critical function of Holder Logic
+    // function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);
 
     /**
      * @dev generates holder rewards
      *
      * Returns bool while generating holder rewards
      */
-    function generateHolderRewards(address whitelistedAddress, address userAddress)  external returns (bool);
+    // function calculateHolderRewards(address whitelistedAddress, address userAddress, uint256[] calldata rewardRate, uint256[] calldata rewardBlockTimestamp)  external returns (bool);
 
+    /**
+    * @dev Set UTokens smart contract.
+    *
+    *
+    * Emits a {SetContract} event.
+    */
+    function setUTokensContract(address utokenContract) external;
 
+    /**
+    * @dev returns stoken supply
+    */
+    function getSTokenSupply(address to, address from, uint256 amount) external view returns (uint256);
+
+     /**
+    * @dev Emitted when holder rewards are calculated and credited
+    */
+    event CalculateHolderRewards(address indexed holderAddress, uint256 totalRewardBalance, uint256 tokens, uint256 timestamp);
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetUTokensContract( address indexed _contract );
 
 }
