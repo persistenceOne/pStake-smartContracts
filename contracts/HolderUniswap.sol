@@ -23,9 +23,9 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
     // mapping(address => uint256) private _holderContractTotalRewardsTimestamp;
 
     // variables pertaining to moving reward rate logic
-    // uint256 private _valueDivisor;
+    uint256 private _valueDivisor;
 
-    // IUTokens private _uTokens;
+    IUTokens private _uTokens;
 
     // mapping(address => uint256) private _rewardsTillTimestamp;
 
@@ -170,8 +170,6 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
 
     /**
     * @dev redeem rewards from holder contract
-    * @param whitelistedAddress: contract address of the liquidity pool/product
-    * @param _additionalRewardBalance: rewards balance
     */
     /* function calculateRewardsBalance(address whitelistedAddress, uint256 _additionalRewardBalance) internal returns (bool){
         // add the additional rewards generated to the existing total pool
