@@ -7,10 +7,12 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ILiquidStaking.sol";
+import "./libraries/FullMath.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
+    using FullMath for uint256;
 
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
@@ -192,7 +194,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(to == _msgSender(), "LQ12");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
-        uint256 _finalTokens = amount.add((amount.mul(_stakeFee)).div(_valueDivisor.mul(100)));
+       // uint256 _finalTokens = amount.add((amount.mul(_stakeFee)).div(_valueDivisor.mul(100)));
+        uint256 _temp = amount.mulDiv(_stakeFee, _valueDivisor);
+        uint256 _finalTokens = amount.add(_temp.div(100));
         // the value which should be greater than or equal to _minStake
         // is amount since minval applies to number of sTokens to be minted
         require(amount >= _minStake, "LQ13");
@@ -224,7 +228,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(_unstakeEpochPrevious!=0, "LQ17");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
-        uint256 _finalTokens = amount.add((amount.mul(_unstakeFee)).div(_valueDivisor.mul(100)));
+        //uint256 _finalTokens = amount.add((amount.mul(_unstakeFee)).div(_valueDivisor.mul(100)));
+        uint256 _temp = amount.mulDiv(_unstakeFee, _valueDivisor);
+        uint256 _finalTokens = amount.add(_temp.div(100));
         // the value which should be greater than or equal to _minSUnstake
         // is amount since minval applies to number of uTokens to be withdrawn
         require(amount >= _minUnstake, "LQ18");

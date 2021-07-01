@@ -9,10 +9,12 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/IHolder.sol";
+import "./libraries/FullMath.sol";
 
 contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
+    using FullMath for uint256;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
 
     // constants defining access control ROLES
@@ -44,6 +46,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     uint256[] private _rewardRate;
     uint256[] private _rewardBlockTimestamp;
     uint256 private _valueDivisor;
+    uint256 private _rewardFee;
     mapping(address => uint256) private _rewardsTillTimestamp;
 
     /**
@@ -54,7 +57,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param valueDivisor - valueDivisor set to 10^9.
    */
     function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
-        __ERC20_init("pSTAKE Staked ATOMs", "stkATOM");
+        __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -65,6 +68,32 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         _rewardBlockTimestamp.push(block.timestamp);
         _valueDivisor = valueDivisor;
         _setupDecimals(6);
+    }
+
+
+    /**
+     * @dev Set 'fees', called from admin
+     * @param rewardFee: reward fee
+     *
+     * Emits a {SetFees} event with 'fee' set to the withdraw.
+     *
+     */
+    function setFees(uint256 rewardFee) public virtual returns (bool success){
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST18");
+        // range checks for fees. Since fee cannot be more than 100%, the max cap
+        // is _valueDivisor * 100, which then brings the fees to 100 (percentage)
+        require(rewardFee <= _valueDivisor.mul(100), "ST19");
+        _rewardFee = rewardFee;
+        emit SetFees(rewardFee);
+        return true;
+    }
+
+    /**
+     * @dev get fees, minimum set values
+     *
+     */
+    function getFees() public view virtual returns (uint256 rewardFee) {
+        rewardFee = _rewardFee;
     }
 
 
@@ -157,8 +186,12 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
         // mint uTokens only if reward is greater than zero
         if(_reward>0) {
+            //deducting fee
+           // uint256 finalTokens = _reward.sub((_reward.mul(_rewardFee)).div(_valueDivisor.mul(100)));
+            uint256 _temp = _reward.mulDiv(_rewardFee, _valueDivisor);
+            uint256 finalTokens = _reward.sub(_temp.div(100));
             // Mint new uTokens and send to the callers account
-            _uTokens.mint(to, _reward);
+            _uTokens.mint(to, finalTokens);
         }
 
         emit CalculateRewards(to, _reward, block.timestamp);
@@ -212,6 +245,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         uint256 _index;
         uint256 _rewardBlocks;
         uint256 _simpleInterestOfInterval;
+        uint256 _temp;
         // return 0 if principal or timeperiod is zero
         if(principal == 0 || block.timestamp.sub(lastRewardTimestamp) == 0) return 0;
         // calculate rewards for each interval period between rewardRate changes
@@ -220,12 +254,16 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             if(_index < _rewardBlockTimestamp.length.sub(1)) {
                 if(_rewardBlockTimestamp[_index] > lastRewardTimestamp) {
                     _rewardBlocks = (_rewardBlockTimestamp[_index.add(1)]).sub(_rewardBlockTimestamp[_index]);
-                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    //_simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    _temp = principal.mulDiv(_rewardRate[_index], 100);
+                    _simpleInterestOfInterval = _temp.mulDiv(_rewardBlocks, _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
                     _rewardBlocks = (_rewardBlockTimestamp[_index.add(1)]).sub(lastRewardTimestamp);
-                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                   // _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    _temp = principal.mulDiv(_rewardRate[_index], 100);
+                    _simpleInterestOfInterval = _temp.mulDiv(_rewardBlocks, _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }
@@ -234,12 +272,16 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             else {
                 if(_rewardBlockTimestamp[_index] > lastRewardTimestamp) {
                     _rewardBlocks = (block.timestamp).sub(_rewardBlockTimestamp[_index]);
-                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    //_simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    _temp = principal.mulDiv(_rewardRate[_index], 100);
+                    _simpleInterestOfInterval = _temp.mulDiv(_rewardBlocks, _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                 }
                 else {
                     _rewardBlocks = (block.timestamp).sub(lastRewardTimestamp);
-                    _simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    //_simpleInterestOfInterval = (((principal.mul(_rewardRate[_index])).mul(_rewardBlocks))).div(100 * _valueDivisor);
+                    _temp = principal.mulDiv(_rewardRate[_index], 100);
+                    _simpleInterestOfInterval = _temp.mulDiv(_rewardBlocks, _valueDivisor);
                     pendingRewards = pendingRewards.add(_simpleInterestOfInterval);
                     break;
                 }
