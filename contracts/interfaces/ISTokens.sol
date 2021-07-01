@@ -115,5 +115,9 @@ interface ISTokens is IERC20Upgradeable {
      */
     event TriggeredCalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 
+    /**
+    * @dev Emitted when fees are set
+    */
+    event SetFees( uint256 rewardFee );
 
 }

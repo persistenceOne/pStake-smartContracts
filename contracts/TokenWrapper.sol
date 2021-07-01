@@ -6,12 +6,14 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ITokenWrapper.sol";
-import "./Bech32Validation.sol";
-import "./Bech32.sol";
+import "./libraries/Bech32Validation.sol";
+import "./libraries/Bech32.sol";
+import "./libraries/FullMath.sol";
 
 contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
+    using FullMath for uint256;
     using Bech32 for string;
 
     //Private instances of contracts to handle Utokens and Stokens
@@ -64,7 +66,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW1");
         // range checks for fees. Since fee cannot be more than 100%, the max cap 
         // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
-        require(depositFee <= _valueDivisor.mul(100) && withdrawFee <= _valueDivisor.mul(100), "TW2");
+        require(depositFee <= _valueDivisor.mul(100) || depositFee == 0 && withdrawFee <= _valueDivisor.mul(100) || withdrawFee == 0, "TW2");
         _depositFee = depositFee;
         _withdrawFee = withdrawFee;
         emit SetFees(depositFee, withdrawFee);
@@ -93,8 +95,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
-        require(minDeposit >= 1, "TW4");
-        require(minWithdraw >= 1, "TW5");
+        require(minDeposit == 0 || minDeposit >= 1, "TW4");
+        require(minWithdraw == 0 || minWithdraw >= 1, "TW5");
         _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
         emit SetMinimumValues(minDeposit, minWithdraw);
@@ -150,8 +152,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
         // the tokens to be generated to the user's address will be after the fee processing
-        finalTokens = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
-        // finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_depositFee)).div(_valueDivisor.mul(100));
+       // finalTokens = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
+        uint256 _temp = amount.mulDiv(_depositFee, _valueDivisor);
+        finalTokens = amount.sub(_temp.div(100));
         _uTokens.mint(to, finalTokens);
         return finalTokens;
     }
@@ -215,7 +218,9 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(isAddressValid == true, "TW15");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         // final tokens is the amount of tokens to be burned, including the fee
-        uint256 _finalTokens = tokens.add((tokens.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
+        //uint256 _finalTokens = tokens.add((tokens.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
+        uint256 _temp = tokens.mulDiv(_withdrawFee, _valueDivisor);
+        uint256 _finalTokens = tokens.add(_temp.div(100));
         require(_currentUTokenBalance >= _finalTokens, "TW16");
         require(from == _msgSender(), "TW17");
         // uint256 _finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));

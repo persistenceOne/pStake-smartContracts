@@ -7,10 +7,12 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ILiquidStaking.sol";
+import "./libraries/FullMath.sol";
 
 contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
+    using FullMath for uint256;
 
     //Private instances of contracts to handle Utokens and Stokens
     IUTokens private _uTokens;
@@ -57,7 +59,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         setSTokensContract(sAddress);
         setUnstakingLockTime(unstakingLockTime);
         _valueDivisor = valueDivisor;
-        setUnstakeEpoch(_unstakeEpoch, _unstakeEpochPrevious, epochInterval);
+        setUnstakeEpoch(block.timestamp, block.timestamp, epochInterval);
     }
 
     /**
@@ -72,7 +74,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ1");
         // range checks for fees. Since fee cannot be more than 100%, the max cap 
         // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
-        require(stakeFee <= _valueDivisor.mul(100) && unstakeFee <= _valueDivisor.mul(100), "LQ2");
+        require(stakeFee <= _valueDivisor.mul(100) || stakeFee == 0 && unstakeFee <= _valueDivisor.mul(100) || unstakeFee == 0, "LQ2");
         _stakeFee = stakeFee;
         _unstakeFee = unstakeFee;
         emit SetFees(stakeFee, unstakeFee);
@@ -122,8 +124,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function setMinimumValues(uint256 minStake, uint256 minUnstake) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
-        require(minStake >= 1, "LQ5");
-        require(minUnstake >= 1, "LQ6");
+        require(minStake == 0 || minStake >= 1, "LQ5");
+        require(minUnstake == 0 || minUnstake >= 1, "LQ6");
         _minStake = minStake;
         _minUnstake = minUnstake;
         emit SetMinimumValues(minStake, minUnstake);
@@ -192,7 +194,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(to == _msgSender(), "LQ12");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
-        uint256 _finalTokens = amount.add((amount.mul(_stakeFee)).div(_valueDivisor.mul(100)));
+       // uint256 _finalTokens = amount.add((amount.mul(_stakeFee)).div(_valueDivisor.mul(100)));
+        uint256 _temp = amount.mulDiv(_stakeFee, _valueDivisor);
+        uint256 _finalTokens = amount.add(_temp.div(100));
         // the value which should be greater than or equal to _minStake
         // is amount since minval applies to number of sTokens to be minted
         require(amount >= _minStake, "LQ13");
@@ -224,7 +228,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(_unstakeEpochPrevious!=0, "LQ17");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
-        uint256 _finalTokens = amount.add((amount.mul(_unstakeFee)).div(_valueDivisor.mul(100)));
+        //uint256 _finalTokens = amount.add((amount.mul(_unstakeFee)).div(_valueDivisor.mul(100)));
+        uint256 _temp = amount.mulDiv(_unstakeFee, _valueDivisor);
+        uint256 _finalTokens = amount.add(_temp.div(100));
         // the value which should be greater than or equal to _minSUnstake
         // is amount since minval applies to number of uTokens to be withdrawn
         require(amount >= _minUnstake, "LQ18");

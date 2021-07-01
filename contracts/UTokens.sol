@@ -11,8 +11,6 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
 
     using SafeMathUpgradeable for uint256;
 
-    
-
     // constants defining access control ROLES
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -28,7 +26,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
    * @param pauserAddress - address of the pauser admin.
    */
     function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
-        __ERC20_init("pSTAKE Unstaked ATOM", "ustkATOM");
+        __ERC20_init("pSTAKE Pegged ATOM", "pATOM");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
