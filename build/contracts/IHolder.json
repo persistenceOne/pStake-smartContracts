@@ -2,33 +2,85 @@
   "contractName": "IHolder",
   "abi": [
     {
+      "anonymous": false,
       "inputs": [
         {
+          "indexed": true,
           "internalType": "address",
-          "name": "whitelistedAddress",
+          "name": "holderAddress",
           "type": "address"
         },
         {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalRewardBalance",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "CalculateHolderRewards",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
           "internalType": "address",
-          "name": "userAddress",
+          "name": "_contract",
           "type": "address"
         }
       ],
-      "name": "getHolderAttributes",
+      "name": "SetUTokensContract",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "utokenContract",
+          "type": "address"
+        }
+      ],
+      "name": "setUTokensContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "getSTokenSupply",
       "outputs": [
         {
           "internalType": "uint256",
-          "name": "lpBalance",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "lpSupply",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "sTokenSupply",
+          "name": "",
           "type": "uint256"
         }
       ],
@@ -36,7 +88,7 @@
       "type": "function"
     }
   ],
-  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"whitelistedAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"userAddress\",\"type\":\"address\"}],\"name\":\"getHolderAttributes\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"lpBalance\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"lpSupply\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"sTokenSupply\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the IHolder.\",\"kind\":\"dev\",\"methods\":{\"getHolderAttributes(address,address)\":{\"details\":\"provides the three attributes that are required to calculate the user's UToken rewards from Holder Logic. Returns the three uint256 values - user's LP Token balance, Total supply of LP Tokens & total supply of SToken reserve. Emits an event.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol\":\"IHolder\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol\":{\"keccak256\":\"0x28e3e259b898c8a978e300447c393252d9457c556fe001726a2b323e515d8c08\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://04c022d46be6da990d4ff96a7f53c68bd9c3791192f4b0297aa1f0523b950469\",\"dweb:/ipfs/QmQPisfC7NvYhkoT4dDii3cb21yGzTV2RzDD5sWJE67L3S\"]}},\"version\":1}",
+  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"holderAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalRewardBalance\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"CalculateHolderRewards\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"}],\"name\":\"SetUTokensContract\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"getSTokenSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"utokenContract\",\"type\":\"address\"}],\"name\":\"setUTokensContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the IHolder.\",\"events\":{\"CalculateHolderRewards(address,uint256,uint256,uint256)\":{\"details\":\"Emitted when holder rewards are calculated and credited\"},\"SetUTokensContract(address)\":{\"details\":\"Emitted when contract addresses are set\"}},\"kind\":\"dev\",\"methods\":{\"getSTokenSupply(address,address,uint256)\":{\"details\":\"returns stoken supply\"},\"setUTokensContract(address)\":{\"details\":\"Set UTokens smart contract. Emits a {SetContract} event.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol\":\"IHolder\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol\":{\"keccak256\":\"0x7e23489ab4fccdd1969208ddfca5f11f7ff10bd817c6537b421b9fdf1e928d0e\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://b0977ddadcd7c50d858b94451d6fa63d56730bf5fa8bf588d32a1e181fc39274\",\"dweb:/ipfs/QmWmxp6FtfF8h1zupyWNZrw2Qo1sdeg4hbDPVYkmDS1b96\"]}},\"version\":1}",
   "bytecode": "0x",
   "deployedBytecode": "0x",
   "immutableReferences": {},
@@ -44,29 +96,29 @@
   "deployedGeneratedSources": [],
   "sourceMap": "",
   "deployedSourceMap": "",
-  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity ^0.7.0;\n\n\n/**\n * @dev Interface of the IHolder.\n */\ninterface IHolder {\n\n    /**\n     * @dev provides the three attributes that are required to calculate the user's UToken rewards from Holder Logic.\n     *\n     * Returns the three uint256 values - user's LP Token balance, Total supply of LP Tokens & total supply of SToken reserve.\n     *\n     * Emits an event.\n     */\n    function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);\n\n\n\n}",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity >= 0.7.0;\n\n\n/**\n * @dev Interface of the IHolder.\n */\ninterface IHolder {\n\n    /**\n     * @dev provides the three attributes that are required to calculate the user's UToken rewards from Holder Logic.\n     *\n     * Returns the three uint256 values - user's LP Token balance, Total supply of LP Tokens & total supply of SToken reserve.\n     *\n     * Emits an event.\n     */\n    // maybe not required since this is not a critical function of Holder Logic\n    // function getHolderAttributes(address whitelistedAddress, address userAddress)  external view returns (uint256 lpBalance, uint256 lpSupply, uint256 sTokenSupply);\n\n    /**\n     * @dev generates holder rewards\n     *\n     * Returns bool while generating holder rewards\n     */\n    // function calculateHolderRewards(address whitelistedAddress, address userAddress, uint256[] calldata rewardRate, uint256[] calldata rewardBlockTimestamp)  external returns (bool);\n\n    /**\n    * @dev Set UTokens smart contract.\n    *\n    *\n    * Emits a {SetContract} event.\n    */\n    function setUTokensContract(address utokenContract) external;\n\n    /**\n    * @dev returns stoken supply\n    */\n    function getSTokenSupply(address to, address from, uint256 amount) external view returns (uint256);\n\n     /**\n    * @dev Emitted when holder rewards are calculated and credited\n    */\n    event CalculateHolderRewards(address indexed holderAddress, uint256 totalRewardBalance, uint256 tokens, uint256 timestamp);\n\n    /**\n     * @dev Emitted when contract addresses are set\n     */\n    event SetUTokensContract( address indexed _contract );\n\n}",
   "sourcePath": "/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol",
   "ast": {
     "absolutePath": "/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol",
     "exportedSymbols": {
       "IHolder": [
-        5856
+        3217
       ]
     },
-    "id": 5857,
+    "id": 3218,
     "license": "UNLICENSED",
     "nodeType": "SourceUnit",
     "nodes": [
       {
-        "id": 5840,
+        "id": 3181,
         "literals": [
           "solidity",
-          "^",
+          ">=",
           "0.7",
           ".0"
         ],
         "nodeType": "PragmaDirective",
-        "src": "39:23:9"
+        "src": "39:25:6"
       },
       {
         "abstract": false,
@@ -74,45 +126,45 @@
         "contractDependencies": [],
         "contractKind": "interface",
         "documentation": {
-          "id": 5841,
+          "id": 3182,
           "nodeType": "StructuredDocumentation",
-          "src": "65:41:9",
+          "src": "67:41:6",
           "text": " @dev Interface of the IHolder."
         },
         "fullyImplemented": false,
-        "id": 5856,
+        "id": 3217,
         "linearizedBaseContracts": [
-          5856
+          3217
         ],
         "name": "IHolder",
         "nodeType": "ContractDefinition",
         "nodes": [
           {
             "documentation": {
-              "id": 5842,
+              "id": 3183,
               "nodeType": "StructuredDocumentation",
-              "src": "132:293:9",
-              "text": " @dev provides the three attributes that are required to calculate the user's UToken rewards from Holder Logic.\n Returns the three uint256 values - user's LP Token balance, Total supply of LP Tokens & total supply of SToken reserve.\n Emits an event."
+              "src": "981:96:6",
+              "text": " @dev Set UTokens smart contract.\n Emits a {SetContract} event."
             },
-            "functionSelector": "15a94b2a",
-            "id": 5855,
+            "functionSelector": "21bdf9e5",
+            "id": 3188,
             "implemented": false,
             "kind": "function",
             "modifiers": [],
-            "name": "getHolderAttributes",
+            "name": "setUTokensContract",
             "nodeType": "FunctionDefinition",
             "parameters": {
-              "id": 5847,
+              "id": 3186,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5844,
+                  "id": 3185,
                   "mutability": "mutable",
-                  "name": "whitelistedAddress",
+                  "name": "utokenContract",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5855,
-                  "src": "459:26:9",
+                  "scope": 3188,
+                  "src": "1110:22:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -120,37 +172,10 @@
                     "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5843,
+                    "id": 3184,
                     "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "459:7:9",
-                    "stateMutability": "nonpayable",
-                    "typeDescriptions": {
-                      "typeIdentifier": "t_address",
-                      "typeString": "address"
-                    }
-                  },
-                  "visibility": "internal"
-                },
-                {
-                  "constant": false,
-                  "id": 5846,
-                  "mutability": "mutable",
-                  "name": "userAddress",
-                  "nodeType": "VariableDeclaration",
-                  "scope": 5855,
-                  "src": "487:19:9",
-                  "stateVariable": false,
-                  "storageLocation": "default",
-                  "typeDescriptions": {
-                    "typeIdentifier": "t_address",
-                    "typeString": "address"
-                  },
-                  "typeName": {
-                    "id": 5845,
-                    "name": "address",
-                    "nodeType": "ElementaryTypeName",
-                    "src": "487:7:9",
+                    "src": "1110:7:6",
                     "stateMutability": "nonpayable",
                     "typeDescriptions": {
                       "typeIdentifier": "t_address",
@@ -160,72 +185,100 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "458:49:9"
+              "src": "1109:24:6"
             },
             "returnParameters": {
-              "id": 5854,
+              "id": 3187,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1142:0:6"
+            },
+            "scope": 3217,
+            "src": "1082:61:6",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 3189,
+              "nodeType": "StructuredDocumentation",
+              "src": "1149:43:6",
+              "text": " @dev returns stoken supply"
+            },
+            "functionSelector": "cfd0ec31",
+            "id": 3200,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getSTokenSupply",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 3196,
               "nodeType": "ParameterList",
               "parameters": [
                 {
                   "constant": false,
-                  "id": 5849,
+                  "id": 3191,
                   "mutability": "mutable",
-                  "name": "lpBalance",
+                  "name": "to",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5855,
-                  "src": "532:17:9",
+                  "scope": 3200,
+                  "src": "1222:10:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5848,
-                    "name": "uint256",
+                    "id": 3190,
+                    "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "532:7:9",
+                    "src": "1222:7:6",
+                    "stateMutability": "nonpayable",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
                     }
                   },
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 5851,
+                  "id": 3193,
                   "mutability": "mutable",
-                  "name": "lpSupply",
+                  "name": "from",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5855,
-                  "src": "551:16:9",
+                  "scope": 3200,
+                  "src": "1234:12:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
-                    "typeIdentifier": "t_uint256",
-                    "typeString": "uint256"
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
                   },
                   "typeName": {
-                    "id": 5850,
-                    "name": "uint256",
+                    "id": 3192,
+                    "name": "address",
                     "nodeType": "ElementaryTypeName",
-                    "src": "551:7:9",
+                    "src": "1234:7:6",
+                    "stateMutability": "nonpayable",
                     "typeDescriptions": {
-                      "typeIdentifier": "t_uint256",
-                      "typeString": "uint256"
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
                     }
                   },
                   "visibility": "internal"
                 },
                 {
                   "constant": false,
-                  "id": 5853,
+                  "id": 3195,
                   "mutability": "mutable",
-                  "name": "sTokenSupply",
+                  "name": "amount",
                   "nodeType": "VariableDeclaration",
-                  "scope": 5855,
-                  "src": "569:20:9",
+                  "scope": 3200,
+                  "src": "1248:14:6",
                   "stateVariable": false,
                   "storageLocation": "default",
                   "typeDescriptions": {
@@ -233,10 +286,10 @@
                     "typeString": "uint256"
                   },
                   "typeName": {
-                    "id": 5852,
+                    "id": 3194,
                     "name": "uint256",
                     "nodeType": "ElementaryTypeName",
-                    "src": "569:7:9",
+                    "src": "1248:7:6",
                     "typeDescriptions": {
                       "typeIdentifier": "t_uint256",
                       "typeString": "uint256"
@@ -245,27 +298,237 @@
                   "visibility": "internal"
                 }
               ],
-              "src": "531:59:9"
+              "src": "1221:42:6"
             },
-            "scope": 5856,
-            "src": "430:161:9",
+            "returnParameters": {
+              "id": 3199,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3198,
+                  "mutability": "mutable",
+                  "name": "",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3200,
+                  "src": "1287:7:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3197,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1287:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1286:9:6"
+            },
+            "scope": 3217,
+            "src": "1197:99:6",
             "stateMutability": "view",
             "virtual": false,
             "visibility": "external"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 3201,
+              "nodeType": "StructuredDocumentation",
+              "src": "1303:77:6",
+              "text": " @dev Emitted when holder rewards are calculated and credited"
+            },
+            "id": 3211,
+            "name": "CalculateHolderRewards",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 3210,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3203,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "holderAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3211,
+                  "src": "1414:29:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3202,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1414:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3205,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "totalRewardBalance",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3211,
+                  "src": "1445:26:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3204,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1445:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3207,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3211,
+                  "src": "1473:14:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3206,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1473:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 3209,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3211,
+                  "src": "1489:17:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 3208,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1489:7:6",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1413:94:6"
+            },
+            "src": "1385:123:6"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 3212,
+              "nodeType": "StructuredDocumentation",
+              "src": "1514:63:6",
+              "text": " @dev Emitted when contract addresses are set"
+            },
+            "id": 3216,
+            "name": "SetUTokensContract",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 3215,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 3214,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "_contract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 3216,
+                  "src": "1608:25:6",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 3213,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1608:7:6",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1606:29:6"
+            },
+            "src": "1582:54:6"
           }
         ],
-        "scope": 5857,
-        "src": "107:489:9"
+        "scope": 3218,
+        "src": "109:1530:6"
       }
     ],
-    "src": "39:557:9"
+    "src": "39:1600:6"
   },
   "legacyAST": {
     "attributes": {
       "absolutePath": "/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/interfaces/IHolder.sol",
       "exportedSymbols": {
         "IHolder": [
-          5856
+          3217
         ]
       },
       "license": "UNLICENSED"
@@ -275,14 +538,14 @@
         "attributes": {
           "literals": [
             "solidity",
-            "^",
+            ">=",
             "0.7",
             ".0"
           ]
         },
-        "id": 5840,
+        "id": 3181,
         "name": "PragmaDirective",
-        "src": "39:23:9"
+        "src": "39:25:6"
       },
       {
         "attributes": {
@@ -296,31 +559,105 @@
           "contractKind": "interface",
           "fullyImplemented": false,
           "linearizedBaseContracts": [
-            5856
+            3217
           ],
           "name": "IHolder",
-          "scope": 5857
+          "scope": 3218
         },
         "children": [
           {
             "attributes": {
               "text": " @dev Interface of the IHolder."
             },
-            "id": 5841,
+            "id": 3182,
             "name": "StructuredDocumentation",
-            "src": "65:41:9"
+            "src": "67:41:6"
           },
           {
             "attributes": {
-              "functionSelector": "15a94b2a",
+              "functionSelector": "21bdf9e5",
               "implemented": false,
               "isConstructor": false,
               "kind": "function",
               "modifiers": [
                 null
               ],
-              "name": "getHolderAttributes",
-              "scope": 5856,
+              "name": "setUTokensContract",
+              "scope": 3217,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Set UTokens smart contract.\n Emits a {SetContract} event."
+                },
+                "id": 3183,
+                "name": "StructuredDocumentation",
+                "src": "981:96:6"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "utokenContract",
+                      "scope": 3188,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 3184,
+                        "name": "ElementaryTypeName",
+                        "src": "1110:7:6"
+                      }
+                    ],
+                    "id": 3185,
+                    "name": "VariableDeclaration",
+                    "src": "1110:22:6"
+                  }
+                ],
+                "id": 3186,
+                "name": "ParameterList",
+                "src": "1109:24:6"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 3187,
+                "name": "ParameterList",
+                "src": "1142:0:6"
+              }
+            ],
+            "id": 3188,
+            "name": "FunctionDefinition",
+            "src": "1082:61:6"
+          },
+          {
+            "attributes": {
+              "functionSelector": "cfd0ec31",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "getSTokenSupply",
+              "scope": 3217,
               "stateMutability": "view",
               "virtual": false,
               "visibility": "external"
@@ -328,11 +665,11 @@
             "children": [
               {
                 "attributes": {
-                  "text": " @dev provides the three attributes that are required to calculate the user's UToken rewards from Holder Logic.\n Returns the three uint256 values - user's LP Token balance, Total supply of LP Tokens & total supply of SToken reserve.\n Emits an event."
+                  "text": " @dev returns stoken supply"
                 },
-                "id": 5842,
+                "id": 3189,
                 "name": "StructuredDocumentation",
-                "src": "132:293:9"
+                "src": "1149:43:6"
               },
               {
                 "children": [
@@ -340,8 +677,8 @@
                     "attributes": {
                       "constant": false,
                       "mutability": "mutable",
-                      "name": "whitelistedAddress",
-                      "scope": 5855,
+                      "name": "to",
+                      "scope": 3200,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -354,21 +691,21 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 5843,
+                        "id": 3190,
                         "name": "ElementaryTypeName",
-                        "src": "459:7:9"
+                        "src": "1222:7:6"
                       }
                     ],
-                    "id": 5844,
+                    "id": 3191,
                     "name": "VariableDeclaration",
-                    "src": "459:26:9"
+                    "src": "1222:10:6"
                   },
                   {
                     "attributes": {
                       "constant": false,
                       "mutability": "mutable",
-                      "name": "userAddress",
-                      "scope": 5855,
+                      "name": "from",
+                      "scope": 3200,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "address",
@@ -381,19 +718,45 @@
                           "stateMutability": "nonpayable",
                           "type": "address"
                         },
-                        "id": 5845,
+                        "id": 3192,
                         "name": "ElementaryTypeName",
-                        "src": "487:7:9"
+                        "src": "1234:7:6"
                       }
                     ],
-                    "id": 5846,
+                    "id": 3193,
                     "name": "VariableDeclaration",
-                    "src": "487:19:9"
+                    "src": "1234:12:6"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "amount",
+                      "scope": 3200,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 3194,
+                        "name": "ElementaryTypeName",
+                        "src": "1248:7:6"
+                      }
+                    ],
+                    "id": 3195,
+                    "name": "VariableDeclaration",
+                    "src": "1248:14:6"
                   }
                 ],
-                "id": 5847,
+                "id": 3196,
                 "name": "ParameterList",
-                "src": "458:49:9"
+                "src": "1221:42:6"
               },
               {
                 "children": [
@@ -401,8 +764,8 @@
                     "attributes": {
                       "constant": false,
                       "mutability": "mutable",
-                      "name": "lpBalance",
-                      "scope": 5855,
+                      "name": "",
+                      "scope": 3200,
                       "stateVariable": false,
                       "storageLocation": "default",
                       "type": "uint256",
@@ -414,86 +777,223 @@
                           "name": "uint256",
                           "type": "uint256"
                         },
-                        "id": 5848,
+                        "id": 3197,
                         "name": "ElementaryTypeName",
-                        "src": "532:7:9"
+                        "src": "1287:7:6"
                       }
                     ],
-                    "id": 5849,
+                    "id": 3198,
                     "name": "VariableDeclaration",
-                    "src": "532:17:9"
-                  },
-                  {
-                    "attributes": {
-                      "constant": false,
-                      "mutability": "mutable",
-                      "name": "lpSupply",
-                      "scope": 5855,
-                      "stateVariable": false,
-                      "storageLocation": "default",
-                      "type": "uint256",
-                      "visibility": "internal"
-                    },
-                    "children": [
-                      {
-                        "attributes": {
-                          "name": "uint256",
-                          "type": "uint256"
-                        },
-                        "id": 5850,
-                        "name": "ElementaryTypeName",
-                        "src": "551:7:9"
-                      }
-                    ],
-                    "id": 5851,
-                    "name": "VariableDeclaration",
-                    "src": "551:16:9"
-                  },
-                  {
-                    "attributes": {
-                      "constant": false,
-                      "mutability": "mutable",
-                      "name": "sTokenSupply",
-                      "scope": 5855,
-                      "stateVariable": false,
-                      "storageLocation": "default",
-                      "type": "uint256",
-                      "visibility": "internal"
-                    },
-                    "children": [
-                      {
-                        "attributes": {
-                          "name": "uint256",
-                          "type": "uint256"
-                        },
-                        "id": 5852,
-                        "name": "ElementaryTypeName",
-                        "src": "569:7:9"
-                      }
-                    ],
-                    "id": 5853,
-                    "name": "VariableDeclaration",
-                    "src": "569:20:9"
+                    "src": "1287:7:6"
                   }
                 ],
-                "id": 5854,
+                "id": 3199,
                 "name": "ParameterList",
-                "src": "531:59:9"
+                "src": "1286:9:6"
               }
             ],
-            "id": 5855,
+            "id": 3200,
             "name": "FunctionDefinition",
-            "src": "430:161:9"
+            "src": "1197:99:6"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "CalculateHolderRewards"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when holder rewards are calculated and credited"
+                },
+                "id": 3201,
+                "name": "StructuredDocumentation",
+                "src": "1303:77:6"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "holderAddress",
+                      "scope": 3211,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 3202,
+                        "name": "ElementaryTypeName",
+                        "src": "1414:7:6"
+                      }
+                    ],
+                    "id": 3203,
+                    "name": "VariableDeclaration",
+                    "src": "1414:29:6"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "totalRewardBalance",
+                      "scope": 3211,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 3204,
+                        "name": "ElementaryTypeName",
+                        "src": "1445:7:6"
+                      }
+                    ],
+                    "id": 3205,
+                    "name": "VariableDeclaration",
+                    "src": "1445:26:6"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "tokens",
+                      "scope": 3211,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 3206,
+                        "name": "ElementaryTypeName",
+                        "src": "1473:7:6"
+                      }
+                    ],
+                    "id": 3207,
+                    "name": "VariableDeclaration",
+                    "src": "1473:14:6"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "timestamp",
+                      "scope": 3211,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 3208,
+                        "name": "ElementaryTypeName",
+                        "src": "1489:7:6"
+                      }
+                    ],
+                    "id": 3209,
+                    "name": "VariableDeclaration",
+                    "src": "1489:17:6"
+                  }
+                ],
+                "id": 3210,
+                "name": "ParameterList",
+                "src": "1413:94:6"
+              }
+            ],
+            "id": 3211,
+            "name": "EventDefinition",
+            "src": "1385:123:6"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetUTokensContract"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when contract addresses are set"
+                },
+                "id": 3212,
+                "name": "StructuredDocumentation",
+                "src": "1514:63:6"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "_contract",
+                      "scope": 3216,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 3213,
+                        "name": "ElementaryTypeName",
+                        "src": "1608:7:6"
+                      }
+                    ],
+                    "id": 3214,
+                    "name": "VariableDeclaration",
+                    "src": "1608:25:6"
+                  }
+                ],
+                "id": 3215,
+                "name": "ParameterList",
+                "src": "1606:29:6"
+              }
+            ],
+            "id": 3216,
+            "name": "EventDefinition",
+            "src": "1582:54:6"
           }
         ],
-        "id": 5856,
+        "id": 3217,
         "name": "ContractDefinition",
-        "src": "107:489:9"
+        "src": "109:1530:6"
       }
     ],
-    "id": 5857,
+    "id": 3218,
     "name": "SourceUnit",
-    "src": "39:557:9"
+    "src": "39:1600:6"
   },
   "compiler": {
     "name": "solc",
@@ -501,13 +1001,24 @@
   },
   "networks": {},
   "schemaVersion": "3.3.4",
-  "updatedAt": "2021-06-15T13:24:33.527Z",
+  "updatedAt": "2021-07-01T11:54:29.632Z",
   "devdoc": {
     "details": "Interface of the IHolder.",
+    "events": {
+      "CalculateHolderRewards(address,uint256,uint256,uint256)": {
+        "details": "Emitted when holder rewards are calculated and credited"
+      },
+      "SetUTokensContract(address)": {
+        "details": "Emitted when contract addresses are set"
+      }
+    },
     "kind": "dev",
     "methods": {
-      "getHolderAttributes(address,address)": {
-        "details": "provides the three attributes that are required to calculate the user's UToken rewards from Holder Logic. Returns the three uint256 values - user's LP Token balance, Total supply of LP Tokens & total supply of SToken reserve. Emits an event."
+      "getSTokenSupply(address,address,uint256)": {
+        "details": "returns stoken supply"
+      },
+      "setUTokensContract(address)": {
+        "details": "Set UTokens smart contract. Emits a {SetContract} event."
       }
     },
     "version": 1

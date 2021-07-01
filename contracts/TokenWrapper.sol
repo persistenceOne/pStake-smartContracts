@@ -66,7 +66,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW1");
         // range checks for fees. Since fee cannot be more than 100%, the max cap 
         // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
-        require(depositFee <= _valueDivisor.mul(100) && withdrawFee <= _valueDivisor.mul(100), "TW2");
+        require(depositFee <= _valueDivisor.mul(100) || depositFee == 0 && withdrawFee <= _valueDivisor.mul(100) || withdrawFee == 0, "TW2");
         _depositFee = depositFee;
         _withdrawFee = withdrawFee;
         emit SetFees(depositFee, withdrawFee);
@@ -95,8 +95,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
-        require(minDeposit >= 1, "TW4");
-        require(minWithdraw >= 1, "TW5");
+        require(minDeposit == 0 || minDeposit >= 1, "TW4");
+        require(minWithdraw == 0 || minWithdraw >= 1, "TW5");
         _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
         emit SetMinimumValues(minDeposit, minWithdraw);

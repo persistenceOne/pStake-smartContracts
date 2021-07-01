@@ -61,6 +61,8 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   //let rewardRate = new BN(3000000) //0.003
   let rewardRate = new BN(15432) //1.5432 * 10^-5
   let rewardDivisor = new BN("1000000000")
+  let epochInterval = "10800" //3 hours
+    let unstakingLockTime = "75600" // 21 hours
 
   console.log(bridgeAdmin, "bridgeAdmin")
 
@@ -91,6 +93,8 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       UTokensInstance.address,
       STokensInstance.address,
       pauseAdmin,
+        unstakingLockTime,
+        epochInterval,
         rewardDivisor,
     ],
     { deployer, initializer: "initialize" }
@@ -137,6 +141,50 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     }
   );
     console.log("setLiquidStakingContract() set for STokens contract.");
+
+    //set min value for wrap
+    const txReceiptSetMinval = await TokenWrapperInstance.setMinimumValues(
+        "5000000","1",
+        {
+            from: defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("setMinimumValues() set for Token Wrapper contract.");
+
+    //set min value for wrap
+    const txReceiptSetMinvalLS = await LiquidStakingInstance.setMinimumValues(
+        "1","1",
+        {
+            from: defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("setMinimumValues() set for Liquid Staking contract.");
+
+    //set fees for wrap
+    const txReceiptSetFees = await TokenWrapperInstance.setFees(
+        "350000000","0",
+        {
+            from: defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("setFees() set for Token Wrapper contract.");
+
+    //set fees for claim rewards
+    const txReceiptSetRewardFees = await STokensInstance.setFees(
+        "5000000000",
+        {
+            from: defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("setFees() set for Stokens contract.");
 
 /*    const txReceiptSetEpochTs = await LiquidStakingInstance.setUnstakeEpoch(
         "1623324050","1623324050",
