@@ -47,6 +47,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
+        setMinimumValues(1, 1);
         _valueDivisor = valueDivisor;
         // setting bech32 validationattributes
         hrpBytes = "cosmos";
@@ -95,8 +96,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function setMinimumValues(uint256 minDeposit, uint256 minWithdraw) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
-        require(minDeposit == 0 || minDeposit >= 1, "TW4");
-        require(minWithdraw == 0 || minWithdraw >= 1, "TW5");
+        require(minDeposit >= 1, "TW4");
+        require(minWithdraw >= 1, "TW5");
         _minDeposit = minDeposit;
         _minWithdraw = minWithdraw;
         emit SetMinimumValues(minDeposit, minWithdraw);
@@ -174,6 +175,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(amount>0, "TW9");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
         uint256 _finalTokens = _generateUTokens(to, amount);
+        uint256 x = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
+        emit GenerateUTokens(to, amount, x, block.timestamp);
         emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
     }
 

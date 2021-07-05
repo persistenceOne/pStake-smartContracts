@@ -183,18 +183,19 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // Set the new stakedBlock to the current, 
         // as per Checks-Effects-Interactions pattern
         _rewardsTillTimestamp[to] = block.timestamp;
+        uint256 finalTokens;
 
         // mint uTokens only if reward is greater than zero
         if(_reward>0) {
             //deducting fee
            // uint256 finalTokens = _reward.sub((_reward.mul(_rewardFee)).div(_valueDivisor.mul(100)));
             uint256 _temp = _reward.mulDiv(_rewardFee, _valueDivisor);
-            uint256 finalTokens = _reward.sub(_temp.div(100));
+            finalTokens = _reward.sub(_temp.div(100));
             // Mint new uTokens and send to the callers account
             _uTokens.mint(to, finalTokens);
         }
 
-        emit CalculateRewards(to, _reward, block.timestamp);
+        emit CalculateRewards(to, _reward, finalTokens, block.timestamp);
         return _reward;
     }
 
