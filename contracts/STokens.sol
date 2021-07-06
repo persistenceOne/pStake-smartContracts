@@ -24,6 +24,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     EnumerableSetUpgradeable.AddressSet private whitelistedAddresses;
     mapping(address => address) private _holderContractAddress;
     mapping(address => uint256) private _rewardPoolLastTimestamp;
+    address private _stakeLPCoreContract;
+
 
     // _depositContractAddress has been discontinued
     // mapping(address => address) private _depositContractAddress;
@@ -204,6 +206,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @param to: holder address
      */
     function _calculateHolderRewards(address to, address from, uint256 amount) internal returns (uint256){
+        require(_stakeLPCoreContract != address(0), "ST19");
+        require(_holderContractAddress[to] != address(0), "ST20");
         uint256 _sTokenSupply = IHolder(_holderContractAddress[to]).getSTokenSupply(to, from, amount);
 
         // calculate the reward applying the moving reward rate
@@ -211,7 +215,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
         // Mint new uTokens and send to the holder contract account as updated reward pool
         if(_newRewards > 0) {
-            _uTokens.mint(_holderContractAddress[to], _newRewards);
+            _uTokens.mint(_stakeLPCoreContract, _newRewards);
         }
 
         // update the last timestamp of reward pool to the current time
@@ -390,17 +394,17 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * @dev Set 'whitelisted address', performed by admin only
     * @param whitelistedAddress: contract address of the whitelisted party
     *
-    * Emits a {UpdateWhitelistedAddress} event
+    * Emits a {setWhitelistedAddress} event
     *
     */
-    function updateWhitelistedAddress(address whitelistedAddress, address holderContractAddress) public virtual returns (bool success){
+    function setWhitelistedAddress(address whitelistedAddress, address holderContractAddress) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST10");
         // lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
         require(whitelistedAddress != address(0), "ST11");
         if(!whitelistedAddresses.contains(whitelistedAddress)) whitelistedAddresses.add(whitelistedAddress);
         // add the contract addresses to holder mapping variable
         _holderContractAddress[whitelistedAddress] = holderContractAddress;
-        emit UpdateWhitelistedAddress(whitelistedAddress, holderContractAddress, block.timestamp);
+        emit SetWhitelistedAddress(whitelistedAddress, holderContractAddress, block.timestamp);
         return true;
     }
 
@@ -426,6 +430,18 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return true;
     }
 
+    /*
+     * @dev Set 'contract address', for liquid staking smart contract
+     * @param liquidStakingContract: liquidStaking contract address
+     *
+     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
+     *
+     */
+    function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST18");
+        _stakeLPCoreContract = stakeLPCoreContract;
+        emit SetStakeLPCoreContract(stakeLPCoreContract);
+    }
 
     /*
     * @dev Set 'contract address', called from constructor
