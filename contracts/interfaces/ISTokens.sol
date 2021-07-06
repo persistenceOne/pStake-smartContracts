@@ -66,6 +66,11 @@ interface ISTokens is IERC20Upgradeable {
     event SetLiquidStakingContract( address indexed _contract );
 
     /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetStakeLPCoreContract( address indexed _contract );
+
+    /**
     * @dev Emitted when a new whitelisted address is added
     *
     * Returns a boolean value indicating whether the operation succeeded.

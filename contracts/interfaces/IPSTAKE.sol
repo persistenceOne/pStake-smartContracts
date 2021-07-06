@@ -54,4 +54,14 @@ interface IPSTAKE is IERC20Upgradeable {
      * Note that `value` may be zero.
      */
     event TriggeredCalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetTokenWrapperContract( address indexed _contract );
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetLiquidStakingContract( address indexed _contract );
 }

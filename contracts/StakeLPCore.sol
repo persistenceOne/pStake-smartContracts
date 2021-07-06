@@ -10,7 +10,7 @@ import "./interfaces/ILiquidStaking.sol";
 import "./libraries/TransferHelper.sol";
 
 
-contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradeable {
+contract StakeLPCore is PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
 

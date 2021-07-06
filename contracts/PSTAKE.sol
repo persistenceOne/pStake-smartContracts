@@ -9,8 +9,6 @@ import "./interfaces/IPSTAKE.sol";
 import "./interfaces/IUTokens.sol";
 import "./libraries/FullMath.sol";
 
-
-
 contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
@@ -20,7 +18,11 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     // constants defining access control ROLES
     // bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
 
+    // variables capturing data of other contracts in the product
+    address private _liquidStakingContract;
+    address private _wrapperContract;
     address private _stakeLPCoreContract;
     // last timestamp when rewards were disbursed for a user
     mapping(address => uint256) private _rewardsTillTimestamp;
@@ -30,8 +32,6 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     uint256 private _lpTimeShareTillTimestamp;
 
     IUTokens private _uTokens;
-
-
 
     /**
    * @dev Constructor for initializing the UToken contract.
@@ -170,6 +170,34 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
         return true;
+    }
+
+    /*
+     * @dev Set 'contract address', called from constructor
+     * @param liquidStakingContract: liquidStaking contract address
+     *
+     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
+     *
+     */
+    //This function need to be called after deployment, only admin can call the same
+    function setLiquidStakingContract(address liquidStakingContract) public virtual override{
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
+        _liquidStakingContract = liquidStakingContract;
+        emit SetLiquidStakingContract(liquidStakingContract);
+    }
+
+    /*
+     * @dev Set 'contract address', called from constructor
+     * @param tokenWrapperContract: token wrapper contract address
+     *
+     * Emits a {SetTokenWrapperContract} event with '_contract' set to the token wrapper contract address.
+     *
+     */
+    //This function need to be called after deployment, only admin can call the same
+    function setTokenWrapperContract(address tokenWrapperContract) public virtual override{
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
+        _wrapperContract = tokenWrapperContract;
+        emit SetTokenWrapperContract(_wrapperContract);
     }
 
     /*

@@ -431,10 +431,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /*
-     * @dev Set 'contract address', for liquid staking smart contract
+     * @dev Set 'contract address', for stake LP smart contract
      * @param liquidStakingContract: liquidStaking contract address
      *
-     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
+     * Emits a {SetStakeLPCoreContract} event with '_contract' set to the stake LP contract address.
      *
      */
     function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override {
