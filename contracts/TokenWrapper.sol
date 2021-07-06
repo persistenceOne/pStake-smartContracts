@@ -175,8 +175,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(amount>0, "TW9");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
         uint256 _finalTokens = _generateUTokens(to, amount);
-        uint256 x = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
-        emit GenerateUTokens(to, amount, x, block.timestamp);
         emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
     }
 
