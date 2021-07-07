@@ -56,9 +56,22 @@ interface ISTokens is IERC20Upgradeable {
     function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
+   * @dev get whitelisted contract.
+   */
+    function getWhitelistedAddresses() external returns (address[] memory, address[] memory, address[] memory);
+
+    /**
      * @dev Emitted when contract addresses are set
      */
     event SetUTokensContract( address indexed _contract );
+
+    /**
+     * @dev Set stake lp core smart contract.
+     *
+     *
+     * Emits a {SetStakeLPCoreContract} event.
+     */
+    function setStakeLPCoreContract(address stakeLPCoreContract) external;
 
     /**
      * @dev Emitted when contract addresses are set

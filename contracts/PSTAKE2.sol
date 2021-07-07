@@ -33,10 +33,9 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
 
     /**
    * @dev Constructor for initializing the UToken contract.
-   * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
+    function initialize(address pauserAddress) public virtual initializer {
         __ERC20_init("pSTAKE Pegged ATOM", "pATOM");
         __AccessControl_init();
         __Pausable_init();
@@ -98,7 +97,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
 
         uint256 _pStakeTotalSupply = totalSupply();
 
-        uint256 _lastLPTimeShareTimestampLocal = _lastLPTimeShareTimestamp;
+       // uint256 _lastLPTimeShareTimestampLocal = _lastLPTimeShareTimestamp;
 
         uint256 _rewardPool = _uTokens.balanceOf(address(this));
 
@@ -163,7 +162,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      * Emits a {TriggeredCalculateRewards} event with 'to' set to address, 'reward' set to amount of tokens and 'timestamp'
      *
      */
-    function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
+    function calculateRewards(address to) public virtual whenNotPaused returns (bool success) {
         require(to == _msgSender(), "ST5");
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
@@ -178,7 +177,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      *
      */
     //This function need to be called after deployment, only admin can call the same
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override{
+    function setLiquidStakingContract(address liquidStakingContract) public virtual{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
@@ -192,7 +191,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      *
      */
     //This function need to be called after deployment, only admin can call the same
-    function setTokenWrapperContract(address tokenWrapperContract) public virtual override{
+    function setTokenWrapperContract(address tokenWrapperContract) public virtual{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
         _wrapperContract = tokenWrapperContract;
         emit SetTokenWrapperContract(_wrapperContract);
@@ -205,7 +204,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
      *
      */
-    function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override {
+    function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UT4");
         _stakeLPCoreContract = stakeLPCoreContract;
         emit SetStakeLPCoreContract(stakeLPCoreContract);
@@ -218,7 +217,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
     *
     */
-    function setUTokensContract(address uTokenContract) public virtual override {
+    function setUTokensContract(address uTokenContract) public virtual {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST14");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);

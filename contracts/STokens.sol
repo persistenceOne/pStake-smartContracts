@@ -77,7 +77,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         return true;
     }
 
-    function getWhitelistedAddresses() public virtual returns (address[] memory whitelistedAddresses, address[] memory holderAddresses, address[] memory lpAddresses){
+    function getWhitelistedAddresses() public virtual override returns (address[] memory whitelistedAddresses, address[] memory holderAddresses, address[] memory lpAddresses){
         whitelistedAddresses = new address[](_whitelistedAddresses.length());
         holderAddresses = new address[](_whitelistedAddresses.length());
         lpAddresses = new address[](_whitelistedAddresses.length());
@@ -321,7 +321,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
      /**
      * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
-     * @param to: account address
+     * @param lpContractAddress: contract address
      */
     function isContractWhitelisted(address lpContractAddress) public view virtual returns (bool result){
         // Get the time in number of blocks

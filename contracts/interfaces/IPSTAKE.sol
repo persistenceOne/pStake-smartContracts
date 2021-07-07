@@ -24,7 +24,7 @@ interface IPSTAKE is IERC20Upgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function burn(address from, uint256 tokens) external returns (bool);
+   // function burn(address from, uint256 tokens) external returns (bool);
 
     /**
     * @dev Set LiquidStaking smart contract.

@@ -33,10 +33,9 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
 
     /**
    * @dev Constructor for initializing the UToken contract.
-   * @param bridgeAdminAddress - address of the bridge admin.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address bridgeAdminAddress, address pauserAddress) public virtual initializer {
+    function initialize(address pauserAddress) public virtual initializer {
         __ERC20_init("pSTAKE Pegged ATOM", "pATOM");
         __AccessControl_init();
         __Pausable_init();
@@ -132,7 +131,6 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
 
     /**
      * @dev Calculate rewards for the provided 'address'
-     * @param to: account address
      */
     /* function _calculateRewards(address to) internal returns (uint256){
         // Calculate the rewards pending
@@ -158,8 +156,6 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
 
     /**
      * @dev Calculate rewards for the provided 'address'
-     * @param to: account address
-     *
      * Emits a {TriggeredCalculateRewards} event with 'to' set to address, 'reward' set to amount of tokens and 'timestamp'
      *
      */
@@ -171,18 +167,16 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     } */
 
     /*
-     * @dev Set 'contract address', called from constructor
-     * @param liquidStakingContract: liquidStaking contract address
-     *
+     * @dev Set 'contract address', called from constructor     *
      * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
      *
      */
     //This function need to be called after deployment, only admin can call the same
-    function setLiquidStakingContract(address liquidStakingContract) public virtual override{
+   /* function setLiquidStakingContract(address liquidStakingContract) public virtual override{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
-    }
+    }*/
 
     /*
      * @dev Set 'contract address', called from constructor
