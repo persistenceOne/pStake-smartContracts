@@ -19,17 +19,17 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     // variables capturing data of other contracts in the product
-    address private _liquidStakingContract;
-    address private _wrapperContract;
+    // address private _liquidStakingContract;
+    // address private _wrapperContract;
     address private _stakeLPCoreContract;
     // last timestamp when rewards were disbursed for a user
-    mapping(address => uint256) private _lastUserRewardTimestamp;
+    // mapping(address => uint256) private _lastUserRewardTimestamp;
     // LPTimeShare of total supply of PSTAKE
-    uint256 private _pStakeLPTimeShare;
+    // uint256 private _pStakeLPTimeShare;
     // last timestamp when LPTimeShare was calculated for total supply
-    uint256 private _lastLPTimeShareTimestamp;
+    // uint256 private _lastLPTimeShareTimestamp;
     // define UToken contract object to 'transfer' reward from this to user
-    IUTokens private _uTokens;
+    // IUTokens private _uTokens;
 
     /**
    * @dev Constructor for initializing the UToken contract.
@@ -50,9 +50,9 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      * @dev get rewards till timestamp
      * @param to: account address
      */
-    function getLastUserRewardTimestamp(address to) public view virtual returns (uint256 lastUserRewardTimestamp) {
+    /* function getLastUserRewardTimestamp(address to) public view virtual returns (uint256 lastUserRewardTimestamp) {
         lastUserRewardTimestamp = _lastUserRewardTimestamp[to];
-    }
+    } */
 
     /**
     * @dev Mint new PSTAKE for the provided 'address' and 'amount'
@@ -94,7 +94,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      * @param principal: principal amount
      * @param lastRewardTimestamp: timestamp of last reward calculation performed
      */
-    function _calculatePendingRewards(uint256 principal, uint256 lastRewardTimestamp) internal view returns (uint256 pendingRewards, uint256 updatedLPTimeShare){
+    /* function _calculatePendingRewards(uint256 principal, uint256 lastRewardTimestamp) internal view returns (uint256 pendingRewards, uint256 updatedLPTimeShare){
 
         uint256 _pStakeTotalSupply = totalSupply();
 
@@ -113,13 +113,13 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
         updatedLPTimeShare = updatedLPTimeShare.sub(_userLPTimeShare);
 
         return (pendingRewards, updatedLPTimeShare);
-    }
+    } */
 
      /**
      * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
      * @param to: account address
      */
-    function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards, uint256 updatedLPTimeShare){
+    /* function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards, uint256 updatedLPTimeShare){
         // Get the time in number of blocks
         uint256 _lastRewardTimestamp = _lastUserRewardTimestamp[to];
         // Get the balance of the account
@@ -128,13 +128,13 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
         (pendingRewards, updatedLPTimeShare) = _calculatePendingRewards(_balance, _lastRewardTimestamp);
 
         return (pendingRewards, updatedLPTimeShare);
-    }
+    } */
 
     /**
      * @dev Calculate rewards for the provided 'address'
      * @param to: account address
      */
-    function _calculateRewards(address to) internal returns (uint256){
+    /* function _calculateRewards(address to) internal returns (uint256){
         // Calculate the rewards pending
         (uint256 _reward, uint256 _updatedLPTimeShare) = calculatePendingRewards(to);
 
@@ -154,7 +154,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
 
         emit CalculateRewards(to, _reward, block.timestamp);
         return _reward;
-    }
+    } */
 
     /**
      * @dev Calculate rewards for the provided 'address'
@@ -163,12 +163,12 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      * Emits a {TriggeredCalculateRewards} event with 'to' set to address, 'reward' set to amount of tokens and 'timestamp'
      *
      */
-    function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
+    /* function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
         require(to == _msgSender(), "ST5");
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
         return true;
-    }
+    } */
 
     /*
      * @dev Set 'contract address', called from constructor
@@ -192,11 +192,11 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      *
      */
     //This function need to be called after deployment, only admin can call the same
-    function setTokenWrapperContract(address tokenWrapperContract) public virtual override{
+    /* function setTokenWrapperContract(address tokenWrapperContract) public virtual override{
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
         _wrapperContract = tokenWrapperContract;
         emit SetTokenWrapperContract(_wrapperContract);
-    }
+    } */
 
     /*
      * @dev Set 'contract address', for liquid staking smart contract
@@ -218,11 +218,11 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
     *
     */
-    function setUTokensContract(address uTokenContract) public virtual override {
+    /* function setUTokensContract(address uTokenContract) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST14");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);
-    }
+    } */
 
     /**
       * @dev Triggers stopped state.
@@ -267,12 +267,12 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
         require(!paused(), "UT8");
         super._beforeTokenTransfer(from, to, amount);
 
-        if(from != address(0)){
+        /* if(from != address(0)){
             _calculateRewards(from);
         }
 
          if(to != address(0)){
             _calculateRewards(from);
-        }
+        } */
     }
 }
