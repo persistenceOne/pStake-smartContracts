@@ -58,6 +58,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
         setUnstakingLockTime(unstakingLockTime);
+        setMinimumValues(1, 1);
         _valueDivisor = valueDivisor;
         setUnstakeEpoch(block.timestamp, block.timestamp, epochInterval);
     }
@@ -124,8 +125,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      */
     function setMinimumValues(uint256 minStake, uint256 minUnstake) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
-        require(minStake == 0 || minStake >= 1, "LQ5");
-        require(minUnstake == 0 || minUnstake >= 1, "LQ6");
+        require(minStake >= 1, "LQ5");
+        require(minUnstake >= 1, "LQ6");
         _minStake = minStake;
         _minUnstake = minUnstake;
         emit SetMinimumValues(minStake, minUnstake);

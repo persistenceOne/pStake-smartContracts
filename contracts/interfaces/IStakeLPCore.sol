@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >= 0.7.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
- * @dev Interface of the ISTokens.
+ * @dev Interface of the IStakeLPCore.
  */
-interface ISTokens is IERC20Upgradeable {
+interface IStakeLPCore {
 
     /**
      * @dev Mints `amount` tokens to the caller's address `to`.
@@ -15,7 +14,7 @@ interface ISTokens is IERC20Upgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function mint(address to, uint256 tokens) external returns (bool);
+   // function mint(address to, uint256 tokens) external returns (bool);
 
     /**
      * @dev Burns `amount` tokens to the caller's address `from`.
@@ -24,23 +23,21 @@ interface ISTokens is IERC20Upgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function burn(address from, uint256 tokens) external returns (bool);
+    //function burn(address from, uint256 tokens) external returns (bool);
 
     /**
-     * @dev Sets `reward rate`.
+     * @dev adds liquidity
      *
-     * Returns a boolean value indicating whether the operation succeeded.
+     * Returns a uint256
      */
-    function setRewardRate(uint256 rate) external returns (bool);
+    function addLiquidity(address lpToken, uint256 amount) external returns (uint256, uint256);
 
     /**
-   * @dev Calculates rewards `amount` tokens to the caller's address `to`.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * Emits a {TriggeredCalculateRewards} event.
-   */
-    function calculateRewards(address to) external returns (bool);
+     * @dev remove liquidity
+     *
+     * Returns a uint256
+     */
+    function removeLiquidity(address lpToken, uint256 amount) external returns (uint256, uint256);
 
     /**
      * @dev Set UTokens smart contract.
@@ -48,17 +45,21 @@ interface ISTokens is IERC20Upgradeable {
      *
      * Emits a {SetContract} event.
      */
-    function setUTokensContract(address utokenContract) external;
+    function setUTokensContract(address uAddress) external;
+
+    /**
+     * @dev Set UTokens smart contract.
+     *
+     *
+     * Emits a {SetContract} event.
+     */
+    function setSTokensContract(address sAddress) external;
+
 
     /**
     * @dev Set LiquidStaking smart contract.
     */
-    function setLiquidStakingContract(address liquidStakingContract) external;
-
-    /**
-   * @dev get whitelisted contract.
-   */
-    function getWhitelistedAddresses() external returns (address[] memory, address[] memory, address[] memory);
+   // function setLiquidStakingContract(address liquidStakingContract) external;
 
     /**
      * @dev Emitted when contract addresses are set
@@ -66,12 +67,9 @@ interface ISTokens is IERC20Upgradeable {
     event SetUTokensContract( address indexed _contract );
 
     /**
-     * @dev Set stake lp core smart contract.
-     *
-     *
-     * Emits a {SetStakeLPCoreContract} event.
-     */
-    function setStakeLPCoreContract(address stakeLPCoreContract) external;
+    * @dev Emitted when contract addresses are set
+    */
+    event SetSTokensContract( address indexed _contract );
 
     /**
      * @dev Emitted when contract addresses are set
@@ -81,7 +79,19 @@ interface ISTokens is IERC20Upgradeable {
     /**
      * @dev Emitted when contract addresses are set
      */
+    event SetPSTAKEContract( address indexed _contract );
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
     event SetStakeLPCoreContract( address indexed _contract );
+
+    /**
+    * @dev Emitted when a new whitelisted address is added
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event CalculateRewardsAndLiquidity(address indexed lpToken, uint256 amount, address indexed to, uint256 liquidity, uint256 reward);
 
     /**
     * @dev Emitted when a new whitelisted address is added
@@ -137,5 +147,20 @@ interface ISTokens is IERC20Upgradeable {
     * @dev Emitted when fees are set
     */
     event SetFees( uint256 rewardFee );
+
+    /**
+    * @dev Emitted
+    */
+    event CalculateRewardsAndLiquidity( address to, uint256 liquidity, uint256 amount );
+
+    /**
+    * @dev Emitted
+    */
+    event AddLiquidity( address lpToken, uint256 amount, uint256 rewards, uint256 liquidity );
+
+    /**
+    * @dev Emitted
+    */
+    event RemoveLiquidity( address lpToken, uint256 amount, uint256 rewards, uint256 liquidity );
 
 }

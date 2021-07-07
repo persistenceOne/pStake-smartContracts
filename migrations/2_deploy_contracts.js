@@ -56,7 +56,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
   let defaultAdmin = accounts[0];
-  let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
+  let bridgeAdmin = "0xfCd7b44E0F250928aEC442ebc5E7bc0e4B38a8D5";
   let pauseAdmin = accounts[0];
   //let rewardRate = new BN(3000000) //0.003
   let rewardRate = new BN(15432) //1.5432 * 10^-5
@@ -153,17 +153,6 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     );
     console.log("setMinimumValues() set for Token Wrapper contract.");
 
-    //set min value for wrap
-    const txReceiptSetMinvalLS = await LiquidStakingInstance.setMinimumValues(
-        "1","1",
-        {
-            from: defaultAdmin,
-            gasPrice: gasPrice,
-            gas: gasLimit,
-        }
-    );
-    console.log("setMinimumValues() set for Liquid Staking contract.");
-
     //set fees for wrap
     const txReceiptSetFees = await TokenWrapperInstance.setFees(
         "350000000","0",
@@ -185,18 +174,6 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
         }
     );
     console.log("setFees() set for Stokens contract.");
-
-/*    const txReceiptSetEpochTs = await LiquidStakingInstance.setUnstakeEpoch(
-        "1623324050","1623324050",
-        {
-            from: defaultAdmin,
-            gasPrice: gasPrice,
-            gas: gasLimit,
-        }
-    );
-    console.log("SetEpochTs() set for LiquidStaking contract.");*/
-
-
 
   console.log("ALL DONE.");
 }

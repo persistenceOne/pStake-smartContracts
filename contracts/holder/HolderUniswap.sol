@@ -1,15 +1,13 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >= 0.7.0;
 
-import "./interfaces/IHolder.sol";
-import "./interfaces/ISTokens.sol";
+import "../interfaces/IHolder.sol";
+import "../interfaces/ISTokens.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/Uniswap/IUniswapV2ERC20.sol";
-import "./interfaces/Uniswap/IUniswapV2Pair.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
-import "./interfaces/IUTokens.sol";
+import "../interfaces/IUTokens.sol";
 
 contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
 

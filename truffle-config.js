@@ -62,11 +62,11 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-      // provider: () =>
-      //   new HDWalletProvider(
-      //     "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
-      //     `https://ropsten.infura.io/v3/c1a795f858814218840034fe273cb040`
-      //   ),
+     /* provider: () =>
+        new HDWalletProvider(
+          "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
+          `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
+        ),*/
       provider: () =>
           new HDWalletProvider(
               mnemonic,
