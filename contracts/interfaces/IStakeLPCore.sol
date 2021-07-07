@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >= 0.7.0;
 
-import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
 /**
- * @dev Interface of the ISTokens.
+ * @dev Interface of the IStakeLPCore.
  */
-interface ISTokens is IERC20Upgradeable {
+interface IStakeLPCore {
 
     /**
      * @dev Mints `amount` tokens to the caller's address `to`.
@@ -26,21 +25,6 @@ interface ISTokens is IERC20Upgradeable {
      */
     function burn(address from, uint256 tokens) external returns (bool);
 
-    /**
-     * @dev Sets `reward rate`.
-     *
-     * Returns a boolean value indicating whether the operation succeeded.
-     */
-    function setRewardRate(uint256 rate) external returns (bool);
-
-    /**
-   * @dev Calculates rewards `amount` tokens to the caller's address `to`.
-   *
-   * Returns a boolean value indicating whether the operation succeeded.
-   *
-   * Emits a {TriggeredCalculateRewards} event.
-   */
-    function calculateRewards(address to) external returns (bool);
 
     /**
      * @dev Set UTokens smart contract.
@@ -48,7 +32,16 @@ interface ISTokens is IERC20Upgradeable {
      *
      * Emits a {SetContract} event.
      */
-    function setUTokensContract(address utokenContract) external;
+    function setUTokensContract(address uAddress) external;
+
+    /**
+     * @dev Set UTokens smart contract.
+     *
+     *
+     * Emits a {SetContract} event.
+     */
+    function setSTokensContract(address sAddress) external;
+
 
     /**
     * @dev Set LiquidStaking smart contract.
@@ -69,6 +62,13 @@ interface ISTokens is IERC20Upgradeable {
      * @dev Emitted when contract addresses are set
      */
     event SetStakeLPCoreContract( address indexed _contract );
+
+    /**
+    * @dev Emitted when a new whitelisted address is added
+    *
+    * Returns a boolean value indicating whether the operation succeeded.
+    */
+    event CalculateRewardsAndLiquidity(address indexed lpToken, uint256 amount, address indexed to, uint256 liquidity, uint256 reward);
 
     /**
     * @dev Emitted when a new whitelisted address is added
