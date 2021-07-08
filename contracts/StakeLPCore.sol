@@ -54,7 +54,6 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
    * @param uAddress - address of the UToken contract.
    * @param sAddress - address of the SToken contract.
    * @param pStakeAddress - address of the pStake contract address.
-   * @param valueDivisor - valueDivisor set to 10^9.
    */
     function initialize(address uAddress, address sAddress, address pStakeAddress) public virtual initializer  {
         __AccessControl_init();

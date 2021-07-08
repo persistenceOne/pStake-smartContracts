@@ -99,7 +99,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
     * @param lpContractAddress: contract address
     */
-    function isContractWhitelisted(address lpContractAddress) public view virtual returns (bool result, address whitelistedAddress, address holderAddress, uint256 liquidityWeightFactor, uint256 rewardWeightFactor, uint256 valueDivisor){
+    function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address whitelistedAddress, address holderAddress, uint256 liquidityWeightFactor, uint256 rewardWeightFactor, uint256 valueDivisor){
         // Get the time in number of blocks
         address _lpContractAddressLocal;
         valueDivisor = _valueDivisor;
