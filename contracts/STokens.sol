@@ -314,7 +314,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // holderContract and lpContract (lp token contract) need to be validated together because
         // it might not be practical to setup holder to collect reward pool but not StakeLP to distribute reward
         // since the reward distribution calculation starts the minute reward pool is created
-        require(_holderContractAddress[to] != address(0) || _lpContractAddress[to] != address(0) || _rewardWeightFactor == 0 || _liquidityWeightFactor == 0, "ST9");
+        require(_holderContractAddress[to] != address(0) || _lpContractAddress[to] != address(0) || _rewardWeightFactor[to] == 0 || _liquidityWeightFactor[to] == 0, "ST9");
         uint256 _sTokenSupply = IHolder(_holderContractAddress[to]).getSTokenSupply(to, from, amount);
 
         // calculate the reward applying the moving reward rate
