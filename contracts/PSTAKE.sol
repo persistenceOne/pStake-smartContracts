@@ -40,7 +40,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
     *
     */
     function mint(address to, uint256 tokens) public virtual override returns (bool success) {
-        require((_msgSender() == _stakeLPCoreContract), "UT1");  // minted by STokens contract
+        require((_msgSender() == _stakeLPCoreContract), "PS1");  // minted by STokens contract
 
         _mint(to, tokens);
         return true;
@@ -73,7 +73,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      *
      */
     function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "UT4");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "PS2");
         _stakeLPCoreContract = stakeLPCoreContract;
         emit SetStakeLPCoreContract(stakeLPCoreContract);
     }
@@ -86,7 +86,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UT6");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "PS3");
         _pause();
         return true;
     }
@@ -99,7 +99,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "UT7");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "PS4");
         _unpause();
         return true;
     }
@@ -118,7 +118,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
      *
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "UT8");
+        require(!paused(), "PS5");
         super._beforeTokenTransfer(from, to, amount);
     }
 }

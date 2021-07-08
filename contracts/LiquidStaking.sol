@@ -25,8 +25,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     uint256 private _unstakeFee;
     uint256 private _valueDivisor;
 
+    // constants defining access control ROLES
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
+    // variables pertaining to unbonding logic
     uint256 private _unstakingLockTime;
     uint256 private _epochInterval;
     uint256 private _unstakeEpoch;
@@ -195,13 +197,11 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(to == _msgSender(), "LQ12");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
-       // uint256 _finalTokens = amount.add((amount.mul(_stakeFee)).div(_valueDivisor.mul(100)));
         uint256 _temp = amount.mulDiv(_stakeFee, _valueDivisor);
         uint256 _finalTokens = amount.add(_temp.div(100));
         // the value which should be greater than or equal to _minStake
         // is amount since minval applies to number of sTokens to be minted
         require(amount >= _minStake, "LQ13");
-        // uint256 finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_stakeFee)).div(_valueDivisor.mul(100));
         require(_currentUTokenBalance >= _finalTokens, "LQ14");
         emit StakeTokens(to, amount, _finalTokens, block.timestamp);
         // Burn the uTokens as specified with the amount
@@ -229,14 +229,12 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(_unstakeEpochPrevious!=0, "LQ17");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
-        //uint256 _finalTokens = amount.add((amount.mul(_unstakeFee)).div(_valueDivisor.mul(100)));
         uint256 _temp = amount.mulDiv(_unstakeFee, _valueDivisor);
         uint256 _finalTokens = amount.add(_temp.div(100));
         // the value which should be greater than or equal to _minSUnstake
         // is amount since minval applies to number of uTokens to be withdrawn
         require(amount >= _minUnstake, "LQ18");
         require(_currentSTokenBalance >= _finalTokens, "LQ19");
-        // uint256 _finalTokens = (((amount.mul(100)).mul(_valueDivisor)).sub(_unstakeFee)).div(_valueDivisor.mul(100));
         // Burn the sTokens as specified with the amount
         _sTokens.burn(to, _finalTokens);
         _unstakingExpiration[to].push(block.timestamp);

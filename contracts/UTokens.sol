@@ -12,6 +12,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
+    // variables capturing data of other contracts in the product
     address private _stokenContract;
     address private _liquidStakingContract;
     address private _wrapperContract;
