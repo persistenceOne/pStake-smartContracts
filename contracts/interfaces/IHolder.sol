@@ -13,7 +13,15 @@ interface IHolder {
     *
     * Emits a {SetContract} event.
     */
-    function setUTokensContract(address utokenContract) external;
+ //   function setUTokensContract(address utokenContract) external;
+
+    /**
+   * @dev Set UTokens smart contract.
+   *
+   *
+   * Emits a {SetContract} event.
+   */
+    function setSTokensContract(address utokenContract) external;
 
     /**
     * @dev returns stoken supply
@@ -23,6 +31,11 @@ interface IHolder {
     /**
      * @dev Emitted when contract addresses are set
      */
-    event SetUTokensContract( address indexed _contract );
+    //event SetUTokensContract( address indexed _contract );
+
+    /**
+     * @dev Emitted when contract addresses are set
+     */
+    event SetSTokensContract( address indexed _contract );
 
 }

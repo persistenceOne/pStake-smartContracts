@@ -237,7 +237,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
      * Emits a {SetPSTAKEContract} event with '_contract' set to the stoken contract address.
      *
      */
-    function setPSTAKEContract(address sAddress) public virtual {
+    function setPSTAKEContract(address sAddress) public virtual override {
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP11");
         _sTokens = ISTokens(sAddress);
         emit SetPSTAKEContract(sAddress);

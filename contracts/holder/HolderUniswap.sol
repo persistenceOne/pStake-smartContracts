@@ -10,6 +10,12 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
 
     ISTokens private sTokenContract;
 
+    // value divisor to make weight factor a fraction if need be
+    uint256 private _valueDivisor;
+
+    //Private instances of contracts to handle Utokens and Stokens
+    ISTokens private _sTokens;
+
     /**
    * @dev Constructor for initializing the Holder Uniswap contract.
    * @param _sTokenContractAddress - address of the SToken contract.
