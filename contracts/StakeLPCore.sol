@@ -55,13 +55,15 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
    * @param sAddress - address of the SToken contract.
    * @param pStakeAddress - address of the pStake contract address.
    */
-    function initialize(address uAddress, address sAddress, address pStakeAddress) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address pStakeAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(PAUSER_ROLE, pauserAddress);        
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
         setPSTAKEContract(pStakeAddress);
+        _lastLPTimeShareTimestamp = block.timestamp;
     }
 
     /*
@@ -110,7 +112,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
      * @param lpToken: lp token contract address
      * @param amount: token amount
      */
-    function calculateRewardsAndLiquidity(address lpToken, uint256 amount) internal returns (uint256 liquidity, uint256 reward){
+    function calculateRewardsAndLiquidity(address lpToken, uint256 amount) internal whenNotPaused returns (uint256 liquidity, uint256 reward){
         // check for validity of arguments
         require(amount > 0 && lpToken != address(0), "LP2");
 
@@ -146,7 +148,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
     function addLiquidity(
         address lpToken,
         uint256 amount
-    ) external virtual override returns (uint256 liquidity, uint256 rewards) {
+    ) external virtual override whenNotPaused returns (uint256 liquidity, uint256 rewards) {
         // check for validity of arguments
         require(amount > 0 && lpToken != address(0), "LP4");
 
@@ -178,7 +180,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
     function removeLiquidity(
         address lpToken,
         uint256 amount
-    ) external virtual override returns (uint256 liquidity, uint256 rewards) {
+    ) external virtual override whenNotPaused returns (uint256 liquidity, uint256 rewards) {
         // check for validity of arguments
         require(amount > 0 && lpToken != address(0), "LP6");
 
