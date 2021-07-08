@@ -24,13 +24,9 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
     mapping(address => mapping(address => uint256)) private _lpBalance;
     // supply for an LP Token
     mapping(address => uint256) private _lpSupply;
-    // weight factor of an LP token which decides how many PSTAKE tokens will be disbursed
-    mapping(address => uint256) private _liquidityWeightFactor;
-    // weight factor of an LP token which decides how many reward tokens will be disbursed
-    mapping(address => uint256) private _rewardWeightFactor;
 
     // value divisor to make weight factor a fraction if need be
-    uint256 private _valueDivisor;
+    // uint256 private _valueDivisor;
 
     // last recorded total LPTimeShare
     uint256 private _lastLPTimeShare;
@@ -60,7 +56,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
    * @param pStakeAddress - address of the pStake contract address.
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uAddress, address sAddress, address pStakeAddress, uint256 valueDivisor) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address pStakeAddress) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
@@ -68,30 +64,30 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
         setPSTAKEContract(pStakeAddress);
-        _valueDivisor = valueDivisor;
+        // _valueDivisor = valueDivisor;
 
     }
 
-     function _calculateRewardsAndLiquidity(address lpToken, address to, uint256 amount) internal returns (uint256 liquidity, uint256 reward){
+     function _calculateRewardsAndLiquidity(address lpToken, address to, uint256 liquidityWeightFactor, uint256 rewardWeightFactor, uint256 valueDivisor) internal returns (uint256 liquidity, uint256 reward){
         // get the balance of user's LP token
         uint256 _lpBalanceUser = _lpBalance[lpToken][to];
         uint256 _lpSupplyContract = _lpSupply[lpToken];
 
         // CALCULATE THE LIQUIDITY TOKENS TO BE DISBURSED TO USER
-        liquidity = (_lpBalanceUser.mul(block.timestamp.sub(_lastLiquidityTimestamp[lpToken][to]))).mul(_liquidityWeightFactor[lpToken]);
+        liquidity = (_lpBalanceUser.mul(block.timestamp.sub(_lastLiquidityTimestamp[lpToken][to]))).mulDiv(liquidityWeightFactor, valueDivisor);
 
         // CALCULATE THE REWARD TOKENS TO BE DISBURSED TO USER
         // calculate the LPTimeShare of the user's LP Token
-        uint256 _userLPTimeShare = (_lpBalanceUser.mul(block.timestamp.sub(_lastLiquidityTimestamp[lpToken][to]))).mul(_rewardWeightFactor[lpToken]);
+        uint256 _userLPTimeShare = (_lpBalanceUser.mul(block.timestamp.sub(_lastLiquidityTimestamp[lpToken][to]))).mulDiv(rewardWeightFactor, valueDivisor);
         // calculate the LPTimeShare of the sum of supply of all LP Tokens
-        uint256 _newSupplyLPTimeShare = (_lpSupplyContract.mul(block.timestamp.sub(_lastLPTimeShareTimestamp))).mul(_rewardWeightFactor[lpToken]);
+        uint256 _newSupplyLPTimeShare = (_lpSupplyContract.mul(block.timestamp.sub(_lastLPTimeShareTimestamp))).mulDiv(rewardWeightFactor, valueDivisor);
         uint256 _totalSupplyLPTimeShare = _lastLPTimeShare.add(_newSupplyLPTimeShare);
 
         // calculate users new reward tokens
         uint256 _rewardPool = _uTokens.balanceOf(address(this));
         reward = _rewardPool.mulDiv(_userLPTimeShare, _totalSupplyLPTimeShare);
 
-        // update last timestamps and LPTimeShares 
+        // update last timestamps and LPTimeShares as per Checks-Effects-Interactions pattern
         _lastLiquidityTimestamp[lpToken][to] = block.timestamp;
         _lastLPTimeShareTimestamp = block.timestamp;
         _lastLPTimeShare = _totalSupplyLPTimeShare.sub(_userLPTimeShare);
@@ -103,16 +99,15 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
         // DISBURSE THE REWARD TOKENS TO USER (transfer)
         if(reward > 0)
         TransferHelper.safeTransfer(address(_uTokens), to, reward);
-         emit CalculateRewardsAndLiquidity(to, liquidity, amount);
     }
 
     function calculateRewardsAndLiquidity(address lpToken, uint256 amount) internal returns (uint256 liquidity, uint256 reward){
         // check for validity of arguments
-        require(amount > 0, "LP35");
+        require(amount > 0 && lpToken != address(0), "LP35");
 
         // check if lpToken contract of DeFi product address is whitelisted
-       // address messageSender = _msgSender();
-        ( , , address[] memory _lpAddresses) = _sTokens.getWhitelistedAddresses();
+        // address messageSender = _msgSender();
+        /* ( , , address[] memory _lpAddresses) = _sTokens.getWhitelistedAddresses();
         uint256 i;
 
         for (i=0; i<_lpAddresses.length; i=i.add(1)) {
@@ -121,9 +116,13 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
             }
         }
 
-        require(i < _lpAddresses.length, "LP36");
+        require(i < _lpAddresses.length, "LP36"); */
 
-        (liquidity, reward) = _calculateRewardsAndLiquidity(lpToken, _msgSender(), amount);
+        (bool _isContractWhitelisted, , , uint256 _liquidityWeightFactor, uint256 _rewardWeightFactor, uint256 _valueDivisor) = _sTokens.isContractWhitelisted(lpToken);
+        require(_isContractWhitelisted && _liquidityWeightFactor != 0 && _rewardWeightFactor != 0 && _valueDivisor != 0, "LP37");
+        
+        // calculate liquidity and reward tokens and disburse to user
+        (liquidity, reward) = _calculateRewardsAndLiquidity(lpToken, _msgSender(), _liquidityWeightFactor, _rewardWeightFactor, _valueDivisor);
         CalculateRewardsAndLiquidity(lpToken, amount, _msgSender(), liquidity, reward);
     }
 
@@ -133,22 +132,16 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
         uint256 amount
     ) external virtual override returns (uint256 liquidity, uint256 rewards) {
         // check for validity of arguments
-        require(amount > 0, "LP31");
-        // check if to address is of message sender
-        // require(to == _msgSender(), "LP32");
+        require(amount > 0 && lpToken != address(0), "LP31");
+
         // check if lpToken contract of DeFi product address is whitelisted
+        (bool _isContractWhitelisted, , , uint256 _liquidityWeightFactor, uint256 _rewardWeightFactor, uint256 _valueDivisor) = _sTokens.isContractWhitelisted(lpToken);
+        require(_isContractWhitelisted && _liquidityWeightFactor != 0 && _rewardWeightFactor != 0 && _valueDivisor != 0, "LP37");
+
         address messageSender = _msgSender();
-        ( , , address[] memory _lpAddresses) = _sTokens.getWhitelistedAddresses();
-        uint256 i;
 
-        for (i=0; i<_lpAddresses.length; i=i.add(1)) {
-            if(lpToken == _lpAddresses[i]) {
-                break;
-            }
-        }
-
-        require(i < _lpAddresses.length, "LP30");
-        _calculateRewardsAndLiquidity(lpToken, messageSender, amount);
+        // calculate liquidity and reward tokens and disburse to user
+        (rewards, liquidity) = _calculateRewardsAndLiquidity(lpToken, messageSender, _liquidityWeightFactor, _rewardWeightFactor, _valueDivisor);
         // finally transfer the new LP Tokens to the StakeLP contract
         TransferHelper.safeTransferFrom(lpToken, messageSender, address(this), amount);
         // update the user balance
@@ -163,27 +156,19 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
         uint256 amount
     ) external virtual override returns (uint256 liquidity, uint256 rewards) {
         // check for validity of arguments
-        require(amount > 0, "LP34");
-        // check if to address is of message sender
-        // require(to == _msgSender(), "LP32");
-        address messageSender = _msgSender();
+        require(amount > 0 && lpToken != address(0), "LP34");
 
         // check if lpToken contract of DeFi product address is whitelisted
-        ( , , address[] memory _lpAddresses) = _sTokens.getWhitelistedAddresses();
-        uint256 i;
+        (bool _isContractWhitelisted, , , uint256 _liquidityWeightFactor, uint256 _rewardWeightFactor, uint256 _valueDivisor) = _sTokens.isContractWhitelisted(lpToken);
+        require(_isContractWhitelisted && _liquidityWeightFactor != 0 && _rewardWeightFactor != 0 && _valueDivisor != 0, "LP37");
 
-        for (i=0; i<_lpAddresses.length; i=i.add(1)) {
-            if(lpToken == _lpAddresses[i]) {
-                break;
-            }
-        }
-
-        require(i < _lpAddresses.length, "LP32");
+        address messageSender = _msgSender();
 
         // check if suffecient balance is there
         require(_lpBalance[lpToken][messageSender] >= amount, "LP33");
 
-        _calculateRewardsAndLiquidity(lpToken, messageSender, amount);
+        // calculate liquidity and reward tokens and disburse to user
+        (rewards, liquidity) = _calculateRewardsAndLiquidity(lpToken, messageSender, _liquidityWeightFactor, _rewardWeightFactor, _valueDivisor);
         // finally transfer the new LP Tokens to the StakeLP contract
         TransferHelper.safeTransferFrom(lpToken, address(this), messageSender, amount);
         // update the user balance
