@@ -61,7 +61,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
      * @param rewardWeightFactor: coming as an argument for further calculations
      * @param valueDivisor: coming as an argument for further calculations
      */
-    function calculatePendingRewardsAndLiquidity(address lpToken, address to) public returns (uint256 liquidity, uint256 reward, uint256 updatedSupplyLPTimeshare){
+    function calculatePendingRewardsAndLiquidity(address lpToken, address to) public view returns (uint256 liquidity, uint256 reward, uint256 updatedSupplyLPTimeshare){
         // get the balance of user's LP token
         uint256 _lpBalanceUser = _lpBalance[lpToken][to];
         uint256 _lpSupplyContract = _lpSupply[lpToken];
@@ -92,6 +92,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
      * @param valueDivisor: coming as an argument for further calculations
      */
     function _calculateRewardsAndLiquidity(address holderAddress, address lpToken, address to) internal returns (uint256 liquidity, uint256 reward){
+        uint256 updatedSupplyLPTimeshare;
         (liquidity, reward, updatedSupplyLPTimeshare) = calculatePendingRewardsAndLiquidity(lpToken, to);
 
         // update last timestamps and LPTimeShares as per Checks-Effects-Interactions pattern
@@ -221,7 +222,7 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
 
     /**
      * @dev Set 'contract address', called from constructor
-     * @param sAddress: stoken contract address
+     * @param pstakeAddress: pStake contract address
      *
      * Emits a {SetPSTAKEContract} event with '_contract' set to the stoken contract address.
      *

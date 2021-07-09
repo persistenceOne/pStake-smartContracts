@@ -63,7 +63,7 @@ interface ISTokens is IERC20Upgradeable {
     /**
    * @dev get whitelisted contract.
    */
-    function isContractWhitelisted(address lpContractAddress) external returns (bool result, address whitelistedAddress, address holderAddress, uint256 liquidityWeightFactor, uint256 rewardWeightFactor, uint256 valueDivisor);
+    function isContractWhitelisted(address lpContractAddress) external returns (bool result, address holderAddress);
 
     /**
      * @dev Emitted when contract addresses are set

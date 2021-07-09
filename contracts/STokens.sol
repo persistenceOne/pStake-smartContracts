@@ -84,7 +84,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address holderAddress){
         // Get the time in number of blocks
         address _lpContractAddressLocal;
-        valueDivisor = _valueDivisor;
+       // valueDivisor = _valueDivisor;
         
         for (uint256 i=0; i<_whitelistedAddresses.length(); i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed

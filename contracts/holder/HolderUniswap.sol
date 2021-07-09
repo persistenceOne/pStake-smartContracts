@@ -55,7 +55,7 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
         address token,
         address to,
         uint256 value
-    ) internal {
+    ) public virtual override {
         // bytes4(keccak256(bytes('transfer(address,uint256)')));
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0xa9059cbb, to, value));
         require(
