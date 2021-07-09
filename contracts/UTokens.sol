@@ -2,20 +2,17 @@
 pragma solidity >= 0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/IUTokens.sol";
 
 contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessControlUpgradeable {
 
-    using SafeMathUpgradeable for uint256;
-
     // constants defining access control ROLES
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
-    bytes32 public constant HOLDER_ROLE = keccak256("HOLDER_ROLE");
 
+    // variables capturing data of other contracts in the product
     address private _stokenContract;
     address private _liquidStakingContract;
     address private _wrapperContract;
@@ -49,8 +46,7 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
     function mint(address to, uint256 tokens) public virtual override returns (bool success) {
         require((hasRole(BRIDGE_ADMIN_ROLE, tx.origin) && _msgSender() == _wrapperContract) // minted by bridge  
         || (_msgSender() == _stokenContract) // minted by STokens contract
-        || (tx.origin == to && _msgSender() == _liquidStakingContract) // minted by LS contract withdrawUnbonded()
-        || hasRole(HOLDER_ROLE, _msgSender()), "UT1"); // minted by holder contract
+        || (tx.origin == to && _msgSender() == _liquidStakingContract), "UT1"); // minted by LS contract withdrawUnbonded()
 
         _mint(to, tokens);
         return true;
@@ -68,7 +64,8 @@ contract UTokens is ERC20Upgradeable, IUTokens, PausableUpgradeable, AccessContr
      *
      */
     function burn(address from, uint256 tokens) public virtual override returns (bool success) {
-        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  (tx.origin == from && _msgSender() == _wrapperContract), "UT2");
+        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  // staking operation
+        (tx.origin == from && _msgSender() == _wrapperContract), "UT2"); // unwrap operation
         _burn(from, tokens);
         return true;
     }

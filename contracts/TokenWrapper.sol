@@ -26,9 +26,11 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     uint256 private _withdrawFee;
     uint256 private _valueDivisor;
 
+    // constants defining access control ROLES
     bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
+    //variables defining bech32 validation attributes
     bytes hrpBytes;
     bytes controlDigitBytes;
     uint dataBytesSize;
@@ -49,7 +51,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         setUTokensContract(uAddress);
         setMinimumValues(1, 1);
         _valueDivisor = valueDivisor;
-        // setting bech32 validationattributes
+        // setting bech32 validation attributes
         hrpBytes = "cosmos";
         controlDigitBytes = "1"; 
         dataBytesSize = 38;
@@ -153,7 +155,6 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
         // the tokens to be generated to the user's address will be after the fee processing
-       // finalTokens = amount.sub((amount.mul(_depositFee)).div(_valueDivisor.mul(100)));
         uint256 _temp = amount.mulDiv(_depositFee, _valueDivisor);
         finalTokens = amount.sub(_temp.div(100));
         _uTokens.mint(to, finalTokens);
@@ -219,13 +220,11 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(isAddressValid == true, "TW15");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         // final tokens is the amount of tokens to be burned, including the fee
-        //uint256 _finalTokens = tokens.add((tokens.mul(_withdrawFee)).div(_valueDivisor.mul(100)));
         uint256 _temp = tokens.mulDiv(_withdrawFee, _valueDivisor);
         uint256 _finalTokens = tokens.add(_temp.div(100));
         require(_currentUTokenBalance >= _finalTokens, "TW16");
         require(from == _msgSender(), "TW17");
-        // uint256 _finalTokens = (((tokens.mul(100)).mul(_valueDivisor)).sub(_withdrawFee)).div(_valueDivisor.mul(100));
-        
+
         _uTokens.burn(from, _finalTokens);
         emit WithdrawUTokens(from, tokens, _finalTokens, toChainAddress, block.timestamp);
     }
