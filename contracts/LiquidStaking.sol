@@ -322,6 +322,24 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     }
 
     /**
+     * @dev get Total Unbonding Tokens
+     * @param staker: account address
+     *
+     */
+    function getTotalUnbondingTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+        uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
+        for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
+            //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
+            (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
+            if (block.timestamp < _getUnstakeTime) {
+                //if 21 days + epoch difference have not passed, then check the token amount and send back
+                unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
+            }
+        }
+        return unbondingTokens;
+    }
+
+    /**
       * @dev Triggers stopped state.
       *
       * Requirements:
