@@ -28,6 +28,8 @@ interface IHolder {
     */
     function getSTokenSupply(address to, address from, uint256 amount) external view returns (uint256);
 
+     function safeTransfer(address token, address to, uint256 value) external;
+
     /**
      * @dev Emitted when contract addresses are set
      */

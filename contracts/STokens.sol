@@ -81,7 +81,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
     * @param lpContractAddress: contract address
     */
-    function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address whitelistedAddress, address holderAddress, uint256 liquidityWeightFactor, uint256 rewardWeightFactor, uint256 valueDivisor){
+    function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address holderAddress){
         // Get the time in number of blocks
         address _lpContractAddressLocal;
         valueDivisor = _valueDivisor;
@@ -91,10 +91,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             _lpContractAddressLocal = _lpContractAddress[_whitelistedAddresses.at(i)];
             if(_lpContractAddressLocal == lpContractAddress) {
                 result = true;
-                whitelistedAddress = _whitelistedAddresses.at(i);
                 holderAddress = _holderContractAddress[_whitelistedAddresses.at(i)];
-                liquidityWeightFactor = _liquidityWeightFactor[_whitelistedAddresses.at(i)];
-                rewardWeightFactor = _rewardWeightFactor[_whitelistedAddresses.at(i)];
                 break;
             }
         }
@@ -285,9 +282,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             finalTokens = _reward.sub(_temp.div(100));
             // Mint new uTokens and send to the callers account
             _uTokens.mint(to, finalTokens);
+            emit CalculateRewards(to, _reward, finalTokens, block.timestamp);
         }
 
-        emit CalculateRewards(to, _reward, finalTokens, block.timestamp);
         return _reward;
     }
 
@@ -320,15 +317,15 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // calculate the reward applying the moving reward rate
         uint256 _newRewards = _calculatePendingRewards(_sTokenSupply, _lastHolderRewardTimestamp[to]);
 
-        // Mint new uTokens and send to the holder contract account as updated reward pool
-        if(_newRewards > 0) {
-            _uTokens.mint(_stakeLPCoreContract, _newRewards);
-        }
-
-        // update the last timestamp of reward pool to the current time
+        // update the last timestamp of reward pool to the current time as per Checks-Effects-Interactions pattern
         _lastHolderRewardTimestamp[to] = block.timestamp; 
 
-        emit CalculateHolderRewards(_holderContractAddress[to], _newRewards, block.timestamp);
+        // Mint new uTokens and send to the holder contract account as updated reward pool
+        if(_newRewards > 0) {
+            _uTokens.mint(_holderContractAddress[to], _newRewards);
+            emit CalculateHolderRewards(_holderContractAddress[to], _newRewards, block.timestamp);
+        }
+
         return _newRewards;
     }
 
