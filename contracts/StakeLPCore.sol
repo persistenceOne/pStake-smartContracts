@@ -42,10 +42,10 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
    * @param sAddress - address of the SToken contract.
    * @param pStakeAddress - address of the pStake contract address.
    */
-    function initialize(address uAddress, address sAddress, address pStakeAddress, address pauserAddress) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address pStakeAddress, address defaultAdminAddress, address pauserAddress) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);        
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);

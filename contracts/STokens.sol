@@ -52,11 +52,11 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param rewardRate - set to rewardRate * 10^-5
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
+    function initialize(address uaddress, address defaultAdminAddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
         __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
         __AccessControl_init();
         __Pausable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uaddress);
         _rewardRate.push(rewardRate);

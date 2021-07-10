@@ -52,10 +52,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
    * @param epochInterval - varies from 3 hours to 3 days.
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uAddress, address sAddress, address pauserAddress, uint256 unstakingLockTime, uint256 epochInterval, uint256 valueDivisor) public virtual initializer  {
+    function initialize(address uAddress, address sAddress, address defaultAdminAddress, address pauserAddress, uint256 unstakingLockTime, uint256 epochInterval, uint256 valueDivisor) public virtual initializer  {
         __AccessControl_init();
         __Pausable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
         setSTokensContract(sAddress);
