@@ -195,7 +195,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW12");
         uint256 i;
         uint256 _finalTokens;
-        for ( i=0; i<to.length; i=i.add(1)) {
+        uint256 _toLength = to.length;
+        for ( i=0; i<_toLength; i=i.add(1)) {
             require(amount[i]>0, "TW13");
             _finalTokens = _generateUTokens(to[i], amount[i]);
         }

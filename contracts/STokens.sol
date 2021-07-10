@@ -85,8 +85,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // Get the time in number of blocks
         address _lpContractAddressLocal;
        // valueDivisor = _valueDivisor;
-        
-        for (uint256 i=0; i<_whitelistedAddresses.length(); i=i.add(1)) {
+        uint256 _whitelistedAddressesLength = _whitelistedAddresses.length();
+        for (uint256 i=0; i<_whitelistedAddressesLength; i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
             _lpContractAddressLocal = _lpContractAddress[_whitelistedAddresses.at(i)];
             if(_lpContractAddressLocal == lpContractAddress) {
@@ -205,7 +205,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // return 0 if principal or timeperiod is zero
         if(principal == 0 || block.timestamp.sub(lastRewardTimestamp) == 0) return 0;
         // calculate rewards for each interval period between rewardRate changes
-        for(_index = _lastMovingRewardTimestamp.length.sub(1); _index >= 0;){
+        uint256 _lastMovingRewardLength = _lastMovingRewardTimestamp.length.sub(1);
+        for(_index = _lastMovingRewardLength; _index >= 0;){
             // logic applies for all indexes of array except last index
             if(_index < _lastMovingRewardTimestamp.length.sub(1)) {
                 if(_lastMovingRewardTimestamp[_index] > lastRewardTimestamp) {
