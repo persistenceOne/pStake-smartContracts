@@ -61,8 +61,8 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   //let rewardRate = new BN(3000000) //0.003
   let rewardRate = new BN(15432) //1.5432 * 10^-5
   let rewardDivisor = new BN("1000000000")
-  let epochInterval = "10800" //3 hours
-    let unstakingLockTime = "75600" // 21 hours
+  let epochInterval = "259200" //3 days
+    let unstakingLockTime = "1814400" // 21 days
 
   console.log(bridgeAdmin, "bridgeAdmin")
 
@@ -142,7 +142,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   );
     console.log("setLiquidStakingContract() set for STokens contract.");
 
-    //set min value for wrap
+   /* //set min value for wrap
     const txReceiptSetMinval = await TokenWrapperInstance.setMinimumValues(
         "5000000","1",
         {
@@ -173,7 +173,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
             gas: gasLimit,
         }
     );
-    console.log("setFees() set for Stokens contract.");
+    console.log("setFees() set for Stokens contract.");*/
 
   console.log("ALL DONE.");
 }
