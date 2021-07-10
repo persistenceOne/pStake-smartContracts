@@ -52,11 +52,11 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
    * @param rewardRate - set to rewardRate * 10^-5
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uaddress, address defaultAdminAddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
+    function initialize(address uaddress, address pauserAddress, uint256 rewardRate, uint256 valueDivisor) public virtual initializer {
         __ERC20_init("pSTAKE Staked ATOM", "stkATOM");
         __AccessControl_init();
         __Pausable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uaddress);
         _rewardRate.push(rewardRate);
@@ -84,7 +84,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address holderAddress){
         // Get the time in number of blocks
         address _lpContractAddressLocal;
-       // valueDivisor = _valueDivisor;
+        // valueDivisor = _valueDivisor;
         uint256 _whitelistedAddressesLength = _whitelistedAddresses.length();
         for (uint256 i=0; i<_whitelistedAddressesLength; i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
@@ -319,7 +319,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         uint256 _newRewards = _calculatePendingRewards(_sTokenSupply, _lastHolderRewardTimestamp[to]);
 
         // update the last timestamp of reward pool to the current time as per Checks-Effects-Interactions pattern
-        _lastHolderRewardTimestamp[to] = block.timestamp; 
+        _lastHolderRewardTimestamp[to] = block.timestamp;
 
         // Mint new uTokens and send to the holder contract account as updated reward pool
         if(_newRewards > 0) {
@@ -346,8 +346,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
         require(!paused(), "ST10");
         super._beforeTokenTransfer(from, to, amount);
-       // uint256 _sTokenSupply;
-       // uint256 _timePeriod;
+        // uint256 _sTokenSupply;
+        // uint256 _timePeriod;
         if(from == address(0)){
             // cannot have a scenario of transfer from address(0) to address(0)
             // if(to == address(0)){}
@@ -421,7 +421,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         _lpContractAddress[whitelistedAddress] = lpContractAddress;
         _liquidityWeightFactor[whitelistedAddress] = liquidityWeightFactor;
         _rewardWeightFactor[whitelistedAddress] = rewardWeightFactor;
-        
+
         emit SetWhitelistedAddress(whitelistedAddress, holderContractAddress, lpContractAddress, liquidityWeightFactor, rewardWeightFactor, block.timestamp);
         success = true;
         return success;

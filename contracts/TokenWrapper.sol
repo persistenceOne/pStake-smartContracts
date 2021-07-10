@@ -42,10 +42,10 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
    * @param pauserAddress - address of the pauser admin.
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address uAddress, address defaultAdminAddress, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
+    function initialize(address uAddress, address bridgeAdminAddress, address pauserAddress, uint256 valueDivisor) public virtual initializer  {
          __AccessControl_init();
         __Pausable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
+        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(BRIDGE_ADMIN_ROLE, bridgeAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uAddress);
