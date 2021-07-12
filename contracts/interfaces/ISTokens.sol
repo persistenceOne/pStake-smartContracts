@@ -93,7 +93,7 @@ interface ISTokens is IERC20Upgradeable {
     *
     * Returns a boolean value indicating whether the operation succeeded.
     */
-    event SetWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, address lpContractAddress, uint256 liquidityWeightFactor, uint256 rewardWeightFactor, uint256 timestamp);
+    event SetWhitelistedAddress(address indexed whitelistedAddress, address holderContractAddress, address lpContractAddress, uint256 timestamp);
 
     /**
     * @dev Emitted when a new whitelisted address is added
