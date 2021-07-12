@@ -76,7 +76,7 @@ interface ISTokens is IERC20Upgradeable {
      *
      * Emits a {SetStakeLPCoreContract} event.
      */
-    function setStakeLPCoreContract(address stakeLPCoreContract) external;
+   // function setStakeLPCoreContract(address stakeLPCoreContract) external;
 
     /**
      * @dev Emitted when contract addresses are set
