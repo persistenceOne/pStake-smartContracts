@@ -300,10 +300,9 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
             }
         }
 
-        if(_withdrawBalance > 0) {
-            emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
-            _uTokens.mint(messageSender, _withdrawBalance);
-        }
+        require(_withdrawBalance > 0, "LQ21");
+        emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
+        _uTokens.mint(messageSender, _withdrawBalance);
        
     }
 

@@ -86,12 +86,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     */
     function getHolderData(address whitelistedAddress) public view virtual returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp){
         // Get the time in number of blocks
-        if(_whitelistedAddresses.contains(whitelistedAddress)) {
-            holderAddress = _holderContractAddress[whitelistedAddress];
-            lpAddress = _lpContractAddress[whitelistedAddress];
-            lastHolderRewardTimestamp = _lastHolderRewardTimestamp[whitelistedAddress];
-        }
-        
+        holderAddress = _holderContractAddress[whitelistedAddress];
+        lpAddress = _lpContractAddress[whitelistedAddress];
+        lastHolderRewardTimestamp = _lastHolderRewardTimestamp[whitelistedAddress];
     }
 
     /*
