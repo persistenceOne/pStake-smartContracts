@@ -42,7 +42,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     uint256[] private _rewardRate;
     uint256[] private _lastMovingRewardTimestamp;
     uint256 private _valueDivisor;
-    uint256 private _rewardFee;
     mapping(address => uint256) private _lastUserRewardTimestamp;
 
     /**
@@ -95,31 +94,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
                 break;
             }
         }
-    }
-
-    /**
-     * @dev Set 'fees', called from admin
-     * @param rewardFee: reward fee
-     *
-     * Emits a {SetFees} event with 'fee' set to the withdraw.
-     *
-     */
-    function setFees(uint256 rewardFee) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST1");
-        // range checks for fees. Since fee cannot be more than 100%, the max cap
-        // is _valueDivisor * 100, which then brings the fees to 100 (percentage)
-        require(rewardFee <= _valueDivisor.mul(100), "ST2");
-        _rewardFee = rewardFee;
-        emit SetFees(rewardFee);
-        return true;
-    }
-
-    /**
-     * @dev get fees, minimum set values
-     *
-     */
-    function getFees() public view virtual returns (uint256 rewardFee) {
-        rewardFee = _rewardFee;
     }
 
     /*
@@ -278,12 +252,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
         // mint uTokens only if reward is greater than zero
         if(_reward>0) {
-            //deducting fee
-            uint256 _temp = _reward.mulDiv(_rewardFee, _valueDivisor);
-            finalTokens = _reward.sub(_temp.div(100));
             // Mint new uTokens and send to the callers account
-            _uTokens.mint(to, finalTokens);
-            emit CalculateRewards(to, _reward, finalTokens, block.timestamp);
+            _uTokens.mint(to, _reward);
+            emit CalculateRewards(to, _reward, block.timestamp);
         }
 
         return _reward;

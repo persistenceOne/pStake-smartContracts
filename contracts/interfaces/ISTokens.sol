@@ -122,7 +122,7 @@ interface ISTokens is IERC20Upgradeable {
      *
      * Note that `value` may be zero.
      */
-    event CalculateRewards(address indexed accountAddress, uint256 tokens, uint256 finalTokens, uint256 timestamp);
+    event CalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 
     /**
      * @dev Emitted when `rewards` tokens are moved to holder account
@@ -137,10 +137,5 @@ interface ISTokens is IERC20Upgradeable {
      * Note that `value` may be zero.
      */
     event TriggeredCalculateRewards(address indexed accountAddress, uint256 tokens, uint256 timestamp);
-
-    /**
-    * @dev Emitted when fees are set
-    */
-    event SetFees( uint256 rewardFee );
 
 }

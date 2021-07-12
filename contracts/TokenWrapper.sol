@@ -173,7 +173,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "TW9");
+        require(amount >= _minDeposit, "TW9");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
         uint256 _finalTokens = _generateUTokens(to, amount);
         emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
@@ -197,7 +197,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         uint256 _finalTokens;
         uint256 _toLength = to.length;
         for ( i=0; i<_toLength; i=i.add(1)) {
-            require(amount[i]>0, "TW13");
+            require(amount[i] >= _minDeposit, "TW13");
             _finalTokens = _generateUTokens(to[i], amount[i]);
         }
         emit GenerateUTokens(to[i.sub(1)], amount[i.sub(1)], _finalTokens, block.timestamp);
@@ -215,7 +215,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
-        require(tokens > _minWithdraw, "TW14");
+        require(tokens >= _minWithdraw, "TW14");
         //check if toChainAddress is valid address
         bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
         require(isAddressValid == true, "TW15");
