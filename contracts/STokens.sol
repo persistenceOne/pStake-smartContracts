@@ -82,18 +82,23 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
     /**
     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
-    * @param whitelistedAddress: contract address
+    * @param lpContractAddress: contract address
     */
     function getHolderData(address whitelistedAddress) public view virtual override returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp){
         // Get the time in number of blocks
-        holderAddress = _holderContractAddress[whitelistedAddress];
-        lpAddress = _lpContractAddress[whitelistedAddress];
-        lastHolderRewardTimestamp = _lastHolderRewardTimestamp[whitelistedAddress];
+        if(_whitelistedAddresses.contains(whitelistedAddress)) {
+            holderAddress = _holderContractAddress[whitelistedAddress];
+            lpAddress = _lpContractAddress[whitelistedAddress];
+            lastHolderRewardTimestamp = _lastHolderRewardTimestamp[whitelistedAddress];
+        }
+        
     }
 
     /*
     * @dev set reward rate called by admin
     * @param rewardRate: reward rate
+    *
+    *
     * Requirements:
     *
     * - `rate` cannot be less than or equal to zero.
@@ -276,7 +281,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // holderContract and lpContract (lp token contract) need to be validated together because
         // it might not be practical to setup holder to collect reward pool but not StakeLP to distribute reward
         // since the reward distribution calculation starts the minute reward pool is created
-        require((whitel(to) && _holderContractAddress[to] != address(0) && _lpContractAddress[to] != address(0), "ST9");
+        require(_whitelistedAddresses.contains(to) && _holderContractAddress[to] != address(0) && _lpContractAddress[to] != address(0), "ST9");
         uint256 _sTokenSupply = IHolder(_holderContractAddress[to]).getSTokenSupply(to, from, amount);
 
         // calculate the reward applying the moving reward rate
@@ -316,7 +321,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             // cannot have a scenario of transfer from address(0) to address(0)
             // if(to == address(0)){}
 
-            if(!(whitel(to)){
+            if(!_whitelistedAddresses.contains(to)){
                 _calculateRewards(to);
             }
             else {
@@ -325,18 +330,18 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
             }
         }
 
-        if(from != address(0) && !(whitel(from)){
+        if(from != address(0) && !_whitelistedAddresses.contains(from)){
 
             if(to == address(0)){
                 _calculateRewards(from);
             }
 
-            if(to != address(0) && !(whitel(to)){
+            if(to != address(0) && !_whitelistedAddresses.contains(to)){
                 _calculateRewards(from);
                 _calculateRewards(to);
             }
 
-            if(to != address(0) && (whitel(to)){
+            if(to != address(0) && _whitelistedAddresses.contains(to)){
                 _calculateRewards(from);
                 // IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
                 _calculateHolderRewards(to, from, amount);
@@ -344,20 +349,20 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
         }
 
-        if(from != address(0) && (whitel(from)){
+        if(from != address(0) && _whitelistedAddresses.contains(from)){
 
             if(to == address(0)){
                 // IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
                 _calculateHolderRewards(from, to, amount);
             }
 
-            if(to != address(0) && !(whitel(to)){
+            if(to != address(0) && !_whitelistedAddresses.contains(to)){
                 // IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
                 _calculateHolderRewards(from, to, amount);
                 _calculateRewards(to);
             }
 
-            if(to != address(0) && (whitel(to)){
+            if(to != address(0) && _whitelistedAddresses.contains(to)){
                 // IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _lastMovingRewardTimestamp);
                 _calculateHolderRewards(from, address(0), amount);
 
@@ -379,7 +384,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST11");
         // lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
         require(whitelistedAddress != address(0), "ST12");
-        if(!(whitel(whitelistedAddress)) _whitelistedAddresses.add(whitelistedAddress);
+        if(!_whitelistedAddresses.contains(whitelistedAddress)) _whitelistedAddresses.add(whitelistedAddress);
         // add the contract addresses to holder mapping variable
         _holderContractAddress[whitelistedAddress] = holderContractAddress;
         _lpContractAddress[whitelistedAddress] = lpContractAddress;
