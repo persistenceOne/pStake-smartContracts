@@ -13,6 +13,12 @@ interface ITokenWrapper {
     function setUTokensContract(address uAddress) external;
 
     /**
+     * @dev checks if the address is Bech32 valid
+     *
+     */
+    function isBech32Valid(string memory toChainAddress) external view returns (bool isAddressValid);
+
+    /**
      * @dev Generates `amount` tokens to the caller's address `to`.
      *
      * Emits a {GenerateUTokens} event.
