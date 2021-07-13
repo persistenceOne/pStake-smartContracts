@@ -38,7 +38,7 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
      *
      */
     function getSTokenSupply(address to, address from, uint256 amount) public override view returns (uint256 sTokenSupply){
-        sTokenSupply = sTokenContract.balanceOf(to);
+        sTokenSupply = _sTokenContract.balanceOf(to);
         return sTokenSupply;
     }
 

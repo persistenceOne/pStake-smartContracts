@@ -250,7 +250,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     /**
      * @dev returns the nearest epoch milestone in the future
      */
-    function getUnstakeEpochMilestone(uint256 _unstakeTimestamp) public view virtual returns (uint256 unstakeEpochMilestone) {
+    function getUnstakeEpochMilestone(uint256 _unstakeTimestamp) public view virtual override returns (uint256 unstakeEpochMilestone) {
         if(_unstakeTimestamp == 0) return 0;
         // if epoch values are not relevant, then the epoch milestone is the unstake timestamp itself (backward compatibility)
         if((_unstakeEpoch == 0 && _unstakeEpochPrevious == 0) || _epochInterval == 0) return _unstakeTimestamp;
@@ -264,7 +264,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     /**
      * @dev returns the time left for unbonding to finish
      */
-    function getUnstakeTime(uint256 _unstakeTimestamp) public view virtual returns (uint256 unstakeTime ,uint256 unstakeEpoch, uint256 unstakeEpochPrevious) {
+    function getUnstakeTime(uint256 _unstakeTimestamp) public view virtual override returns (uint256 unstakeTime ,uint256 unstakeEpoch, uint256 unstakeEpochPrevious) {
         uint256 _unstakeEpochMilestone = getUnstakeEpochMilestone(_unstakeTimestamp);
         if(_unstakeEpochMilestone == 0) return (0, unstakeEpoch, unstakeEpochPrevious);
         unstakeEpoch = _unstakeEpoch;
@@ -311,7 +311,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondedTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+    function getTotalUnbondedTokens(address staker) public view virtual override returns (uint256 unbondingTokens) {
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
             for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
                 //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
@@ -329,7 +329,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondingTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+    function getTotalUnbondingTokens(address staker) public view virtual override returns (uint256 unbondingTokens) {
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
         for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed

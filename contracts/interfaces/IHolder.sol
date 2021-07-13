@@ -19,7 +19,7 @@ interface IHolder {
    *
    * Emits a {SetSTokensContract} event.
    */
-    function SetStakeLPContract(address stakeLPContract) external;
+    function setStakeLPContract(address stakeLPContract) external;
 
     /**
     * @dev returns stoken supply
@@ -31,5 +31,10 @@ interface IHolder {
      * @dev Emitted when contract addresses are set
      */
     event SetSTokensContract( address indexed _contract );
+
+    /**
+    * @dev Emitted when contract addresses are set
+    */
+    event SetStakeLPContract( address indexed _contract );
 
 }

@@ -190,7 +190,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * - `amount` cannot be less than zero.
      *
      */
-    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual whenNotPaused {
+    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual override whenNotPaused {
         require(to.length == amount.length, "TW11");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW12");
         uint256 i;

@@ -84,7 +84,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
     * @param whitelistedAddress: contract address
     */
-    function getHolderData(address whitelistedAddress) public view virtual returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp){
+    function getHolderData(address whitelistedAddress) public view virtual override returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp){
         // Get the time in number of blocks
         holderAddress = _holderContractAddress[whitelistedAddress];
         lpAddress = _lpContractAddress[whitelistedAddress];
@@ -221,7 +221,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
      * @param to: account address
      */
-    function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards){
+    function calculatePendingRewards(address to) public view virtual override returns (uint256 pendingRewards){
         // Get the time in number of blocks
         uint256 _lastRewardTimestamp = _lastUserRewardTimestamp[to];
         // Get the balance of the account
