@@ -66,7 +66,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0]
   //let rewardRate = new BN(3000000) //0.003
-  let rewardRate = new BN(15432) //1.5432 * 10^-5
+  let rewardRate = new BN(221) //1.5432 * 10^-5
   let rewardDivisor = new BN("1000000000")
   let epochInterval = "259200" //3 days
     let unstakingLockTime = "1814400" // 21 days

@@ -34,18 +34,16 @@ const uTokens = artifacts.require('UTokens');*/
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
-const toAtomAddress = "toAtomAddress"
-let defaultAdmin = "0x5e7B014f78F7fBA36D9DCca1b0671F988F7795E1";
-let bridgeAdmin = "0xd811f274330E1094d1f7d8Af38aAa16Bd5A9980C";
-let pauseAdmin = "0x3ae2C69742eB0F16eCB9108c130C794651347F68";
-let to = "0x51b99EE4682E926EDE9fAf702255049828405339";
-let unknownAddress = "0xB6cBf0aaFf44fc63Ec6922A2f3ecf4E028CC75f6";
+const toAtomAddress = "cosmos1dgtl8dqky0cucr9rlllw9cer9ysrkjnjagz5zp"
+let defaultAdmin = "0x906c921AAe9eD9051eF51fB95B468e88DcaBF6a2";
+let bridgeAdmin = "0x76C5411eBcf4c3D9511AD0b3aeb2a06D2c4415dF";
+let pauseAdmin = "0xdB1BB67CE8663FaA8DE583447dEDF66ce21F6DfD";
+let to = "0x8edc5b01b881B3F018135Cf4f13F631CB3843BB8";
+let unknownAddress = "0x98EB5E11e8b587DA1E19E3173fFc3a7961943e12";
 
 
 describe("Liquid Staking", function () {
     this.timeout(0);
-    let _rewardRate = new BN(3000000);
-    let rewardDivisor = new BN(1000000000)
     let liquidStaking;
     let tokenWrapper;
     let utokens;
@@ -55,6 +53,11 @@ describe("Liquid Staking", function () {
     let amount = new BN(200);
     let val = new BN(50);
     let rate = new BN(2000000);
+    let _rewardRate = new BN(3000000);
+    let rewardDivisor = new BN(1000000000)
+    let epochInterval = "259200" //3 days
+    let unstakingLockTime = "1814400" // 21 days
+
     beforeEach(async function (){
         this.project = await TestHelper()
 
@@ -64,7 +67,8 @@ describe("Liquid Staking", function () {
 
         tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, pauseAdmin,  unstakingLockTime,
+            epochInterval, rewardDivisor], { initializer: 'initialize' });
 
         await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
         await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
@@ -96,7 +100,7 @@ describe("Liquid Staking", function () {
             await tokenWrapper.generateUTokens(to,amount,{from: bridgeAdmin,});
             let balance = await utokens.balanceOf(to);
             expect(balance == amount)
-            await expectRevert(liquidStaking.stake(to, amount, {from: unknownAddress,}), "LiquidStaking: Staking can only be done by Staker");
+            await expectRevert(liquidStaking.stake(to, amount, {from: unknownAddress,}), "LQ12");
         });
 
         it('Get Reward Rate', async function () {
@@ -120,7 +124,7 @@ describe("Liquid Staking", function () {
                 accountAddress:to,
                 tokens: amt,
             });
-            let stakedBlock = await stokens.getStakedBlock(to,{from: defaultAdmin,});
+            let stakedBlock = await stokens.getLastUserRewardTimestamp(to,{from: defaultAdmin,});
             expect(stakedBlock>0);
         });
     });
@@ -138,7 +142,7 @@ describe("Liquid Staking", function () {
 
         it('Number of staked tokens should be greater than 0', async function () {
             let val = new BN(0);
-            expectRevert(liquidStaking.stake(to,val,{from: to,}),"LiquidStaking: Requires a min stake amount");
+            expectRevert(liquidStaking.stake(to,val,{from: to,}),"LQ13");
         });
 
         it('Insuffcient balance for account', async function () {
@@ -149,7 +153,7 @@ describe("Liquid Staking", function () {
                 tokens: amt,
             });
             expect(balance == amt)
-            await expectRevert(liquidStaking.stake(to, amount, {from: to,}), "LiquidStaking: Insuffcient balance for account");
+            await expectRevert(liquidStaking.stake(to, amount, {from: to,}), "LQ14");
         });
 
         it('Stake', async function () {
@@ -161,7 +165,6 @@ describe("Liquid Staking", function () {
                 tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
-            console.log("stake: ", stake)
             balance = await stokens.balanceOf(to);
             expect(balance>=amt)
             expectEvent(stake, "StakeTokens", {
@@ -172,7 +175,7 @@ describe("Liquid Staking", function () {
     })
     describe("Set Reward Rate", function () {
         it('Non-Owner cannot call setRewardRate()', async function () {
-            await expectRevert(stokens.setRewardRate(rate,{from: unknownAddress,}), "STokens: User not authorised to set reward rate");
+            await expectRevert(stokens.setRewardRate(rate,{from: unknownAddress,}), "ST2");
         },200000);
 
         it('Only owner can call setRewardRate()', async function () {
@@ -182,7 +185,7 @@ describe("Liquid Staking", function () {
 
     describe("Calculate Reward", function () {
         it('Only staker can initiate their own rewards calculation', async function () {
-            expectRevert(stokens.calculateRewards(to, {from: unknownAddress,}), "STokens: only staker can initiate their own rewards calculation");
+            expectRevert(stokens.calculateRewards(to, {from: unknownAddress,}), "ST5");
         },200000);
 
         it('Call CalculateRewards before staking any atom', async function () {
@@ -224,7 +227,7 @@ describe("Liquid Staking", function () {
 
         it('calculatePendingRewards', async function () {
             let reward = await stokens.calculatePendingRewards(to,{from: to,});
-            console.log("reward: "+ reward)
+
         });
 
         it('Calculate Rewards with double minting', async function () {
@@ -236,7 +239,7 @@ describe("Liquid Staking", function () {
                 tokens: amount,
             });
             let stake = await liquidStaking.stake(to,amt,{from: to,});
-            console.log("\n\n first time stake: ", stake)
+
             balance = await stokens.balanceOf(to);
             expect(balance>=amt)
             expectEvent(stake, "StakeTokens", {
@@ -244,7 +247,7 @@ describe("Liquid Staking", function () {
                 tokens: amt,
             });
             stake = await liquidStaking.stake(to,val,{from: to,});
-            console.log("\n\n second time stake: ", stake)
+
             balance = await stokens.balanceOf(to);
             expect(balance>val)
             let totalBalance = amt + val
@@ -254,14 +257,8 @@ describe("Liquid Staking", function () {
                 tokens: val,
             });
             let reward = await stokens.calculateRewards(to,{from: to,});
-            console.log("\n\n reward after double minting: ", reward)
+
             expect(reward >= stokens.balanceOf(to));
-            expectEvent(stake, "CalculateRewards", {
-                accountAddress:to,
-            });
-            expectEvent(reward, "TriggeredCalculateRewards", {
-                accountAddress:to,
-            });
         },200000);
 
         it('Call CalculateRewards()', async function () {
@@ -281,12 +278,6 @@ describe("Liquid Staking", function () {
             });
             let reward = await stokens.calculateRewards(to,{from: to,});
             expect(reward >= stokens.balanceOf(to));
-            expectEvent(reward, "CalculateRewards", {
-                accountAddress:to,
-            });
-            expectEvent(reward, "TriggeredCalculateRewards", {
-                accountAddress:to,
-            });
         },200000);
 
         it('Verify CalculateRewards() in Staking', async function () {
@@ -332,7 +323,7 @@ describe("Liquid Staking", function () {
                 tokens: amt,
             });
             let unstake = await liquidStaking.unStake(to,val,{from: to,});
-            console.log("unstake: ", unstake)
+
             expect(balance>amt)
             let totalBalance = amt + val
             expect(totalBalance > await utokens.balanceOf(to));
@@ -374,11 +365,11 @@ describe("Liquid Staking", function () {
     describe("UnStaking", function () {
         it('Number of unstaked tokens should be greater than 0', async function () {
             let val = new BN(0);
-            await expectRevert(liquidStaking.unStake(to, val, {from: to,}), "LiquidStaking: Requires a min unstake amount");
+            await expectRevert(liquidStaking.unStake(to, val, {from: to,}), "LQ18");
         },200000);
 
         it('Non-staker cannot withdraw', async function () {
-            await expectRevert(liquidStaking.unStake(to, amount, {from: unknownAddress,}), "Unstaking can only be done by Staker");
+            await expectRevert(liquidStaking.unStake(to, amount, {from: unknownAddress,}), "LQ15");
         },200000);
 
         it('Current sToken balance should be greater than unstaked amount', async function () {
@@ -394,7 +385,7 @@ describe("Liquid Staking", function () {
             });
             let balance = await stokens.balanceOf(to);
             expect(balance >= amt)
-            await expectRevert(liquidStaking.unStake(to, amount, {from: to,}), "LiquidStaking: Insuffcient balance for account");
+            await expectRevert(liquidStaking.unStake(to, amount, {from: to,}), "LQ19");
         },200000);
 
         it('UnStake', async function () {
@@ -468,7 +459,7 @@ describe("Liquid Staking", function () {
                     accountAddress:to,
                     tokens: amount,
                 });
-                await expectRevert(tokenWrapper.withdrawUTokens(to,_val,toAtomAddress,{from: to,}),"TokenWrapper: Requires a min withdraw amount");
+                await expectRevert(tokenWrapper.withdrawUTokens(to,_val,toAtomAddress,{from: to,}),"TW14");
             },200000);
 
             it('Current uToken balance should be greater than staked amount', async function () {
@@ -479,7 +470,7 @@ describe("Liquid Staking", function () {
                     accountAddress:to,
                     tokens: amt,
                 });
-                await expectRevert(tokenWrapper.withdrawUTokens(to, amount, toAtomAddress, {from: to,}), "TokenWrapper: Insuffcient balance for account");
+                await expectRevert(tokenWrapper.withdrawUTokens(to, amount, toAtomAddress, {from: to,}), "TW16");
             },200000);
 
             it('Only staker can withdraw', async function () {
@@ -490,7 +481,7 @@ describe("Liquid Staking", function () {
                     accountAddress:to,
                     tokens: amount,
                 });
-                await expectRevert(tokenWrapper.withdrawUTokens(to, amt, toAtomAddress, {from: unknownAddress,}), "TokenWrapper: Withdraw can only be done by Staker");
+                await expectRevert(tokenWrapper.withdrawUTokens(to, amt, toAtomAddress, {from: unknownAddress,}), "TW17");
             },2000000);
 
             it('Withdraw uTokens', async function () {
@@ -508,67 +499,14 @@ describe("Liquid Staking", function () {
                 expectEvent(withdraw, "WithdrawUTokens", {
                     accountAddress:to,
                     tokens: amt,
-                    toAtomAddress: toAtomAddress,
                 });
             },2000000);
         });
 
         describe("Withdraw unStaked tokens", function () {
             it('Only staker can withdraw', async function () {
-                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: unknownAddress,}), "LiquidStaking: Only staker can withdraw");
+                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: unknownAddress,}), "LQ20");
             },200000);
-
-            it('Cannot withdraw UnStake token before locking period', async function () {
-                let generate = await tokenWrapper.generateUTokens(to, amount, {from: bridgeAdmin,});
-                await expectEvent(generate, "GenerateUTokens", {
-                    accountAddress:to,
-                    tokens: amount,
-                });
-                let stake = await liquidStaking.stake(to, amt, {from: to,});
-                await expectEvent(stake, "StakeTokens", {
-                    accountAddress:to,
-                    tokens: amt,
-                });
-                let balance = await stokens.balanceOf(to);
-                expect(balance >= amt)
-                let unstake = await liquidStaking.unStake(to, val, {from: to,});
-                await expectEvent(unstake, "UnstakeTokens", {
-                    accountAddress:to,
-                    tokens: val,
-                });
-                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
-            },2000000);
-
-            it('Multi-lock for same user', async function () {
-                let generate = await tokenWrapper.generateUTokens(to, amount, {from: bridgeAdmin,});
-                await expectEvent(generate, "GenerateUTokens", {
-                    accountAddress:to,
-                    tokens: amount,
-                });
-                let stake = await liquidStaking.stake(to, amt, {from: to,});
-                let balance = await stokens.balanceOf(to);
-                expect(balance >= amt)
-                await expectEvent(stake, "StakeTokens", {
-                    accountAddress:to,
-                    tokens: amt,
-                });
-                let unstake = await liquidStaking.unStake(to, val, {from: to,});
-                await expectEvent(unstake, "UnstakeTokens", {
-                    accountAddress:to,
-                    tokens: val,
-                });
-                unstake = await liquidStaking.unStake(to, val, {from: to,});
-                balance = await stokens.balanceOf(to);
-                expect(balance > amt)
-                let _val = val+val
-                let totalBalance = amt + _val
-                expect(totalBalance > await utokens.balanceOf(to));
-                await expectEvent(unstake, "UnstakeTokens", {
-                    accountAddress:to,
-                    tokens: val,
-                });
-                await expectRevert(liquidStaking.withdrawUnstakedTokens(to, {from: to,}), "LiquidStaking: UnStaking period still pending");
-            },2000000);
         });
     });
 
@@ -580,7 +518,7 @@ describe("Liquid Staking", function () {
         });
 
         it('Non pauser admin cannot pause contracts', async function () {
-            await expectRevert(liquidStaking.pause({from: to,}), "LiquidStaking: User not authorised to pause contracts");
+            await expectRevert(liquidStaking.pause({from: to,}), "LQ22");
         });
 
         it('Transactions could not be sent to paused contracts', async function () {
@@ -601,7 +539,7 @@ describe("Liquid Staking", function () {
         });
 
         it('Non pauser admin cannot unpause contracts', async function () {
-            await expectRevert(liquidStaking.unpause({from: to,}), "LiquidStaking: User not authorised to unpause contracts");
+            await expectRevert(liquidStaking.unpause({from: to,}), "LQ23");
         });
     });
 }); // DESCRIBE END
