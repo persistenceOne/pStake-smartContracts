@@ -28,7 +28,7 @@ interface ISTokens is IERC20Upgradeable {
 
     function isContractWhitelisted(address lpContractAddress) external view returns (bool result, address holderAddress);
 
-    function getHolderData(address whitelistedAddress) public view returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp);
+    function getHolderData(address whitelistedAddress) external view returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp);
 
     /**
      * @dev Sets `reward rate`.
