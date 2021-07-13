@@ -54,9 +54,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uaddress);
+        _valueDivisor = valueDivisor;
+        require(rewardRate <= _valueDivisor.mul(100), "ST1");
         _rewardRate.push(rewardRate);
         _lastMovingRewardTimestamp.push(block.timestamp);
-        _valueDivisor = valueDivisor;
         _setupDecimals(6);
     }
 
