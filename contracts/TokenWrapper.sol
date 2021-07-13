@@ -204,6 +204,16 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
     }
 
     /**
+     * @dev check if the address is Bech32Valid
+     *
+     */
+    function isBech32Valid(string memory toChainAddress) public view virtual returns (bool isAddressValid) {
+        bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
+    }
+
+
+
+    /**
      * @dev Burn utokens for the provided 'address' and 'tokens'
      * @param from: account address, tokens: number of tokens, toChainAddress: atom wallet address
      *
