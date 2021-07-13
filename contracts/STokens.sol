@@ -138,7 +138,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function mint(address to, uint256 tokens) public virtual override returns (bool success) {
+    function mint(address to, uint256 tokens) public virtual override returns (bool) {
         require(tx.origin == to && _msgSender() == _liquidStakingContract, "ST3");
         _mint(to, tokens);
         return true;
@@ -155,7 +155,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function burn(address from, uint256 tokens) public  virtual override returns (bool success) {
+    function burn(address from, uint256 tokens) public  virtual override returns (bool) {
         require(tx.origin == from && _msgSender() == _liquidStakingContract, "ST4");
         _burn(from, tokens);
         return true;
@@ -379,6 +379,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST8");
         // lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
         require(whitelistedAddress != address(0), "ST9");
+        // add the whitelistedAddress if it isn't already available
         if(!_whitelistedAddresses.contains(whitelistedAddress)) _whitelistedAddresses.add(whitelistedAddress);
         // add the contract addresses to holder mapping variable
         _holderContractAddress[whitelistedAddress] = holderContractAddress;
@@ -407,23 +408,12 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
         // delete holder contract values
         delete _holderContractAddress[whitelistedAddress];
+        delete _lpContractAddress[whitelistedAddress];
 
         emit RemoveWhitelistedAddress(whitelistedAddress, _holderContractAddressLocal, _lpContractAddressLocal, block.timestamp);
-        return true;
+        success = true;
+        return success;
     }
-
-    /*
-     * @dev Set 'contract address', for stake LP smart contract
-     * @param liquidStakingContract: liquidStaking contract address
-     *
-     * Emits a {SetStakeLPCoreContract} event with '_contract' set to the stake LP contract address.
-     *
-     */
-   /*  function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
-        _stakeLPCoreContract = stakeLPCoreContract;
-        emit SetStakeLPCoreContract(stakeLPCoreContract);
-    } */
 
     /*
     * @dev Set 'contract address', called from constructor

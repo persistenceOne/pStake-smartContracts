@@ -13,7 +13,7 @@ interface ILiquidStaking {
      *
      * Emits a {StakeTokens} event.
      */
-    function stake(address to, uint256 utok) external returns (bool);
+    function stake(address to, uint256 amount) external returns(bool);
 
     /**
      *  @dev UnStake stokens over the platform with address 'to' for desired 'stok' (Burn sTokens and Mint uTokens with 21 days locking period)
@@ -22,7 +22,17 @@ interface ILiquidStaking {
      *
      * Emits a {UnstakeTokens} event.
      */
-    function unStake(address to, uint256 stok) external returns (bool);
+    function unStake(address to, uint256 amount) external returns(bool);
+
+    /**
+     * @dev returns the nearest epoch milestone in the future
+     */
+    function getUnstakeEpochMilestone(uint256 _unstakeTimestamp) external view returns (uint256 unstakeEpochMilestone);
+
+    /**
+     * @dev returns the time left for unbonding to finish
+     */
+    function getUnstakeTime(uint256 _unstakeTimestamp) external view returns (uint256 unstakeTime ,uint256 unstakeEpoch, uint256 unstakeEpochPrevious);
 
     /**
     * @dev Lock the unstaked tokens for 21 days, user can withdraw the same (Mint uTokens with 21 days locking period)
@@ -30,6 +40,20 @@ interface ILiquidStaking {
     * Emits a {WithdrawUnstakeTokens} event.
     */
     function withdrawUnstakedTokens(address staker) external;
+
+    /**
+     * @dev get Total Unbonded Tokens
+     * @param staker: account address
+     *
+     */
+    function getTotalUnbondedTokens(address staker) external view returns (uint256 unbondingTokens);
+
+    /**
+     * @dev get Total Unbonding Tokens
+     * @param staker: account address
+     *
+     */
+    function getTotalUnbondingTokens(address staker) external view returns (uint256 unbondingTokens);
 
     /**
     * @dev Set UTokens smart contract.
@@ -88,5 +112,5 @@ interface ILiquidStaking {
     /**
     * @dev Emitted when unstaked tokens are withdrawn
     */
-        event WithdrawUnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
+    event WithdrawUnstakeTokens(address indexed accountAddress, uint256 tokens, uint256 timestamp);
 }

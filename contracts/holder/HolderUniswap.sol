@@ -8,7 +8,10 @@ import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 
 contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
 
-    ISTokens private sTokenContract;
+    // variables capturing data of other contracts in the product
+    address private _stakeLPContract;
+    ISTokens private _sTokenContract;
+
 
     // value divisor to make weight factor a fraction if need be
     uint256 private _valueDivisor;
@@ -18,13 +21,15 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
 
     /**
    * @dev Constructor for initializing the Holder Uniswap contract.
-   * @param _sTokenContractAddress - address of the SToken contract.
+   * @param sTokenContract - address of the SToken contract.
+   * @param stakeLPContract - address of the StakeLPCore contract.
    * @param valueDivisor - valueDivisor set to 10^9.
    */
-    function initialize(address _sTokenContractAddress, uint256 valueDivisor) public virtual initializer {
+    function initialize(address sTokenContract, address stakeLPContract, uint256 valueDivisor) public virtual initializer {
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-        sTokenContract = ISTokens(_sTokenContractAddress);
+        _sTokenContract = ISTokens(sTokenContract);
+        _stakeLPContract = stakeLPContract;
         _valueDivisor = valueDivisor;
     }
 
@@ -45,17 +50,30 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable{
      *
      */
     function setSTokensContract(address sAddress) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP10");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "HU1");
         _sTokens = ISTokens(sAddress);
         emit SetSTokensContract(sAddress);
     }
 
+    /*
+     * @dev Set 'contract address', called from constructor
+     * @param liquidStakingContract: liquidStaking contract address
+     *
+     * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquidStaking contract address.
+     *
+     */
+    function setStakeLPContract(address stakeLPContract) public virtual override{
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "HU2");
+        _stakeLPContract = stakeLPContract;
+        emit SetStakeLPContract(stakeLPContract);
+    }
 
     function safeTransfer(
         address token,
         address to,
         uint256 value
     ) public virtual override {
+        require(_msgSender() == _stakeLPContract, "HU3");
         // bytes4(keccak256(bytes('transfer(address,uint256)')));
         (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0xa9059cbb, to, value));
         require(

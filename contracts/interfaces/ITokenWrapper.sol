@@ -20,6 +20,13 @@ interface ITokenWrapper {
     function generateUTokens(address to, uint256 amount) external;
 
     /**
+     * @dev Generates `amount` tokens to the caller's addresses `to`.
+     *
+     * Emits a {GenerateUTokens} event.
+     */
+    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) external;
+
+    /**
      * @dev Withdraws `amount` tokens to the caller's address `to`.
      *
      * Emits a {WithdrawUTokens} event.
@@ -44,7 +51,7 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when uTokens are generated
     */
-    event GenerateUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 finalTokens, uint256 timestamp);
+    event GenerateUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 indexed finalTokens, uint256 timestamp);
 
     /**
     * @dev Emitted when UTokens are withdrawn

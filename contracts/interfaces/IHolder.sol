@@ -8,33 +8,25 @@ pragma solidity >= 0.7.0;
 interface IHolder {
 
     /**
-    * @dev Set UTokens smart contract.
-    *
-    *
-    * Emits a {SetContract} event.
-    */
- //   function setUTokensContract(address utokenContract) external;
+   * @dev Set UTokens smart contract.
+   *
+   * Emits a {SetSTokensContract} event.
+   */
+    function setSTokensContract(address utokenContract) external;
 
     /**
    * @dev Set UTokens smart contract.
    *
-   *
-   * Emits a {SetContract} event.
+   * Emits a {SetSTokensContract} event.
    */
-    function setSTokensContract(address utokenContract) external;
+    function SetStakeLPContract(address stakeLPContract) external;
 
     /**
     * @dev returns stoken supply
     */
     function getSTokenSupply(address to, address from, uint256 amount) external view returns (uint256);
 
-     function safeTransfer(address token, address to, uint256 value) external;
-
-    /**
-     * @dev Emitted when contract addresses are set
-     */
-    //event SetUTokensContract( address indexed _contract );
-
+    function safeTransfer(address token, address to, uint256 value) external;
     /**
      * @dev Emitted when contract addresses are set
      */

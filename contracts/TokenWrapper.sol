@@ -155,8 +155,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
         // the tokens to be generated to the user's address will be after the fee processing
-        uint256 _temp = amount.mulDiv(_depositFee, _valueDivisor);
-        finalTokens = amount.sub(_temp.div(100));
+        uint256 _fee = (amount.mulDiv(_depositFee, _valueDivisor)).div(100);
+        finalTokens = amount.sub(_fee);
         _uTokens.mint(to, finalTokens);
         return finalTokens;
     }
@@ -221,8 +221,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
         require(isAddressValid == true, "TW15");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         // final tokens is the amount of tokens to be burned, including the fee
-        uint256 _temp = tokens.mulDiv(_withdrawFee, _valueDivisor);
-        uint256 _finalTokens = tokens.add(_temp.div(100));
+        uint256 _fee = (tokens.mulDiv(_withdrawFee, _valueDivisor)).div(100);
+        uint256 _finalTokens = tokens.add(_fee);
         require(_currentUTokenBalance >= _finalTokens, "TW16");
         require(from == _msgSender(), "TW17");
 
