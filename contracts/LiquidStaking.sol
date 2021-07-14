@@ -77,7 +77,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ1");
         // range checks for fees. Since fee cannot be more than 100%, the max cap 
         // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
-        require(stakeFee <= _valueDivisor.mul(100) || stakeFee == 0 && unstakeFee <= _valueDivisor.mul(100) || unstakeFee == 0, "LQ2");
+        require((stakeFee <= _valueDivisor.mul(100) || stakeFee == 0) && (unstakeFee <= _valueDivisor.mul(100) || unstakeFee == 0), "LQ2");
         _stakeFee = stakeFee;
         _unstakeFee = unstakeFee;
         emit SetFees(stakeFee, unstakeFee);
@@ -147,6 +147,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     function setUnstakeEpoch(uint256 unstakeEpoch, uint256 unstakeEpochPrevious, uint256 epochInterval) public virtual returns (bool success){
         require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
         require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
+        // require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
         if(unstakeEpoch == 0 && epochInterval != 0) revert("LQ9");
         _unstakeEpoch = unstakeEpoch;
         _unstakeEpochPrevious = unstakeEpochPrevious;
@@ -197,8 +198,8 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
         require(to == _msgSender(), "LQ12");
         // Check the current balance for uTokens is greater than the amount to be staked
         uint256 _currentUTokenBalance = _uTokens.balanceOf(to);
-        uint256 _stakeFeeAmount = amount.mulDiv(_stakeFee, _valueDivisor);
-        uint256 _finalTokens = amount.add(_stakeFeeAmount.div(100));
+        uint256 _stakeFeeAmount = (amount.mulDiv(_stakeFee, _valueDivisor)).div(100);
+        uint256 _finalTokens = amount.add(_stakeFeeAmount);
         // the value which should be greater than or equal to _minStake
         // is amount since minval applies to number of sTokens to be minted
         require(amount >= _minStake, "LQ13");
@@ -225,12 +226,11 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     function unStake(address to, uint256 amount) public virtual override whenNotPaused returns(bool) {
         // Check the supplied amount is greater than 0
         require(to == _msgSender(), "LQ15");
-        require(_unstakeEpoch!=0, "LQ16");
-        require(_unstakeEpochPrevious!=0, "LQ17");
+        // require(_unstakeEpoch!=0 && _unstakeEpochPrevious!=0, "LQ16");
         // Check the current balance for sTokens is greater than the amount to be unStaked
         uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
-        uint256 _unstakeFeeAmount = amount.mulDiv(_unstakeFee, _valueDivisor);
-        uint256 _finalTokens = amount.add(_unstakeFeeAmount.div(100));
+        uint256 _unstakeFeeAmount = (amount.mulDiv(_unstakeFee, _valueDivisor)).div(100);
+        uint256 _finalTokens = amount.add(_unstakeFeeAmount);
         // the value which should be greater than or equal to _minSUnstake
         // is amount since minval applies to number of uTokens to be withdrawn
         require(amount >= _minUnstake, "LQ18");
@@ -250,7 +250,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     /**
      * @dev returns the nearest epoch milestone in the future
      */
-    function getUnstakeEpochMilestone(uint256 _unstakeTimestamp) public view virtual returns (uint256 unstakeEpochMilestone) {
+    function getUnstakeEpochMilestone(uint256 _unstakeTimestamp) public view virtual override returns (uint256 unstakeEpochMilestone) {
         if(_unstakeTimestamp == 0) return 0;
         // if epoch values are not relevant, then the epoch milestone is the unstake timestamp itself (backward compatibility)
         if((_unstakeEpoch == 0 && _unstakeEpochPrevious == 0) || _epochInterval == 0) return _unstakeTimestamp;
@@ -264,7 +264,7 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
     /**
      * @dev returns the time left for unbonding to finish
      */
-    function getUnstakeTime(uint256 _unstakeTimestamp) public view virtual returns (uint256 unstakeTime ,uint256 unstakeEpoch, uint256 unstakeEpochPrevious) {
+    function getUnstakeTime(uint256 _unstakeTimestamp) public view virtual override returns (uint256 unstakeTime ,uint256 unstakeEpoch, uint256 unstakeEpochPrevious) {
         uint256 _unstakeEpochMilestone = getUnstakeEpochMilestone(_unstakeTimestamp);
         if(_unstakeEpochMilestone == 0) return (0, unstakeEpoch, unstakeEpochPrevious);
         unstakeEpoch = _unstakeEpoch;
@@ -284,11 +284,11 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
      */
     function withdrawUnstakedTokens(address staker) public virtual override whenNotPaused{
-        address messageSender = _msgSender();
-        require(staker == messageSender, "LQ20");
+        require(staker == _msgSender(), "LQ20");
         uint256 _withdrawBalance;
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
-        for (uint256 i=_withdrawCounters[messageSender]; i<_unstakingExpirationLength; i=i.add(1)) {
+        uint256 _counter = _withdrawCounters[staker];
+        for (uint256 i=_counter; i<_unstakingExpirationLength; i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
             (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
             if (block.timestamp >= _getUnstakeTime) {
@@ -296,14 +296,13 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
                 _withdrawBalance = _withdrawBalance.add(_unstakingAmount[staker][i]);
                 _unstakingExpiration[staker][i] = 0;
                 _unstakingAmount[staker][i] = 0;
-                _withdrawCounters[messageSender] = _withdrawCounters[messageSender].add(1);
+                _withdrawCounters[staker] = _withdrawCounters[staker].add(1);
             }
         }
 
-        if(_withdrawBalance > 0) {
-            emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
-            _uTokens.mint(messageSender, _withdrawBalance);
-        }
+        require(_withdrawBalance > 0, "LQ21");
+        emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
+        _uTokens.mint(staker, _withdrawBalance);
        
     }
 
@@ -312,16 +311,17 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondedTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+    function getTotalUnbondedTokens(address staker) public view virtual override returns (uint256 unbondingTokens) {
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
-            for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
-                //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
-                (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
-                if (block.timestamp >= _getUnstakeTime) {
-                    //if 21 days + epoch difference has passed, then check the token amount and send back
-                    unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
-                }
+        uint256 _counter = _withdrawCounters[staker];
+        for (uint256 i=_counter; i<_unstakingExpirationLength; i=i.add(1)) {
+            //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
+            (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
+            if (block.timestamp >= _getUnstakeTime) {
+                //if 21 days + epoch difference has passed, then check the token amount and send back
+                unbondingTokens = unbondingTokens.add(_unstakingAmount[staker][i]);
             }
+        }
         return unbondingTokens;
     }
 
@@ -330,9 +330,10 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
      * @param staker: account address
      *
      */
-    function getTotalUnbondingTokens(address staker) public view virtual returns (uint256 unbondingTokens) {
+    function getTotalUnbondingTokens(address staker) public view virtual override returns (uint256 unbondingTokens) {
         uint256 _unstakingExpirationLength = _unstakingExpiration[staker].length;
-        for (uint256 i=_withdrawCounters[staker]; i<_unstakingExpirationLength; i=i.add(1)) {
+        uint256 _counter = _withdrawCounters[staker];
+        for (uint256 i=_counter; i<_unstakingExpirationLength; i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
             (uint256 _getUnstakeTime, , ) = getUnstakeTime(_unstakingExpiration[staker][i]);
             if (block.timestamp < _getUnstakeTime) {

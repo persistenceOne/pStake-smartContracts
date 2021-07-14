@@ -15,7 +15,7 @@ interface IUTokens is IERC20Upgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function mint(address to, uint256 tokens) external returns (bool);
+    function mint(address to, uint256 tokens) external returns (bool success);
 
     /**
      * @dev Burns `amount` tokens to the caller's address `from`.
@@ -24,7 +24,7 @@ interface IUTokens is IERC20Upgradeable {
      *
      * Emits a {Transfer} event.
      */
-    function burn(address from, uint256 tokens) external returns (bool);
+    function burn(address from, uint256 tokens) external returns (bool success);
 
     /**
     * @dev Set LiquidStaking smart contract.

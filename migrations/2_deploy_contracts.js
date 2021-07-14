@@ -41,6 +41,12 @@ module.exports = async function (deployer, network, accounts) {
     let gasLimitGoerli = 4000000;
     await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
   }
+
+    if (network === "mainnet") {
+        let gasPriceMainnet = 5e10;
+        let gasLimitMainnet = 7000000;
+        await deployAll(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
+    }
 };
 
 async function deployAll(gasPrice, gasLimit, deployer, accounts) {
@@ -55,11 +61,12 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     " accounts: ",
     accounts
   );
-  let defaultAdmin = accounts[0];
-  let bridgeAdmin = "0xfCd7b44E0F250928aEC442ebc5E7bc0e4B38a8D5";
+  //let defaultAdmin = "0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7";
+  let bridgeAdmin = "0xB3f1F1F8cB556b0B815c28c4fFceb1bC7F4DB154";
   let pauseAdmin = accounts[0];
+  let from_defaultAdmin = accounts[0]
   //let rewardRate = new BN(3000000) //0.003
-  let rewardRate = new BN(15432) //1.5432 * 10^-5
+  let rewardRate = new BN(222) // 222 * 10^-5
   let rewardDivisor = new BN("1000000000")
   let epochInterval = "259200" //3 days
     let unstakingLockTime = "1814400" // 21 days
@@ -105,7 +112,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   const txReceiptSetSTokenContract = await UTokensInstance.setSTokenContract(
     STokensInstance.address,
     {
-      from: defaultAdmin,
+      from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     }
@@ -115,7 +122,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   const txReceiptSetWrapperContract = await UTokensInstance.setWrapperContract(
     TokenWrapperInstance.address,
     {
-      from: defaultAdmin,
+      from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     }
@@ -125,7 +132,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   const txReceiptSetLiquidStakingContract = await UTokensInstance.setLiquidStakingContract(
     LiquidStakingInstance.address,
     {
-      from: defaultAdmin,
+      from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     }
@@ -135,45 +142,45 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   const txReceiptSetLiquidStakingContract2 = await STokensInstance.setLiquidStakingContract(
     LiquidStakingInstance.address,
     {
-      from: defaultAdmin,
+      from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     }
   );
     console.log("setLiquidStakingContract() set for STokens contract.");
 
-   /* //set min value for wrap
+    //set min value for wrap
     const txReceiptSetMinval = await TokenWrapperInstance.setMinimumValues(
         "5000000","1",
         {
-            from: defaultAdmin,
+            from: from_defaultAdmin,
             gasPrice: gasPrice,
             gas: gasLimit,
         }
     );
     console.log("setMinimumValues() set for Token Wrapper contract.");
 
-    //set fees for wrap
-    const txReceiptSetFees = await TokenWrapperInstance.setFees(
-        "350000000","0",
-        {
-            from: defaultAdmin,
-            gasPrice: gasPrice,
-            gas: gasLimit,
-        }
-    );
-    console.log("setFees() set for Token Wrapper contract.");
+    /* //set fees for wrap
+     const txReceiptSetFees = await TokenWrapperInstance.setFees(
+         "350000000","0",
+         {
+             from: from_defaultAdmin,
+             gasPrice: gasPrice,
+             gas: gasLimit,
+         }
+     );
+     console.log("setFees() set for Token Wrapper contract.");
 
-    //set fees for claim rewards
-    const txReceiptSetRewardFees = await STokensInstance.setFees(
-        "5000000000",
-        {
-            from: defaultAdmin,
-            gasPrice: gasPrice,
-            gas: gasLimit,
-        }
-    );
-    console.log("setFees() set for Stokens contract.");*/
+     //set fees for claim rewards
+     const txReceiptSetRewardFees = await STokensInstance.setFees(
+         "5000000000",
+         {
+             from: from_defaultAdmin,
+             gasPrice: gasPrice,
+             gas: gasLimit,
+         }
+     );
+     console.log("setFees() set for Stokens contract.");*/
 
   console.log("ALL DONE.");
 }

@@ -18,11 +18,11 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
    * @dev Constructor for initializing the UToken contract.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address pauserAddress) public virtual initializer {
+    function initialize(address defaultAdminAddress, address pauserAddress) public virtual initializer {
         __ERC20_init("pSTAKE Pegged ATOM", "pATOM");
         __AccessControl_init();
         __Pausable_init();
-        _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
+        _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
         _setupRole(PAUSER_ROLE, pauserAddress);
         // PSTAKE IS A SIMPLE ERC20 TOKEN HENCE 18 DECIMAL PLACES
         _setupDecimals(18);

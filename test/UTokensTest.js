@@ -27,15 +27,19 @@ const uTokens = artifacts.require('UTokens');*/
 const sTokens = artifacts.require('STokens');
 const uTokens = artifacts.require('UTokens');
 
-let defaultAdmin = "0xF45b7d1DF227887Da9E8C1dD7f39C5131A3c0C0A";
-let bridgeAdmin = "0x4b6365B9A20bEdb0528989DE2b837E6fA9D53A04";
-let pauseAdmin = "0x31B94bb5085AF4c60e2354A94c3E69912A26F082";
-let to = "0x78Dc60A2d97eE1681A8Eb2d7651037f627929d8C";
-let unknownAddress = "0xf9f06Cd23e1fb23e5e180De7Fd3A32dD216505F1";
+let defaultAdmin = "0x906c921AAe9eD9051eF51fB95B468e88DcaBF6a2";
+let bridgeAdmin = "0x76C5411eBcf4c3D9511AD0b3aeb2a06D2c4415dF";
+let pauseAdmin = "0xdB1BB67CE8663FaA8DE583447dEDF66ce21F6DfD";
+let to = "0x8edc5b01b881B3F018135Cf4f13F631CB3843BB8";
+let unknownAddress = "0x98EB5E11e8b587DA1E19E3173fFc3a7961943e12";
 
 describe('UTokens', () => {
     let amount = new BN(200);
     let rewardRate = new BN(3000000);
+    let _rewardRate = new BN(3000000);
+    let rewardDivisor = new BN(1000000000)
+    let epochInterval = "259200" //3 days
+    let unstakingLockTime = "1814400" // 21 days
     let utokens;
     let stokens;
     let liquidStaking;
@@ -45,27 +49,23 @@ describe('UTokens', () => {
 
         utokens = await deployProxy(uTokens, [bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
 
-        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin, rewardRate], { initializer: 'initialize' });
+        stokens = await deployProxy(sTokens, [utokens.address, pauseAdmin, _rewardRate, rewardDivisor], { initializer: 'initialize' });
 
-        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        tokenWrapper = await deployProxy(TokenWrapper, [utokens.address, bridgeAdmin, pauseAdmin, rewardDivisor], { initializer: 'initialize' });
 
-        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, tokenWrapper.address, bridgeAdmin, pauseAdmin], { initializer: 'initialize' });
+        liquidStaking = await deployProxy(LiquidStaking, [utokens.address, stokens.address, pauseAdmin,  unstakingLockTime,
+            epochInterval, rewardDivisor], { initializer: 'initialize' });
 
         await utokens.setSTokenContract(stokens.address,{from: defaultAdmin})
         await utokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await utokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
 
-        await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin})
         await stokens.setLiquidStakingContract(liquidStaking.address,{from: defaultAdmin})
+        await stokens.setRewardRate(rewardRate,{from: defaultAdmin,});
     });
     describe("Set smart contract address", function () {
         it("Only bridge owner can set sToken contract address: ", async function () {
             await utokens.setSTokenContract(stokens.address,{from: defaultAdmin,});
-            // TEST SCENARIO END
-        }, 200000);
-
-        it("Only bridge owner can set wrapper contract address: ", async function () {
-            await stokens.setWrapperContract(tokenWrapper.address,{from: defaultAdmin,});
             // TEST SCENARIO END
         }, 200000);
 
@@ -75,17 +75,17 @@ describe('UTokens', () => {
         }, 200000);
 
         it("Non owner can set sToken contract address: ", async function () {
-            await expectRevert(utokens.setSTokenContract(stokens.address,{from: unknownAddress,}), "UTokens: User not authorised to set SToken contract");
+            await expectRevert(utokens.setSTokenContract(stokens.address,{from: unknownAddress,}), "UT3");
             // TEST SCENARIO END
         }, 200000);
 
         it("Non owner can set wrapper contract address: ", async function () {
-            await expectRevert(utokens.setWrapperContract(tokenWrapper.address,{from: unknownAddress,}), "UTokens: User not authorised to set wrapper contract");
+            await expectRevert(utokens.setWrapperContract(tokenWrapper.address,{from: unknownAddress,}), "UT5");
             // TEST SCENARIO END
         }, 200000);
 
         it("Non owner can set liquidStaking contract address: ", async function () {
-            await expectRevert(utokens.setLiquidStakingContract(liquidStaking.address,{from: unknownAddress,}), "UTokens: User not authorised to set liquidStaking contract");
+            await expectRevert(utokens.setLiquidStakingContract(liquidStaking.address,{from: unknownAddress,}), "UT4");
             // TEST SCENARIO END
         }, 200000);
     });
@@ -98,7 +98,7 @@ describe('UTokens', () => {
         });
 
         it('Non pauser admin cannot pause contracts', async function () {
-            await expectRevert(utokens.pause({from: unknownAddress,}), "UTokens: User not authorised to pause contracts");
+            await expectRevert(utokens.pause({from: unknownAddress,}), "UT6");
         });
 
         it('Only pauser admin can unpause contracts', async function () {
@@ -112,7 +112,7 @@ describe('UTokens', () => {
         });
 
         it('Non pauser admin cannot unpause contracts', async function () {
-            await expectRevert(utokens.unpause({from: unknownAddress,}), "UTokens: User not authorised to unpause contracts");
+            await expectRevert(utokens.unpause({from: unknownAddress,}), "UT7");
         });
     });
 });

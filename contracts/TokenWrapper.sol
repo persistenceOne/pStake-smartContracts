@@ -155,8 +155,8 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      */
     function _generateUTokens(address to, uint256 amount) internal virtual returns (uint256 finalTokens){
         // the tokens to be generated to the user's address will be after the fee processing
-        uint256 _temp = amount.mulDiv(_depositFee, _valueDivisor);
-        finalTokens = amount.sub(_temp.div(100));
+        uint256 _fee = (amount.mulDiv(_depositFee, _valueDivisor)).div(100);
+        finalTokens = amount.sub(_fee);
         _uTokens.mint(to, finalTokens);
         return finalTokens;
     }
@@ -173,7 +173,7 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function generateUTokens(address to, uint256 amount) public virtual override whenNotPaused {
-        require(amount>0, "TW9");
+        require(amount >= _minDeposit, "TW9");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
         uint256 _finalTokens = _generateUTokens(to, amount);
         emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
@@ -190,17 +190,25 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      * - `amount` cannot be less than zero.
      *
      */
-    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual whenNotPaused {
+    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) public virtual override whenNotPaused {
         require(to.length == amount.length, "TW11");
         require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW12");
         uint256 i;
         uint256 _finalTokens;
         uint256 _toLength = to.length;
         for ( i=0; i<_toLength; i=i.add(1)) {
-            require(amount[i]>0, "TW13");
+            require(amount[i] >= _minDeposit, "TW13");
             _finalTokens = _generateUTokens(to[i], amount[i]);
         }
         emit GenerateUTokens(to[i.sub(1)], amount[i.sub(1)], _finalTokens, block.timestamp);
+    }
+
+    /**
+     * @dev check if the address is Bech32Valid
+     *
+     */
+    function isBech32Valid(string memory toChainAddress) public view virtual override returns (bool isAddressValid) {
+        bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
     }
 
     /**
@@ -215,14 +223,14 @@ contract TokenWrapper is ITokenWrapper, PausableUpgradeable, AccessControlUpgrad
      *
      */
     function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) public virtual override whenNotPaused {
-        require(tokens > _minWithdraw, "TW14");
+        require(tokens >= _minWithdraw, "TW14");
         //check if toChainAddress is valid address
         bool isAddressValid = toChainAddress.isBech32AddressValid(hrpBytes, controlDigitBytes, dataBytesSize);
         require(isAddressValid == true, "TW15");
         uint256 _currentUTokenBalance = _uTokens.balanceOf(from);
         // final tokens is the amount of tokens to be burned, including the fee
-        uint256 _temp = tokens.mulDiv(_withdrawFee, _valueDivisor);
-        uint256 _finalTokens = tokens.add(_temp.div(100));
+        uint256 _fee = (tokens.mulDiv(_withdrawFee, _valueDivisor)).div(100);
+        uint256 _finalTokens = tokens.add(_fee);
         require(_currentUTokenBalance >= _finalTokens, "TW16");
         require(from == _msgSender(), "TW17");
 

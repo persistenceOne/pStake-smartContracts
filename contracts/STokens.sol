@@ -28,21 +28,16 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     mapping(address => address) private _lpContractAddress;
     // last timestamp when the holder reward calculation was performed for updating reward pool
     mapping(address => uint256) private _lastHolderRewardTimestamp;
-    // weight factor of an LP token which decides how many PSTAKE tokens will be disbursed
-    mapping(address => uint256) private _liquidityWeightFactor;
-    // weight factor of an LP token which decides how many reward tokens will be disbursed
-    mapping(address => uint256) private _rewardWeightFactor;
 
     // variables capturing data of other contracts in the product
     address private _liquidStakingContract;
-    address private _stakeLPCoreContract;
+    // address private _stakeLPCoreContract;
     IUTokens private _uTokens;
 
     // variables pertaining to moving reward rate logic
     uint256[] private _rewardRate;
     uint256[] private _lastMovingRewardTimestamp;
     uint256 private _valueDivisor;
-    uint256 private _rewardFee;
     mapping(address => uint256) private _lastUserRewardTimestamp;
 
     /**
@@ -59,23 +54,12 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _setupRole(PAUSER_ROLE, pauserAddress);
         setUTokensContract(uaddress);
+        _valueDivisor = valueDivisor;
+        require(rewardRate <= _valueDivisor.mul(100), "ST1");
         _rewardRate.push(rewardRate);
         _lastMovingRewardTimestamp.push(block.timestamp);
-        _valueDivisor = valueDivisor;
         _setupDecimals(6);
     }
-
-    /* function getWhitelistedAddresses() public view virtual returns (address[] memory whitelistedAddresses, address[] memory holderAddresses, address[] memory lpAddresses){
-        whitelistedAddresses = new address[](_whitelistedAddresses.length());
-        holderAddresses = new address[](_whitelistedAddresses.length());
-        lpAddresses = new address[](_whitelistedAddresses.length());
-
-        for (uint256 i=0; i<_whitelistedAddresses.length(); i=i.add(1)) {
-            whitelistedAddresses[i] = _whitelistedAddresses.at(i);
-            holderAddresses[i] = _holderContractAddress[_whitelistedAddresses.at(i)];
-            lpAddresses[i] = _lpContractAddress[_whitelistedAddresses.at(i)];
-        }
-    } */
 
     /**
     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
@@ -84,7 +68,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address holderAddress){
         // Get the time in number of blocks
         address _lpContractAddressLocal;
-       // valueDivisor = _valueDivisor;
+        // valueDivisor = _valueDivisor;
         uint256 _whitelistedAddressesLength = _whitelistedAddresses.length();
         for (uint256 i=0; i<_whitelistedAddressesLength; i=i.add(1)) {
             //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
@@ -98,28 +82,14 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     }
 
     /**
-     * @dev Set 'fees', called from admin
-     * @param rewardFee: reward fee
-     *
-     * Emits a {SetFees} event with 'fee' set to the withdraw.
-     *
-     */
-    function setFees(uint256 rewardFee) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST1");
-        // range checks for fees. Since fee cannot be more than 100%, the max cap
-        // is _valueDivisor * 100, which then brings the fees to 100 (percentage)
-        require(rewardFee <= _valueDivisor.mul(100), "ST2");
-        _rewardFee = rewardFee;
-        emit SetFees(rewardFee);
-        return true;
-    }
-
-    /**
-     * @dev get fees, minimum set values
-     *
-     */
-    function getFees() public view virtual returns (uint256 rewardFee) {
-        rewardFee = _rewardFee;
+    * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+    * @param whitelistedAddress: contract address
+    */
+    function getHolderData(address whitelistedAddress) public view virtual override returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp){
+        // Get the time in number of blocks
+        holderAddress = _holderContractAddress[whitelistedAddress];
+        lpAddress = _lpContractAddress[whitelistedAddress];
+        lastHolderRewardTimestamp = _lastHolderRewardTimestamp[whitelistedAddress];
     }
 
     /*
@@ -135,8 +105,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     function setRewardRate(uint256 rewardRate) public virtual override returns (bool success) {
         // range checks for rewardRate. Since rewardRate cannot be more than 100%, the max cap 
         // is _valueDivisor * 100, which then brings the fees to 100 (percentage) 
-        require(rewardRate <= _valueDivisor.mul(100), "ST3");
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST4");
+        require(rewardRate <= _valueDivisor.mul(100), "ST1");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST2");
         _rewardRate.push(rewardRate);
         _lastMovingRewardTimestamp.push(block.timestamp);
         return true;
@@ -169,8 +139,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function mint(address to, uint256 tokens) public virtual override returns (bool success) {
-        require(tx.origin == to && _msgSender() == _liquidStakingContract, "ST5");
+    function mint(address to, uint256 tokens) public virtual override returns (bool) {
+        require(tx.origin == to && _msgSender() == _liquidStakingContract, "ST3");
         _mint(to, tokens);
         return true;
     }
@@ -186,8 +156,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - `amount` cannot be less than zero.
      *
      */
-    function burn(address from, uint256 tokens) public  virtual override returns (bool success) {
-        require(tx.origin == from && _msgSender() == _liquidStakingContract, "ST6");
+    function burn(address from, uint256 tokens) public  virtual override returns (bool) {
+        require(tx.origin == from && _msgSender() == _liquidStakingContract, "ST4");
         _burn(from, tokens);
         return true;
     }
@@ -252,7 +222,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
      * @param to: account address
      */
-    function calculatePendingRewards(address to) public view virtual returns (uint256 pendingRewards){
+    function calculatePendingRewards(address to) public view virtual override returns (uint256 pendingRewards){
         // Get the time in number of blocks
         uint256 _lastRewardTimestamp = _lastUserRewardTimestamp[to];
         // Get the balance of the account
@@ -274,16 +244,12 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
         // Set the new stakedBlock to the current, 
         // as per Checks-Effects-Interactions pattern
         _lastUserRewardTimestamp[to] = block.timestamp;
-        uint256 finalTokens;
 
         // mint uTokens only if reward is greater than zero
         if(_reward>0) {
-            //deducting fee
-            uint256 _temp = _reward.mulDiv(_rewardFee, _valueDivisor);
-            finalTokens = _reward.sub(_temp.div(100));
             // Mint new uTokens and send to the callers account
-            _uTokens.mint(to, finalTokens);
-            emit CalculateRewards(to, _reward, finalTokens, block.timestamp);
+            _uTokens.mint(to, _reward);
+            emit CalculateRewards(to, _reward, block.timestamp);
         }
 
         return _reward;
@@ -297,7 +263,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function calculateRewards(address to) public virtual override whenNotPaused returns (bool success) {
-        require(to == _msgSender(), "ST7");
+        require(to == _msgSender(), "ST5");
         uint256 reward =  _calculateRewards(to);
         emit TriggeredCalculateRewards(to, reward, block.timestamp);
         return true;
@@ -308,18 +274,17 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * @param to: holder address
      */
     function _calculateHolderRewards(address to, address from, uint256 amount) internal returns (uint256){
-        require(_stakeLPCoreContract != address(0), "ST8");
         // holderContract and lpContract (lp token contract) need to be validated together because
         // it might not be practical to setup holder to collect reward pool but not StakeLP to distribute reward
         // since the reward distribution calculation starts the minute reward pool is created
-        require(_holderContractAddress[to] != address(0) || _lpContractAddress[to] != address(0) || _rewardWeightFactor[to] == 0 || _liquidityWeightFactor[to] == 0, "ST9");
+        require(_whitelistedAddresses.contains(to) && _holderContractAddress[to] != address(0) && _lpContractAddress[to] != address(0), "ST6");
         uint256 _sTokenSupply = IHolder(_holderContractAddress[to]).getSTokenSupply(to, from, amount);
 
         // calculate the reward applying the moving reward rate
         uint256 _newRewards = _calculatePendingRewards(_sTokenSupply, _lastHolderRewardTimestamp[to]);
 
         // update the last timestamp of reward pool to the current time as per Checks-Effects-Interactions pattern
-        _lastHolderRewardTimestamp[to] = block.timestamp; 
+        _lastHolderRewardTimestamp[to] = block.timestamp;
 
         // Mint new uTokens and send to the holder contract account as updated reward pool
         if(_newRewards > 0) {
@@ -344,10 +309,10 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
-        require(!paused(), "ST10");
+        require(!paused(), "ST7");
         super._beforeTokenTransfer(from, to, amount);
-       // uint256 _sTokenSupply;
-       // uint256 _timePeriod;
+        // uint256 _sTokenSupply;
+        // uint256 _timePeriod;
         if(from == address(0)){
             // cannot have a scenario of transfer from address(0) to address(0)
             // if(to == address(0)){}
@@ -411,18 +376,17 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     * Emits a {setWhitelistedAddress} event
     *
     */
-    function setWhitelistedAddress(address whitelistedAddress, address holderContractAddress, address lpContractAddress, uint256 liquidityWeightFactor, uint256 rewardWeightFactor) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST11");
+    function setWhitelistedAddress(address whitelistedAddress, address holderContractAddress, address lpContractAddress) public virtual returns (bool success){
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST8");
         // lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
-        require(whitelistedAddress != address(0), "ST12");
+        require(whitelistedAddress != address(0), "ST9");
+        // add the whitelistedAddress if it isn't already available
         if(!_whitelistedAddresses.contains(whitelistedAddress)) _whitelistedAddresses.add(whitelistedAddress);
         // add the contract addresses to holder mapping variable
         _holderContractAddress[whitelistedAddress] = holderContractAddress;
         _lpContractAddress[whitelistedAddress] = lpContractAddress;
-        _liquidityWeightFactor[whitelistedAddress] = liquidityWeightFactor;
-        _rewardWeightFactor[whitelistedAddress] = rewardWeightFactor;
-        
-        emit SetWhitelistedAddress(whitelistedAddress, holderContractAddress, lpContractAddress, liquidityWeightFactor, rewardWeightFactor, block.timestamp);
+
+        emit SetWhitelistedAddress(whitelistedAddress, holderContractAddress, lpContractAddress, block.timestamp);
         success = true;
         return success;
     }
@@ -436,8 +400,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
   *
   */
     function removeWhitelistedAddress(address whitelistedAddress) public virtual returns (bool success){
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST13");
-        require(whitelistedAddress != address(0), "ST14");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST10");
+        require(whitelistedAddress != address(0), "ST11");
         // remove whitelistedAddress from the list
         _whitelistedAddresses.remove(whitelistedAddress);
         address _holderContractAddressLocal = _holderContractAddress[whitelistedAddress];
@@ -445,22 +409,11 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
         // delete holder contract values
         delete _holderContractAddress[whitelistedAddress];
+        delete _lpContractAddress[whitelistedAddress];
 
         emit RemoveWhitelistedAddress(whitelistedAddress, _holderContractAddressLocal, _lpContractAddressLocal, block.timestamp);
-        return true;
-    }
-
-    /*
-     * @dev Set 'contract address', for stake LP smart contract
-     * @param liquidStakingContract: liquidStaking contract address
-     *
-     * Emits a {SetStakeLPCoreContract} event with '_contract' set to the stake LP contract address.
-     *
-     */
-    function setStakeLPCoreContract(address stakeLPCoreContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST15");
-        _stakeLPCoreContract = stakeLPCoreContract;
-        emit SetStakeLPCoreContract(stakeLPCoreContract);
+        success = true;
+        return success;
     }
 
     /*
@@ -471,7 +424,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
     *
     */
     function setUTokensContract(address uTokenContract) public virtual override {
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST16");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST12");
         _uTokens = IUTokens(uTokenContract);
         emit SetUTokensContract(uTokenContract);
     }
@@ -484,7 +437,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      *
      */
     function setLiquidStakingContract(address liquidStakingContract) public virtual override{
-        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST17");
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST13");
         _liquidStakingContract = liquidStakingContract;
         emit SetLiquidStakingContract(liquidStakingContract);
     }
@@ -497,7 +450,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
       * - The contract must not be paused.
       */
     function pause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "ST18");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ST14");
         _pause();
         return true;
     }
@@ -510,7 +463,7 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
      * - The contract must be paused.
      */
     function unpause() public virtual returns (bool success) {
-        require(hasRole(PAUSER_ROLE, _msgSender()), "ST19");
+        require(hasRole(PAUSER_ROLE, _msgSender()), "ST15");
         _unpause();
         return true;
     }
