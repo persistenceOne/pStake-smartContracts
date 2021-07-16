@@ -28,7 +28,7 @@ module.exports = async function (deployer, network, accounts) {
     let gasPriceGanache = 3e10;
     let gasLimitGanache = 800000;
     await deployAll(gasPriceGanache, gasLimitGanache, deployer, accounts);
-  }
+}
 
   if (network === "ropsten") {
     let gasPriceRopsten = 1e11;
@@ -62,14 +62,14 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
   //let defaultAdmin = "0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7";
-  let bridgeAdmin = "0xB3f1F1F8cB556b0B815c28c4fFceb1bC7F4DB154";
+  let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0]
   //let rewardRate = new BN(3000000) //0.003
   let rewardRate = new BN(222) // 222 * 10^-5
   let rewardDivisor = new BN("1000000000")
-  let epochInterval = "259200" //3 days
-    let unstakingLockTime = "1814400" // 21 days
+    let epochInterval = "10800" //3 hours
+    let unstakingLockTime = "75600" // 21 hours
 
   console.log(bridgeAdmin, "bridgeAdmin")
 
