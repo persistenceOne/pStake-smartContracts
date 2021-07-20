@@ -13,9 +13,9 @@ const networkID = 3;
 const { BN } = web3.utils.BN;
 const { deployProxy, upgradeProxy } = require("@openzeppelin/truffle-upgrades");
 var UTokensInstance,
-  STokensInstance,
-  TokenWrapperInstance,
- LiquidStakingInstance,
+    STokensInstance,
+    TokenWrapperInstance,
+    LiquidStakingInstance,
     HolderUniswapInstance,
     StakeLPInstance,
     PstakeInstance;
@@ -34,23 +34,23 @@ var UTokensInstance,
 
 //deploy ATOMs contracts
 module.exports = async function (deployer, network, accounts) {
-  if (network === "development") {
-    let gasPriceGanache = 3e10;
-    let gasLimitGanache = 800000;
-    await deployAll(gasPriceGanache, gasLimitGanache, deployer, accounts);
-}
+    if (network === "development") {
+        let gasPriceGanache = 3e10;
+        let gasLimitGanache = 800000;
+        await deployAll(gasPriceGanache, gasLimitGanache, deployer, accounts);
+    }
 
-  if (network === "ropsten") {
-    let gasPriceRopsten = 1e11;
-    let gasLimitRopsten = 5000000;
-    await deployStakeLP(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
-  }
+    if (network === "ropsten") {
+        let gasPriceRopsten = 1e11;
+        let gasLimitRopsten = 5000000;
+        await deployStakeLP(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
+    }
 
-  if (network === "goerli") {
-    let gasPriceGoerli = 5e12;
-    let gasLimitGoerli = 4000000;
-    await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
-  }
+    if (network === "goerli") {
+        let gasPriceGoerli = 5e12;
+        let gasLimitGoerli = 4000000;
+        await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
+    }
 
     if (network === "mainnet") {
         let gasPriceMainnet = 5e10;
@@ -60,21 +60,21 @@ module.exports = async function (deployer, network, accounts) {
 };
 
 async function deployStakeLP(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-  //let defaultAdmin = "0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7";
-  let pauseAdmin = accounts[0];
-  let from_defaultAdmin = accounts[0]
-  let rewardDivisor = new BN("1000000000")
+    console.log(
+        "inside deployAll(),",
+        " gasPrice: ",
+        gasPrice,
+        " gasLimit: ",
+        gasLimit,
+        " deployer: ",
+        deployer.network,
+        " accounts: ",
+        accounts
+    );
+    //let defaultAdmin = "0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7";
+    let pauseAdmin = accounts[0];
+    let from_defaultAdmin = accounts[0]
+    let rewardDivisor = new BN("1000000000")
 
     const uAddress = uTokensJSON.networks[networkID].address
     const sAddress = sTokensJSON.networks[networkID].address
@@ -83,45 +83,45 @@ async function deployStakeLP(gasPrice, gasLimit, deployer, accounts) {
     console.log("uAddress: ", uAddress);
     console.log("sAddress: ", sAddress);
 
-  PstakeInstance = await deployProxy(
-    PSTAKEArtifact,
-    [pauseAdmin],
-    { deployer, initializer: "initialize" }
-  );
-  console.log("PSTAKE deployed: ", PstakeInstance.address);
+    PstakeInstance = await deployProxy(
+        PSTAKEArtifact,
+        [pauseAdmin],
+        { deployer, initializer: "initialize" }
+    );
+    console.log("PSTAKE deployed: ", PstakeInstance.address);
 
 
     StakeLPInstance = await deployProxy(
-    StakeLPArtifact,
-    [uAddress, sAddress, PstakeInstance.address, pauseAdmin],
-    { deployer, initializer: "initialize" }
-  );
-  console.log("StakeLP deployed: ", StakeLPInstance.address);
+        StakeLPArtifact,
+        [uAddress, sAddress, PstakeInstance.address, pauseAdmin],
+        { deployer, initializer: "initialize" }
+    );
+    console.log("StakeLP deployed: ", StakeLPInstance.address);
 
-  HolderUniswapInstance = await deployProxy(
-    HolderUniswapArtifact,
-    [
-      sAddress,
+    HolderUniswapInstance = await deployProxy(
+        HolderUniswapArtifact,
+        [
+            sAddress,
+            StakeLPInstance.address,
+            rewardDivisor,
+        ],
+        { deployer, initializer: "initialize" }
+    );
+    console.log("HolderUniswap deployed: ", HolderUniswapInstance.address);
+
+    // set contract addresses in UTokens Contract
+    const txReceiptSetStakeLPCoreContract = await PstakeInstance.setStakeLPCoreContract(
         StakeLPInstance.address,
-        rewardDivisor,
-    ],
-    { deployer, initializer: "initialize" }
-  );
-  console.log("HolderUniswap deployed: ", HolderUniswapInstance.address);
-
-  // set contract addresses in UTokens Contract
-  const txReceiptSetStakeLPCoreContract = await PstakeInstance.setStakeLPCoreContract(
-    StakeLPInstance.address,
-    {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-  console.log("setStakeLPCoreContract() set for StakeLP contract.");
+        {
+            from: from_defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("setStakeLPCoreContract() set for StakeLP contract.");
 
 
-  console.log("ALL DONE.");
+    console.log("ALL DONE.");
 }
 
 async function deployAll(gasPrice, gasLimit, deployer, accounts) {
@@ -391,7 +391,7 @@ async function upgradeLiquidStaking(gasPrice, gasLimit, deployer, accounts) {
         " accounts: ",
         accounts
     );
-    
+
     LiquidStakingInstance = await upgradeProxy(liquidStakingAddress,
         LiquidStakingArtifact,
         { deployer }

@@ -29,7 +29,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
         // pre-allocate some tokens to an admin address which will air drop PSTAKE tokens
         // to each of holder contracts. This is only for testnet purpose. in Mainnet, we 
         // will use a vesting contract to allocate tokens to admin in a certain schedule
-        _balances[_msgSender()] = 5000000000000000000000000;
+        _mint(_msgSender(), 5000000000000000000000000);
     }
 
     /**
