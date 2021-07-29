@@ -72,15 +72,18 @@ contract StakeLPCore is IStakeLPCore, PausableUpgradeable, AccessControlUpgradea
         // calculate the LPTimeShare of the sum of supply of all LP Tokens
         uint256 _newSupplyLPTimeShare = (_lpSupplyContract.mul(block.timestamp.sub(_lastLPTimeShareTimestamp[lpToken])));
         uint256 _totalSupplyLPTimeShare = _lastLPTimeShare[lpToken].add(_newSupplyLPTimeShare);
-        updatedSupplyLPTimeshare = _totalSupplyLPTimeShare.sub(_newSupplyLPTimeShare);
+        // is the remaining LPTimeShare of the total supply after the tokens for the user has been dispatched
+        updatedSupplyLPTimeshare = _totalSupplyLPTimeShare.sub(_userLPTimeShare);
 
-        // calculate users new reward tokens
-        uint256 _rewardPool = _uTokens.balanceOf(address(this));
-        reward = _rewardPool.mulDiv(_userLPTimeShare, _totalSupplyLPTimeShare);
+        if(_totalSupplyLPTimeShare > 0) {
+            // calculate users new reward tokens
+            uint256 _rewardPool = _uTokens.balanceOf(address(this));
+            reward = _rewardPool.mulDiv(_userLPTimeShare, _totalSupplyLPTimeShare);
 
-        // calculate users new liquidity tokens
-        uint256 _liquidityPool = _pstakeTokens.balanceOf(address(this));
-        liquidity = _liquidityPool.mulDiv(_userLPTimeShare, _totalSupplyLPTimeShare);
+            // calculate users new liquidity tokens
+            uint256 _liquidityPool = _pstakeTokens.balanceOf(address(this));
+            liquidity = _liquidityPool.mulDiv(_userLPTimeShare, _totalSupplyLPTimeShare);
+        }
     }
 
     /*
