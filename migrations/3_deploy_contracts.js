@@ -43,13 +43,13 @@ module.exports = async function (deployer, network, accounts) {
     if (network === "ropsten") {
         let gasPriceRopsten = 1e11;
         let gasLimitRopsten = 5000000;
-        await deployStakeLP(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
+        await upgradeStakeLP(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
     }
 
     if (network === "goerli") {
         let gasPriceGoerli = 5e12;
         let gasLimitGoerli = 4000000;
-        await deployAll(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
+        await deployStakeLP(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
     }
 
     if (network === "mainnet") {
@@ -119,6 +119,17 @@ async function deployStakeLP(gasPrice, gasLimit, deployer, accounts) {
         }
     );
     console.log("setStakeLPCoreContract() set for StakeLP contract.");
+
+    // set contract addresses in holder uniswap Contract
+    const txReceiptSetStakeLPContract = await HolderUniswapInstance.setStakeLPContract(
+        StakeLPInstance.address,
+        {
+            from: from_defaultAdmin,
+            gasPrice: gasPrice,
+            gas: gasLimit,
+        }
+    );
+    console.log("setStakeLPContract() set for Holder Uniswap contract.");
 
 
     console.log("ALL DONE.");
@@ -305,6 +316,29 @@ async function upgradeAll(gasPrice, gasLimit, deployer, accounts) {
     console.log("ALL DONE.");
 }
 
+
+//upgrading StakeLP contract
+async function upgradeStakeLP(gasPrice, gasLimit, deployer, accounts) {
+    console.log(
+        "inside deployAll(),",
+        " gasPrice: ",
+        gasPrice,
+        " gasLimit: ",
+        gasLimit,
+        " deployer: ",
+        deployer.network,
+        " accounts: ",
+        accounts
+    );
+
+    StakeLPInstance = await upgradeProxy("0x6532f1cc72F34523aB815d2A7f2754afec17c8B4",
+        STokensArtifact,
+        { deployer }
+    );
+    console.log("StakeLP upgraded: ", StakeLPInstance.address);
+
+    console.log("ALL DONE.");
+}
 
 //upgrading UTokens contract
 async function upgradeUTokens(gasPrice, gasLimit, deployer, accounts) {
