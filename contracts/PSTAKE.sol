@@ -19,7 +19,7 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
    * @param pauserAddress - address of the pauser admin.
    */
     function initialize(address pauserAddress) public virtual initializer {
-        __ERC20_init("pSTAKE Pegged ATOM", "pATOM");
+        __ERC20_init("pSTAKE Token", "PSTAKE");
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

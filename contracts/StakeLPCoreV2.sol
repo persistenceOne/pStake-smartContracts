@@ -4,7 +4,6 @@ pragma solidity >= 0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/IPSTAKE.sol";
@@ -204,11 +203,23 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
         uint256 value
     ) internal {
         // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
-        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
+
+        bytes memory data = abi.encodeWithSelector(0x23b872dd, from, to, value);
+        (bool success, bytes memory returnData) = address(token).staticcall(data);
+        if (success) {
+            if (returnData.length == 64)
+                return abi.decode(returnData, (uint256, uint256));
+            if (returnData.length == 32)
+                return (abi.decode(returnData, (uint256)), 0);
+        }
+        return (0, 0);
+
+        /* (bool success, bytes memory data) = token.staticcall(abi.encodeWithSelector(0x23b872dd, from, to, value));
         require(
             success && (data.length == 0 || abi.decode(data, (bool))),
             'TransferHelper::transferFrom: transferFrom failed'
-        );
+        ); */
+        
     }
 
 
