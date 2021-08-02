@@ -9,7 +9,7 @@ const UTokensArtifact = artifacts.require("UTokens");
 
 const uTokensJSON = require('../build/contracts/UTokens.json');
 const sTokensJSON = require('../build/contracts/STokens.json');
-const networkID = 3;
+var networkID;
 
 const { BN } = web3.utils.BN;
 const { deployProxy, upgradeProxy } = require("@openzeppelin/truffle-upgrades");
@@ -38,25 +38,29 @@ module.exports = async function (deployer, network, accounts) {
     if (network === "development") {
         let gasPriceGanache = 3e10;
         let gasLimitGanache = 800000;
-        await upgradeStakeLP(gasPriceGanache, gasLimitGanache, deployer, accounts);
+        networkID = 5777;
+        // await upgradeStakeLP(gasPriceGanache, gasLimitGanache, deployer, accounts);
     }
 
     if (network === "ropsten") {
         let gasPriceRopsten = 1e11;
         let gasLimitRopsten = 5000000;
-        await upgradeStakeLP(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
+        networkID = 3;
+        // await upgradeStakeLP(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
     }
 
     if (network === "goerli") {
         let gasPriceGoerli = 5e12;
         let gasLimitGoerli = 4000000;
-        await upgradeStakeLP(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
+        networkID = 5;
+        // await upgradeStakeLP(gasPriceGoerli, gasLimitGoerli, deployer, accounts);
     }
 
     if (network === "mainnet") {
         let gasPriceMainnet = 5e10;
         let gasLimitMainnet = 7000000;
-        await upgradeStakeLP(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
+        networkID = 1;
+        // await upgradeStakeLP(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
     }
 };
 //upgrading StakeLP contract
