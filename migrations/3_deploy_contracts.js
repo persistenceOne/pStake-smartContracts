@@ -64,7 +64,7 @@ module.exports = async function (deployer, network, accounts) {
 
 async function deployStakeLP(gasPrice, gasLimit, deployer, accounts) {
   console.log(
-    "inside deployAll(),",
+    "inside deployStakeLP(),",
     " gasPrice: ",
     gasPrice,
     " gasLimit: ",
