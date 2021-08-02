@@ -4,12 +4,12 @@ pragma solidity >= 0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "./interfaces/ISTokens.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/IPSTAKE.sol";
 import "./interfaces/IHolder.sol";
 import "./interfaces/IStakeLPCore.sol";
-import "./libraries/TransferHelper.sol";
 import "./libraries/FullMath.sol";
 
 contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgradeable {
@@ -154,7 +154,7 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
         // calculate liquidity and reward tokens and disburse to user
         (rewards, liquidity) = _calculateRewardsAndLiquidity(_holderAddress, lpToken, messageSender);
         // finally transfer the new LP Tokens to the StakeLP contract
-        TransferHelper.safeTransferFrom(lpToken, messageSender, address(this), amount);
+        safeTransferFrom(lpToken, messageSender, address(this), amount);
         // update the user balance
         _lpBalance[lpToken][messageSender] = _lpBalance[lpToken][messageSender].add(amount);
         // update the supply of lp tokens for reward and liquidity calculation
@@ -189,13 +189,28 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
         // calculate liquidity and reward tokens and disburse to user
         (rewards, liquidity) = _calculateRewardsAndLiquidity(_holderAddress, lpToken, messageSender);
         // finally transfer the LP Tokens to the user
-        TransferHelper.safeTransferFrom(lpToken, address(this), messageSender, amount);
+        safeTransferFrom(lpToken, address(this), messageSender, amount);
         // update the user balance
         _lpBalance[lpToken][messageSender] = _lpBalance[lpToken][messageSender].sub(amount);
         // update the supply of lp tokens for reward and liquidity calculation
         _lpSupply[lpToken] = _lpSupply[lpToken].sub(amount);
         emit RemoveLiquidity(lpToken, amount, rewards, liquidity);
     }
+
+    function safeTransferFrom(
+        address token,
+        address from,
+        address to,
+        uint256 value
+    ) internal {
+        // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
+        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
+        require(
+            success && (data.length == 0 || abi.decode(data, (bool))),
+            'TransferHelper::transferFrom: transferFrom failed'
+        );
+    }
+
 
     /**
      * @dev Set 'contract address', called from constructor
