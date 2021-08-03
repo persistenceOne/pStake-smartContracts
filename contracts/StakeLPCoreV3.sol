@@ -9,9 +9,10 @@ import "./interfaces/IUTokens.sol";
 import "./interfaces/IPSTAKE.sol";
 import "./interfaces/IHolder.sol";
 import "./interfaces/IStakeLPCore.sol";
+import "./libraries/TransferHelper.sol";
 import "./libraries/FullMath.sol";
 
-contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgradeable {
+contract StakeLPCoreV3 is IStakeLPCore, PausableUpgradeable, AccessControlUpgradeable {
 
     using SafeMathUpgradeable for uint256;
     using FullMath for uint256;
@@ -20,9 +21,9 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     // balance of user for an LP Token 
-    mapping(address => mapping(address => uint256)) private _lpBalance;
+    mapping(address => mapping(address => uint256)) public _lpBalance;
     // supply for an LP Token
-    mapping(address => uint256) private _lpSupply;
+    mapping(address => uint256) public _lpSupply;
     // last recorded total LPTimeShare
     mapping(address => uint256) private _lastLPTimeShare;
     // last recorded timestamp when rewards were disbursed
@@ -31,9 +32,9 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
     mapping(address => mapping(address => uint256)) private _lastLiquidityTimestamp; 
 
     //Private instances of contracts to handle Utokens and Stokens
-    IUTokens private _uTokens;
-    ISTokens private _sTokens;
-    IPSTAKE private _pstakeTokens;
+    IUTokens public _uTokens;
+    ISTokens public _sTokens;
+    IPSTAKE public _pstakeTokens;
 
     /**
    * @dev Constructor for initializing the LiquidStaking contract.
@@ -153,7 +154,7 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
         // calculate liquidity and reward tokens and disburse to user
         (rewards, liquidity) = _calculateRewardsAndLiquidity(_holderAddress, lpToken, messageSender);
         // finally transfer the new LP Tokens to the StakeLP contract
-        safeTransferFrom(lpToken, messageSender, address(this), amount);
+        TransferHelper.safeTransferFrom(lpToken, messageSender, address(this), amount);
         // update the user balance
         _lpBalance[lpToken][messageSender] = _lpBalance[lpToken][messageSender].add(amount);
         // update the supply of lp tokens for reward and liquidity calculation
@@ -188,40 +189,13 @@ contract StakeLPCoreV2 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
         // calculate liquidity and reward tokens and disburse to user
         (rewards, liquidity) = _calculateRewardsAndLiquidity(_holderAddress, lpToken, messageSender);
         // finally transfer the LP Tokens to the user
-        safeTransferFrom(lpToken, address(this), messageSender, amount);
+        TransferHelper.safeTransferFrom(lpToken, address(this), messageSender, amount);
         // update the user balance
         _lpBalance[lpToken][messageSender] = _lpBalance[lpToken][messageSender].sub(amount);
         // update the supply of lp tokens for reward and liquidity calculation
         _lpSupply[lpToken] = _lpSupply[lpToken].sub(amount);
         emit RemoveLiquidity(lpToken, amount, rewards, liquidity);
     }
-
-    function safeTransferFrom(
-        address token,
-        address from,
-        address to,
-        uint256 value
-    ) internal {
-        // bytes4(keccak256(bytes('transferFrom(address,address,uint256)')));
-
-        /* bytes memory data = abi.encodeWithSelector(0x23b872dd, from, to, value);
-        (bool success, bytes memory returnData) = address(token).staticcall(data);
-        if (success) {
-            if (returnData.length == 64)
-                return abi.decode(returnData, (uint256, uint256));
-            if (returnData.length == 32)
-                return (abi.decode(returnData, (uint256)), 0);
-        }
-        return (0, 0); */
-
-        (bool success, bytes memory data) = token.call(abi.encodeWithSelector(0x23b872dd, from, to, value));
-        require(
-            success && (data.length == 0 || abi.decode(data, (bool))),
-            'TransferHelper::transferFrom: transferFrom failed'
-        );
-        
-    }
-
 
     /**
      * @dev Set 'contract address', called from constructor
