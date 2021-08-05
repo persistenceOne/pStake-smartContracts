@@ -24,7 +24,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 const mnemonic =
-  "baby year rocket october what surprise lab bag report swap game unveil";
+  "gun defy tenant ripple vicious laptop dumb cream tourist demand humor elite";
 
 module.exports = {
   /**
