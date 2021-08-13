@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >= 0.7.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
@@ -17,7 +17,7 @@ contract TokenWrapperV2 is ITokenWrapper, PausableUpgradeable, AccessControlUpgr
     using Bech32 for string;
 
     //Private instances of contracts to handle Utokens and Stokens
-    IUTokens private _uTokens;
+    IUTokens public _uTokens;
 
     // defining the fees and minimum values
     uint256 private _minDeposit;
@@ -31,9 +31,9 @@ contract TokenWrapperV2 is ITokenWrapper, PausableUpgradeable, AccessControlUpgr
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
     //variables defining bech32 validation attributes
-    bytes hrpBytes;
-    bytes controlDigitBytes;
-    uint dataBytesSize;
+    bytes public hrpBytes;
+    bytes public controlDigitBytes;
+    uint public dataBytesSize;
 
     /*
    * @dev Constructor for initializing the TokenWrapper contract.

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >= 0.7.0;
+pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
@@ -23,16 +23,19 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
     // variables pertaining to holder logic for whitelisted addresses & StakeLP
     // deposit contract address for STokens in a DeFi product
     EnumerableSetUpgradeable.AddressSet private _whitelistedAddresses;
-    mapping(address => address) private _holderContractAddress;
+    // Holder contract address for this whitelisted contract. Many can point to one Holder contract
+    mapping(address => address) public _holderContractAddress;
     // LP Token contract address which might be different from whitelisted contract
-    mapping(address => address) private _lpContractAddress;
+    mapping(address => address) public _lpContractAddress;
+    // Index of whitelisted address in the Enumerable Set
+    // mapping(address => uint256) public _whitelistedAddressIndex;
     // last timestamp when the holder reward calculation was performed for updating reward pool
-    mapping(address => uint256) private _lastHolderRewardTimestamp;
+    mapping(address => uint256) public _lastHolderRewardTimestamp;
 
     // variables capturing data of other contracts in the product
-    address private _liquidStakingContract;
-    // address private _stakeLPCoreContract;
-    IUTokens private _uTokens;
+    address public _liquidStakingContract;
+    // address public _stakeLPCoreContract;
+    IUTokens public _uTokens;
 
     // variables pertaining to moving reward rate logic
     uint256[] private _rewardRate;
@@ -63,22 +66,11 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
 
     /**
     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
-    * @param lpContractAddress: contract address
+    * @param whitelistedAddress: whitelisted contract address
     */
-    function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address holderAddress){
-        // Get the time in number of blocks
-        address _lpContractAddressLocal;
-        // valueDivisor = _valueDivisor;
-        uint256 _whitelistedAddressesLength = _whitelistedAddresses.length();
-        for (uint256 i=0; i<_whitelistedAddressesLength; i=i.add(1)) {
-            //get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
-            _lpContractAddressLocal = _lpContractAddress[_whitelistedAddresses.at(i)];
-            if(_lpContractAddressLocal == lpContractAddress) {
-                result = true;
-                holderAddress = _holderContractAddress[_whitelistedAddresses.at(i)];
-                break;
-            }
-        }
+    function isContractWhitelisted(address whitelistedAddress) public view virtual override returns (bool result){
+        result = _whitelistedAddresses.contains(whitelistedAddress);
+        return result;
     }
 
     /**
@@ -142,7 +134,7 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
      *
      */
     function mint(address to, uint256 tokens) public virtual override returns (bool) {
-        require(tx.origin == to && _msgSender() == _liquidStakingContract, "ST3");
+        require(_msgSender() == _liquidStakingContract, "ST3");
         _mint(to, tokens);
         return true;
     }
@@ -159,7 +151,7 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
      *
      */
     function burn(address from, uint256 tokens) public  virtual override returns (bool) {
-        require(tx.origin == from && _msgSender() == _liquidStakingContract, "ST4");
+        require(_msgSender() == _liquidStakingContract, "ST4");
         _burn(from, tokens);
         return true;
     }
@@ -401,6 +393,7 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
         // add the contract addresses to holder mapping variable
         _holderContractAddress[whitelistedAddress] = holderContractAddress;
         _lpContractAddress[whitelistedAddress] = lpContractAddress;
+        _whitelistedAddressIndex[whitelistedAddress] = 
 
         emit SetWhitelistedAddress(whitelistedAddress, holderContractAddress, lpContractAddress, block.timestamp);
         success = true;

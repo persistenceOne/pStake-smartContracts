@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >= 0.7.0;
+pragma solidity >= 0.8.0;
 
 import "../interfaces/IHolder.sol";
 import "../interfaces/ISTokens.sol";
@@ -11,25 +11,19 @@ import "../libraries/TransferHelper.sol";
 contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable{
 
     // variables capturing data of other contracts in the product
-    address private _stakeLPContract;
-    ISTokens private _sTokens;
-
-
-    // value divisor to make weight factor a fraction if need be
-    uint256 private _valueDivisor;
+    address public _stakeLPContract;
+    ISTokens public _sTokens;
 
     /**
    * @dev Constructor for initializing the Holder Uniswap contract.
    * @param sTokenContract - address of the SToken contract.
    * @param stakeLPContract - address of the StakeLPCore contract.
-   * @param valueDivisor - valueDivisor set to 10^9.
    */
     function initialize(address sTokenContract, address stakeLPContract, uint256 valueDivisor) public virtual initializer {
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _sTokens = ISTokens(sTokenContract);
         _stakeLPContract = stakeLPContract;
-        _valueDivisor = valueDivisor;
     }
 
     /**
