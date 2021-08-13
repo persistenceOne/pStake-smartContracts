@@ -89,7 +89,7 @@ interface IStakeLPCore {
     *
     * Returns a boolean value indicating whether the operation succeeded.
     */
-    event CalculateRewardsAndLiquidity(address indexed holderAddress, address indexed lpToken, uint256 amount, address indexed to, uint256 liquidity, uint256 reward);
+    event CalculateRewardsAndLiquidity(address indexed holderAddress, address indexed lpToken, address indexed to, uint256 liquidity, uint256 reward);
 
     /**
     * @dev Emitted

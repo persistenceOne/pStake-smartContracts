@@ -62,6 +62,10 @@ interface ITokenWrapper {
     /**
     * @dev Emitted when UTokens are withdrawn
     */
-    event WithdrawUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 finalTokens, string indexed toChainAddress, uint256 timestamp);
-   
+    event WithdrawUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 finalTokens, string toChainAddress, uint256 timestamp);
+
+     /**
+    * @dev Emitted when uTokens are generated in batch
+    */
+    event GenerateUTokensInBatch(address[] accountAddress, uint256[] tokens, uint256[] finalTokens, uint256 timestamp);
 }
