@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.8.0;
+pragma solidity ^0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/IUTokens.sol";
 import "./interfaces/ITokenWrapper.sol";
-import "./libraries/Bech32Validation.sol";
 import "./libraries/Bech32.sol";
 import "./libraries/FullMath.sol";
 
