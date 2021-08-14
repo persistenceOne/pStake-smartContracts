@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >=0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
@@ -298,7 +298,7 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
      */
     function calculateHolderRewards(address to, address from, uint256 amount) public virtual override whenNotPaused returns (bool success) {
         require(to != address(0) && to != address(0), "ST16");
-        uint256 rewards =  _calculateHolderRewards(to);
+        uint256 rewards =  _calculateHolderRewards(to, from, amount);
         emit TriggeredCalculateHolderRewards(to, rewards, block.timestamp);
         return true;
     }
@@ -393,7 +393,6 @@ contract STokensV2 is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessCon
         // add the contract addresses to holder mapping variable
         _holderContractAddress[whitelistedAddress] = holderContractAddress;
         _lpContractAddress[whitelistedAddress] = lpContractAddress;
-        _whitelistedAddressIndex[whitelistedAddress] = 
 
         emit SetWhitelistedAddress(whitelistedAddress, holderContractAddress, lpContractAddress, block.timestamp);
         success = true;

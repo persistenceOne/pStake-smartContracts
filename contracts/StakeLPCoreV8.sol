@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >=0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
@@ -119,7 +119,7 @@ contract StakeLPCoreV8 is IStakeLPCore, PausableUpgradeable, AccessControlUpgrad
      */
     function calculateRewardsAndLiquidity(address whitelistedAddress) public whenNotPaused returns (uint256 liquidity, uint256 reward){
         // check for validity of arguments
-        require(amount > 0 && whitelistedAddress != address(0), "LP2");
+        require(whitelistedAddress != address(0), "LP2");
 
         // check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
         (address _holderAddress, address _lpToken, ) = _sTokens.getHolderData(whitelistedAddress);

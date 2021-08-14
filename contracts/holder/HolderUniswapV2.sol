@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >=0.7.0;
 
 import "../interfaces/IHolder.sol";
 import "../interfaces/ISTokens.sol";
@@ -19,7 +19,7 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable{
    * @param sTokenContract - address of the SToken contract.
    * @param stakeLPContract - address of the StakeLPCore contract.
    */
-    function initialize(address sTokenContract, address stakeLPContract, uint256 valueDivisor) public virtual initializer {
+    function initialize(address sTokenContract, address stakeLPContract) public virtual initializer {
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
         _sTokens = ISTokens(sTokenContract);
@@ -28,9 +28,9 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable{
 
     /**
      * @dev get SToken reserve supply of the whitelisted contract 
-     *
+     * argument names commented to suppress warnings
      */
-    function getSTokenSupply(address to, address from, uint256 amount) public override view returns (uint256 sTokenSupply){
+    function getSTokenSupply(address to, address /* from */, uint256 /* amount */) public override view returns (uint256 sTokenSupply){
         sTokenSupply = _sTokens.balanceOf(to);
         return sTokenSupply;
     }

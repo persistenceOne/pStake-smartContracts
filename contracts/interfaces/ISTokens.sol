@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity ^0.7.0;
+pragma solidity >=0.7.0;
 
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 
@@ -26,7 +26,7 @@ interface ISTokens is IERC20Upgradeable {
      */
     function burn(address from, uint256 tokens) external returns (bool);
 
-    function isContractWhitelisted(address lpContractAddress) external view returns (bool result, address holderAddress);
+    function isContractWhitelisted(address whitelistedAddress) external view returns (bool result);
 
     function getHolderData(address whitelistedAddress) external view returns (address holderAddress, address lpAddress, uint256 lastHolderRewardTimestamp);
 
@@ -52,6 +52,15 @@ interface ISTokens is IERC20Upgradeable {
    * Emits a {TriggeredCalculateRewards} event.
    */
     function calculateRewards(address to) external returns (bool success);
+
+    /**
+   * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+   *
+   * Returns a boolean value indicating whether the operation succeeded.
+   *
+   * Emits a {TriggeredCalculateRewards} event.
+   */
+    function calculateHolderRewards(address to, address from, uint256 amount) external returns (bool success);
 
     /**
      * @dev Set UTokens smart contract.
