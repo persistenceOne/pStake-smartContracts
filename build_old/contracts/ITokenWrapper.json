@@ -1,0 +1,2339 @@
+{
+  "contractName": "ITokenWrapper",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "accountAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "finalTokens",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "GenerateUTokens",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "depositFee",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "withdrawFee",
+          "type": "uint256"
+        }
+      ],
+      "name": "SetFees",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "minDeposit",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "minWithdraw",
+          "type": "uint256"
+        }
+      ],
+      "name": "SetMinimumValues",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_contract",
+          "type": "address"
+        }
+      ],
+      "name": "SetUTokensContract",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "accountAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "finalTokens",
+          "type": "uint256"
+        },
+        {
+          "indexed": true,
+          "internalType": "string",
+          "name": "toChainAddress",
+          "type": "string"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "WithdrawUTokens",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "uAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setUTokensContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "string",
+          "name": "toChainAddress",
+          "type": "string"
+        }
+      ],
+      "name": "isBech32Valid",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "isAddressValid",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "generateUTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address[]",
+          "name": "to",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "amount",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "generateUTokensInBatch",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        },
+        {
+          "internalType": "string",
+          "name": "toChainAddress",
+          "type": "string"
+        }
+      ],
+      "name": "withdrawUTokens",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"finalTokens\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"GenerateUTokens\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"depositFee\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"withdrawFee\",\"type\":\"uint256\"}],\"name\":\"SetFees\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"minDeposit\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"minWithdraw\",\"type\":\"uint256\"}],\"name\":\"SetMinimumValues\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"}],\"name\":\"SetUTokensContract\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"accountAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"finalTokens\",\"type\":\"uint256\"},{\"indexed\":true,\"internalType\":\"string\",\"name\":\"toChainAddress\",\"type\":\"string\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"WithdrawUTokens\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"generateUTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address[]\",\"name\":\"to\",\"type\":\"address[]\"},{\"internalType\":\"uint256[]\",\"name\":\"amount\",\"type\":\"uint256[]\"}],\"name\":\"generateUTokensInBatch\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"string\",\"name\":\"toChainAddress\",\"type\":\"string\"}],\"name\":\"isBech32Valid\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"isAddressValid\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"uAddress\",\"type\":\"address\"}],\"name\":\"setUTokensContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"},{\"internalType\":\"string\",\"name\":\"toChainAddress\",\"type\":\"string\"}],\"name\":\"withdrawUTokens\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the ITokenWrapper.\",\"events\":{\"GenerateUTokens(address,uint256,uint256,uint256)\":{\"details\":\"Emitted when uTokens are generated\"},\"SetFees(uint256,uint256)\":{\"details\":\"Emitted when fees are set\"},\"SetMinimumValues(uint256,uint256)\":{\"details\":\"Emitted when minimum values are set\"},\"SetUTokensContract(address)\":{\"details\":\"Emitted when contract addresses are set\"},\"WithdrawUTokens(address,uint256,uint256,string,uint256)\":{\"details\":\"Emitted when UTokens are withdrawn\"}},\"kind\":\"dev\",\"methods\":{\"generateUTokens(address,uint256)\":{\"details\":\"Generates `amount` tokens to the caller's address `to`. Emits a {GenerateUTokens} event.\"},\"generateUTokensInBatch(address[],uint256[])\":{\"details\":\"Generates `amount` tokens to the caller's addresses `to`. Emits a {GenerateUTokens} event.\"},\"isBech32Valid(string)\":{\"details\":\"checks if the address is Bech32 valid\"},\"setUTokensContract(address)\":{\"details\":\"Set UTokens smart contract. Emits a {SetUTokensContract} event.\"},\"withdrawUTokens(address,uint256,string)\":{\"details\":\"Withdraws `amount` tokens to the caller's address `to`. Emits a {WithdrawUTokens} event.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"/C/Users/Kamlesh/Persistence/pStake/codebase/pStake-smartContracts/contracts/interfaces/ITokenWrapper.sol\":\"ITokenWrapper\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"/C/Users/Kamlesh/Persistence/pStake/codebase/pStake-smartContracts/contracts/interfaces/ITokenWrapper.sol\":{\"keccak256\":\"0x1d7a5edc5b0c9a21e42d0c452972f06a99b2978b4e26d4ff6a5bb4e6b32aaf43\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://736a3fe3bf424e8bee5486a62480b26c120de66826a5619c792a0f77a3c7030b\",\"dweb:/ipfs/QmWGg9Luh7NUJcT8XVewGghwCdxwPxBKzRykkdNY2QrxwL\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity >= 0.7.0;\n\n/**\n * @dev Interface of the ITokenWrapper.\n */\ninterface ITokenWrapper {\n\n    /**\n    * @dev Set UTokens smart contract.\n    * Emits a {SetUTokensContract} event.\n    */\n    function setUTokensContract(address uAddress) external;\n\n    /**\n     * @dev checks if the address is Bech32 valid\n     *\n     */\n    function isBech32Valid(string memory toChainAddress) external view returns (bool isAddressValid);\n\n    /**\n     * @dev Generates `amount` tokens to the caller's address `to`.\n     *\n     * Emits a {GenerateUTokens} event.\n     */\n    function generateUTokens(address to, uint256 amount) external;\n\n    /**\n     * @dev Generates `amount` tokens to the caller's addresses `to`.\n     *\n     * Emits a {GenerateUTokens} event.\n     */\n    function generateUTokensInBatch(address[] memory to, uint256[] memory amount) external;\n\n    /**\n     * @dev Withdraws `amount` tokens to the caller's address `to`.\n     *\n     * Emits a {WithdrawUTokens} event.\n     */\n    function withdrawUTokens(address from, uint256 tokens, string memory toChainAddress) external;\n\n    /**\n    * @dev Emitted when fees are set\n    */\n    event SetFees( uint256 depositFee, uint256 withdrawFee );\n\n    /**\n    * @dev Emitted when minimum values are set\n    */\n    event SetMinimumValues( uint256 minDeposit, uint256 minWithdraw );\n\n     /**\n     * @dev Emitted when contract addresses are set\n     */\n    event SetUTokensContract( address indexed _contract );\n\n    /**\n    * @dev Emitted when uTokens are generated\n    */\n    event GenerateUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 indexed finalTokens, uint256 timestamp);\n\n    /**\n    * @dev Emitted when UTokens are withdrawn\n    */\n    event WithdrawUTokens(address indexed accountAddress, uint256 indexed tokens, uint256 finalTokens, string indexed toChainAddress, uint256 timestamp);\n   \n}",
+  "sourcePath": "C:\\Users\\Kamlesh\\Persistence\\pStake\\codebase\\pStake-smartContracts\\contracts\\interfaces\\ITokenWrapper.sol",
+  "ast": {
+    "absolutePath": "/C/Users/Kamlesh/Persistence/pStake/codebase/pStake-smartContracts/contracts/interfaces/ITokenWrapper.sol",
+    "exportedSymbols": {
+      "ITokenWrapper": [
+        9344
+      ]
+    },
+    "id": 9345,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 9257,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:25:19"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 9258,
+          "nodeType": "StructuredDocumentation",
+          "src": "66:47:19",
+          "text": " @dev Interface of the ITokenWrapper."
+        },
+        "fullyImplemented": false,
+        "id": 9344,
+        "linearizedBaseContracts": [
+          9344
+        ],
+        "name": "ITokenWrapper",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 9259,
+              "nodeType": "StructuredDocumentation",
+              "src": "145:91:19",
+              "text": " @dev Set UTokens smart contract.\n Emits a {SetUTokensContract} event."
+            },
+            "functionSelector": "21bdf9e5",
+            "id": 9264,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setUTokensContract",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9262,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9261,
+                  "mutability": "mutable",
+                  "name": "uAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9264,
+                  "src": "269:16:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9260,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "269:7:19",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "268:18:19"
+            },
+            "returnParameters": {
+              "id": 9263,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "295:0:19"
+            },
+            "scope": 9344,
+            "src": "241:55:19",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 9265,
+              "nodeType": "StructuredDocumentation",
+              "src": "302:68:19",
+              "text": " @dev checks if the address is Bech32 valid"
+            },
+            "functionSelector": "8f001d4e",
+            "id": 9272,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "isBech32Valid",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9268,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9267,
+                  "mutability": "mutable",
+                  "name": "toChainAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9272,
+                  "src": "398:28:19",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 9266,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "398:6:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "397:30:19"
+            },
+            "returnParameters": {
+              "id": 9271,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9270,
+                  "mutability": "mutable",
+                  "name": "isAddressValid",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9272,
+                  "src": "451:19:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 9269,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "451:4:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "450:21:19"
+            },
+            "scope": 9344,
+            "src": "375:97:19",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 9273,
+              "nodeType": "StructuredDocumentation",
+              "src": "478:126:19",
+              "text": " @dev Generates `amount` tokens to the caller's address `to`.\n Emits a {GenerateUTokens} event."
+            },
+            "functionSelector": "22dd9bc3",
+            "id": 9280,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "generateUTokens",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9278,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9275,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9280,
+                  "src": "634:10:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9274,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "634:7:19",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9277,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9280,
+                  "src": "646:14:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9276,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "646:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "633:28:19"
+            },
+            "returnParameters": {
+              "id": 9279,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "670:0:19"
+            },
+            "scope": 9344,
+            "src": "609:62:19",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 9281,
+              "nodeType": "StructuredDocumentation",
+              "src": "677:128:19",
+              "text": " @dev Generates `amount` tokens to the caller's addresses `to`.\n Emits a {GenerateUTokens} event."
+            },
+            "functionSelector": "e7fa0a32",
+            "id": 9290,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "generateUTokensInBatch",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9288,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9284,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9290,
+                  "src": "842:19:19",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 9282,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "842:7:19",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 9283,
+                    "nodeType": "ArrayTypeName",
+                    "src": "842:9:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9287,
+                  "mutability": "mutable",
+                  "name": "amount",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9290,
+                  "src": "863:23:19",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 9285,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "863:7:19",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 9286,
+                    "nodeType": "ArrayTypeName",
+                    "src": "863:9:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "841:46:19"
+            },
+            "returnParameters": {
+              "id": 9289,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "896:0:19"
+            },
+            "scope": 9344,
+            "src": "810:87:19",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 9291,
+              "nodeType": "StructuredDocumentation",
+              "src": "903:126:19",
+              "text": " @dev Withdraws `amount` tokens to the caller's address `to`.\n Emits a {WithdrawUTokens} event."
+            },
+            "functionSelector": "428bee9e",
+            "id": 9300,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "withdrawUTokens",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 9298,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9293,
+                  "mutability": "mutable",
+                  "name": "from",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9300,
+                  "src": "1059:12:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9292,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1059:7:19",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9295,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9300,
+                  "src": "1073:14:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9294,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1073:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9297,
+                  "mutability": "mutable",
+                  "name": "toChainAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9300,
+                  "src": "1089:28:19",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 9296,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1089:6:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1058:60:19"
+            },
+            "returnParameters": {
+              "id": 9299,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1127:0:19"
+            },
+            "scope": 9344,
+            "src": "1034:94:19",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 9301,
+              "nodeType": "StructuredDocumentation",
+              "src": "1134:47:19",
+              "text": " @dev Emitted when fees are set"
+            },
+            "id": 9307,
+            "name": "SetFees",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 9306,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9303,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "depositFee",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9307,
+                  "src": "1201:18:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9302,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1201:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9305,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "withdrawFee",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9307,
+                  "src": "1221:19:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9304,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1221:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1199:43:19"
+            },
+            "src": "1186:57:19"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 9308,
+              "nodeType": "StructuredDocumentation",
+              "src": "1249:57:19",
+              "text": " @dev Emitted when minimum values are set"
+            },
+            "id": 9314,
+            "name": "SetMinimumValues",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 9313,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9310,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "minDeposit",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9314,
+                  "src": "1335:18:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9309,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1335:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9312,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "minWithdraw",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9314,
+                  "src": "1355:19:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9311,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1355:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1333:43:19"
+            },
+            "src": "1311:66:19"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 9315,
+              "nodeType": "StructuredDocumentation",
+              "src": "1384:63:19",
+              "text": " @dev Emitted when contract addresses are set"
+            },
+            "id": 9319,
+            "name": "SetUTokensContract",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 9318,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9317,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "_contract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9319,
+                  "src": "1478:25:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9316,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1478:7:19",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1476:29:19"
+            },
+            "src": "1452:54:19"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 9320,
+              "nodeType": "StructuredDocumentation",
+              "src": "1512:56:19",
+              "text": " @dev Emitted when uTokens are generated"
+            },
+            "id": 9330,
+            "name": "GenerateUTokens",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 9329,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9322,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "accountAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9330,
+                  "src": "1595:30:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9321,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1595:7:19",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9324,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9330,
+                  "src": "1627:22:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9323,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1627:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9326,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "finalTokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9330,
+                  "src": "1651:27:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9325,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1651:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9328,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9330,
+                  "src": "1680:17:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9327,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1680:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1594:104:19"
+            },
+            "src": "1573:126:19"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 9331,
+              "nodeType": "StructuredDocumentation",
+              "src": "1705:56:19",
+              "text": " @dev Emitted when UTokens are withdrawn"
+            },
+            "id": 9343,
+            "name": "WithdrawUTokens",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 9342,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 9333,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "accountAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9343,
+                  "src": "1788:30:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 9332,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1788:7:19",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9335,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9343,
+                  "src": "1820:22:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9334,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1820:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9337,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "finalTokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9343,
+                  "src": "1844:19:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9336,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1844:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9339,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "toChainAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9343,
+                  "src": "1865:29:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_string_memory_ptr",
+                    "typeString": "string"
+                  },
+                  "typeName": {
+                    "id": 9338,
+                    "name": "string",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1865:6:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_string_storage_ptr",
+                      "typeString": "string"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 9341,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 9343,
+                  "src": "1896:17:19",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 9340,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1896:7:19",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1787:127:19"
+            },
+            "src": "1766:149:19"
+          }
+        ],
+        "scope": 9345,
+        "src": "114:1807:19"
+      }
+    ],
+    "src": "39:1882:19"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "/C/Users/Kamlesh/Persistence/pStake/codebase/pStake-smartContracts/contracts/interfaces/ITokenWrapper.sol",
+      "exportedSymbols": {
+        "ITokenWrapper": [
+          9344
+        ]
+      },
+      "license": "UNLICENSED"
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            ">=",
+            "0.7",
+            ".0"
+          ]
+        },
+        "id": 9257,
+        "name": "PragmaDirective",
+        "src": "39:25:19"
+      },
+      {
+        "attributes": {
+          "abstract": false,
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "interface",
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            9344
+          ],
+          "name": "ITokenWrapper",
+          "scope": 9345
+        },
+        "children": [
+          {
+            "attributes": {
+              "text": " @dev Interface of the ITokenWrapper."
+            },
+            "id": 9258,
+            "name": "StructuredDocumentation",
+            "src": "66:47:19"
+          },
+          {
+            "attributes": {
+              "functionSelector": "21bdf9e5",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "setUTokensContract",
+              "scope": 9344,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Set UTokens smart contract.\n Emits a {SetUTokensContract} event."
+                },
+                "id": 9259,
+                "name": "StructuredDocumentation",
+                "src": "145:91:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "uAddress",
+                      "scope": 9264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9260,
+                        "name": "ElementaryTypeName",
+                        "src": "269:7:19"
+                      }
+                    ],
+                    "id": 9261,
+                    "name": "VariableDeclaration",
+                    "src": "269:16:19"
+                  }
+                ],
+                "id": 9262,
+                "name": "ParameterList",
+                "src": "268:18:19"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9263,
+                "name": "ParameterList",
+                "src": "295:0:19"
+              }
+            ],
+            "id": 9264,
+            "name": "FunctionDefinition",
+            "src": "241:55:19"
+          },
+          {
+            "attributes": {
+              "functionSelector": "8f001d4e",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "isBech32Valid",
+              "scope": 9344,
+              "stateMutability": "view",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev checks if the address is Bech32 valid"
+                },
+                "id": 9265,
+                "name": "StructuredDocumentation",
+                "src": "302:68:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "toChainAddress",
+                      "scope": 9272,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "string",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 9266,
+                        "name": "ElementaryTypeName",
+                        "src": "398:6:19"
+                      }
+                    ],
+                    "id": 9267,
+                    "name": "VariableDeclaration",
+                    "src": "398:28:19"
+                  }
+                ],
+                "id": 9268,
+                "name": "ParameterList",
+                "src": "397:30:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "isAddressValid",
+                      "scope": 9272,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 9269,
+                        "name": "ElementaryTypeName",
+                        "src": "451:4:19"
+                      }
+                    ],
+                    "id": 9270,
+                    "name": "VariableDeclaration",
+                    "src": "451:19:19"
+                  }
+                ],
+                "id": 9271,
+                "name": "ParameterList",
+                "src": "450:21:19"
+              }
+            ],
+            "id": 9272,
+            "name": "FunctionDefinition",
+            "src": "375:97:19"
+          },
+          {
+            "attributes": {
+              "functionSelector": "22dd9bc3",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "generateUTokens",
+              "scope": 9344,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Generates `amount` tokens to the caller's address `to`.\n Emits a {GenerateUTokens} event."
+                },
+                "id": 9273,
+                "name": "StructuredDocumentation",
+                "src": "478:126:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "to",
+                      "scope": 9280,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9274,
+                        "name": "ElementaryTypeName",
+                        "src": "634:7:19"
+                      }
+                    ],
+                    "id": 9275,
+                    "name": "VariableDeclaration",
+                    "src": "634:10:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "amount",
+                      "scope": 9280,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9276,
+                        "name": "ElementaryTypeName",
+                        "src": "646:7:19"
+                      }
+                    ],
+                    "id": 9277,
+                    "name": "VariableDeclaration",
+                    "src": "646:14:19"
+                  }
+                ],
+                "id": 9278,
+                "name": "ParameterList",
+                "src": "633:28:19"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9279,
+                "name": "ParameterList",
+                "src": "670:0:19"
+              }
+            ],
+            "id": 9280,
+            "name": "FunctionDefinition",
+            "src": "609:62:19"
+          },
+          {
+            "attributes": {
+              "functionSelector": "e7fa0a32",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "generateUTokensInBatch",
+              "scope": 9344,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Generates `amount` tokens to the caller's addresses `to`.\n Emits a {GenerateUTokens} event."
+                },
+                "id": 9281,
+                "name": "StructuredDocumentation",
+                "src": "677:128:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "to",
+                      "scope": 9290,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 9282,
+                            "name": "ElementaryTypeName",
+                            "src": "842:7:19"
+                          }
+                        ],
+                        "id": 9283,
+                        "name": "ArrayTypeName",
+                        "src": "842:9:19"
+                      }
+                    ],
+                    "id": 9284,
+                    "name": "VariableDeclaration",
+                    "src": "842:19:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "amount",
+                      "scope": 9290,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "uint256[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "uint256[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint256",
+                              "type": "uint256"
+                            },
+                            "id": 9285,
+                            "name": "ElementaryTypeName",
+                            "src": "863:7:19"
+                          }
+                        ],
+                        "id": 9286,
+                        "name": "ArrayTypeName",
+                        "src": "863:9:19"
+                      }
+                    ],
+                    "id": 9287,
+                    "name": "VariableDeclaration",
+                    "src": "863:23:19"
+                  }
+                ],
+                "id": 9288,
+                "name": "ParameterList",
+                "src": "841:46:19"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9289,
+                "name": "ParameterList",
+                "src": "896:0:19"
+              }
+            ],
+            "id": 9290,
+            "name": "FunctionDefinition",
+            "src": "810:87:19"
+          },
+          {
+            "attributes": {
+              "functionSelector": "428bee9e",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "withdrawUTokens",
+              "scope": 9344,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Withdraws `amount` tokens to the caller's address `to`.\n Emits a {WithdrawUTokens} event."
+                },
+                "id": 9291,
+                "name": "StructuredDocumentation",
+                "src": "903:126:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "from",
+                      "scope": 9300,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9292,
+                        "name": "ElementaryTypeName",
+                        "src": "1059:7:19"
+                      }
+                    ],
+                    "id": 9293,
+                    "name": "VariableDeclaration",
+                    "src": "1059:12:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "tokens",
+                      "scope": 9300,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9294,
+                        "name": "ElementaryTypeName",
+                        "src": "1073:7:19"
+                      }
+                    ],
+                    "id": 9295,
+                    "name": "VariableDeclaration",
+                    "src": "1073:14:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "toChainAddress",
+                      "scope": 9300,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "string",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 9296,
+                        "name": "ElementaryTypeName",
+                        "src": "1089:6:19"
+                      }
+                    ],
+                    "id": 9297,
+                    "name": "VariableDeclaration",
+                    "src": "1089:28:19"
+                  }
+                ],
+                "id": 9298,
+                "name": "ParameterList",
+                "src": "1058:60:19"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 9299,
+                "name": "ParameterList",
+                "src": "1127:0:19"
+              }
+            ],
+            "id": 9300,
+            "name": "FunctionDefinition",
+            "src": "1034:94:19"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetFees"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when fees are set"
+                },
+                "id": 9301,
+                "name": "StructuredDocumentation",
+                "src": "1134:47:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "depositFee",
+                      "scope": 9307,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9302,
+                        "name": "ElementaryTypeName",
+                        "src": "1201:7:19"
+                      }
+                    ],
+                    "id": 9303,
+                    "name": "VariableDeclaration",
+                    "src": "1201:18:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "withdrawFee",
+                      "scope": 9307,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9304,
+                        "name": "ElementaryTypeName",
+                        "src": "1221:7:19"
+                      }
+                    ],
+                    "id": 9305,
+                    "name": "VariableDeclaration",
+                    "src": "1221:19:19"
+                  }
+                ],
+                "id": 9306,
+                "name": "ParameterList",
+                "src": "1199:43:19"
+              }
+            ],
+            "id": 9307,
+            "name": "EventDefinition",
+            "src": "1186:57:19"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetMinimumValues"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when minimum values are set"
+                },
+                "id": 9308,
+                "name": "StructuredDocumentation",
+                "src": "1249:57:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "minDeposit",
+                      "scope": 9314,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9309,
+                        "name": "ElementaryTypeName",
+                        "src": "1335:7:19"
+                      }
+                    ],
+                    "id": 9310,
+                    "name": "VariableDeclaration",
+                    "src": "1335:18:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "minWithdraw",
+                      "scope": 9314,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9311,
+                        "name": "ElementaryTypeName",
+                        "src": "1355:7:19"
+                      }
+                    ],
+                    "id": 9312,
+                    "name": "VariableDeclaration",
+                    "src": "1355:19:19"
+                  }
+                ],
+                "id": 9313,
+                "name": "ParameterList",
+                "src": "1333:43:19"
+              }
+            ],
+            "id": 9314,
+            "name": "EventDefinition",
+            "src": "1311:66:19"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetUTokensContract"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when contract addresses are set"
+                },
+                "id": 9315,
+                "name": "StructuredDocumentation",
+                "src": "1384:63:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "_contract",
+                      "scope": 9319,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9316,
+                        "name": "ElementaryTypeName",
+                        "src": "1478:7:19"
+                      }
+                    ],
+                    "id": 9317,
+                    "name": "VariableDeclaration",
+                    "src": "1478:25:19"
+                  }
+                ],
+                "id": 9318,
+                "name": "ParameterList",
+                "src": "1476:29:19"
+              }
+            ],
+            "id": 9319,
+            "name": "EventDefinition",
+            "src": "1452:54:19"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "GenerateUTokens"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when uTokens are generated"
+                },
+                "id": 9320,
+                "name": "StructuredDocumentation",
+                "src": "1512:56:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "accountAddress",
+                      "scope": 9330,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9321,
+                        "name": "ElementaryTypeName",
+                        "src": "1595:7:19"
+                      }
+                    ],
+                    "id": 9322,
+                    "name": "VariableDeclaration",
+                    "src": "1595:30:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "tokens",
+                      "scope": 9330,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9323,
+                        "name": "ElementaryTypeName",
+                        "src": "1627:7:19"
+                      }
+                    ],
+                    "id": 9324,
+                    "name": "VariableDeclaration",
+                    "src": "1627:22:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "finalTokens",
+                      "scope": 9330,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9325,
+                        "name": "ElementaryTypeName",
+                        "src": "1651:7:19"
+                      }
+                    ],
+                    "id": 9326,
+                    "name": "VariableDeclaration",
+                    "src": "1651:27:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "timestamp",
+                      "scope": 9330,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9327,
+                        "name": "ElementaryTypeName",
+                        "src": "1680:7:19"
+                      }
+                    ],
+                    "id": 9328,
+                    "name": "VariableDeclaration",
+                    "src": "1680:17:19"
+                  }
+                ],
+                "id": 9329,
+                "name": "ParameterList",
+                "src": "1594:104:19"
+              }
+            ],
+            "id": 9330,
+            "name": "EventDefinition",
+            "src": "1573:126:19"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "WithdrawUTokens"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when UTokens are withdrawn"
+                },
+                "id": 9331,
+                "name": "StructuredDocumentation",
+                "src": "1705:56:19"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "accountAddress",
+                      "scope": 9343,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 9332,
+                        "name": "ElementaryTypeName",
+                        "src": "1788:7:19"
+                      }
+                    ],
+                    "id": 9333,
+                    "name": "VariableDeclaration",
+                    "src": "1788:30:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "tokens",
+                      "scope": 9343,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9334,
+                        "name": "ElementaryTypeName",
+                        "src": "1820:7:19"
+                      }
+                    ],
+                    "id": 9335,
+                    "name": "VariableDeclaration",
+                    "src": "1820:22:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "finalTokens",
+                      "scope": 9343,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9336,
+                        "name": "ElementaryTypeName",
+                        "src": "1844:7:19"
+                      }
+                    ],
+                    "id": 9337,
+                    "name": "VariableDeclaration",
+                    "src": "1844:19:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "toChainAddress",
+                      "scope": 9343,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "string",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "string",
+                          "type": "string"
+                        },
+                        "id": 9338,
+                        "name": "ElementaryTypeName",
+                        "src": "1865:6:19"
+                      }
+                    ],
+                    "id": 9339,
+                    "name": "VariableDeclaration",
+                    "src": "1865:29:19"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "timestamp",
+                      "scope": 9343,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 9340,
+                        "name": "ElementaryTypeName",
+                        "src": "1896:7:19"
+                      }
+                    ],
+                    "id": 9341,
+                    "name": "VariableDeclaration",
+                    "src": "1896:17:19"
+                  }
+                ],
+                "id": 9342,
+                "name": "ParameterList",
+                "src": "1787:127:19"
+              }
+            ],
+            "id": 9343,
+            "name": "EventDefinition",
+            "src": "1766:149:19"
+          }
+        ],
+        "id": 9344,
+        "name": "ContractDefinition",
+        "src": "114:1807:19"
+      }
+    ],
+    "id": 9345,
+    "name": "SourceUnit",
+    "src": "39:1882:19"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.6+commit.7338295f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.3.4",
+  "updatedAt": "2021-08-06T03:04:02.379Z",
+  "devdoc": {
+    "details": "Interface of the ITokenWrapper.",
+    "events": {
+      "GenerateUTokens(address,uint256,uint256,uint256)": {
+        "details": "Emitted when uTokens are generated"
+      },
+      "SetFees(uint256,uint256)": {
+        "details": "Emitted when fees are set"
+      },
+      "SetMinimumValues(uint256,uint256)": {
+        "details": "Emitted when minimum values are set"
+      },
+      "SetUTokensContract(address)": {
+        "details": "Emitted when contract addresses are set"
+      },
+      "WithdrawUTokens(address,uint256,uint256,string,uint256)": {
+        "details": "Emitted when UTokens are withdrawn"
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "generateUTokens(address,uint256)": {
+        "details": "Generates `amount` tokens to the caller's address `to`. Emits a {GenerateUTokens} event."
+      },
+      "generateUTokensInBatch(address[],uint256[])": {
+        "details": "Generates `amount` tokens to the caller's addresses `to`. Emits a {GenerateUTokens} event."
+      },
+      "isBech32Valid(string)": {
+        "details": "checks if the address is Bech32 valid"
+      },
+      "setUTokensContract(address)": {
+        "details": "Set UTokens smart contract. Emits a {SetUTokensContract} event."
+      },
+      "withdrawUTokens(address,uint256,string)": {
+        "details": "Withdraws `amount` tokens to the caller's address `to`. Emits a {WithdrawUTokens} event."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
