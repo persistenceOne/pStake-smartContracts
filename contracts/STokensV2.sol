@@ -44,8 +44,11 @@ contract STokensV2 is
 	// variables pertaining to moving reward rate logic
 	uint256[] private _rewardRate;
 	uint256[] private _lastMovingRewardTimestamp;
-	uint256 private _valueDivisor;
+	uint256 public _valueDivisor;
 	mapping(address => uint256) private _lastUserRewardTimestamp;
+
+	// variable pertaining to contract upgrades versioning
+	uint256 private _version;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -350,23 +353,22 @@ contract STokensV2 is
 		virtual
 		override
 		whenNotPaused
-		returns (bool success)
+		returns (uint256 reward)
 	{
 		require(to == _msgSender(), "ST5");
-		uint256 reward = _calculateRewards(to);
+		reward = _calculateRewards(to);
 		emit TriggeredCalculateRewards(to, reward, block.timestamp);
-		return true;
+		return reward;
 	}
 
 	/**
 	 * @dev Calculate rewards for the provided 'holder address'
 	 * @param to: holder address
 	 */
-	function _calculateHolderRewards(
-		address to,
-		address from,
-		uint256 amount
-	) internal returns (uint256 rewards) {
+	function _calculateHolderRewards(address to)
+		internal
+		returns (uint256 rewards)
+	{
 		// holderContract and lpContract (lp token contract) need to be validated together because
 		// it might not be practical to setup holder to collect reward pool but not StakeLP to distribute reward
 		// since the reward distribution calculation starts the minute reward pool is created
@@ -377,7 +379,7 @@ contract STokensV2 is
 			"ST6"
 		);
 		uint256 _sTokenSupply = IHolder(_holderContractAddress[to])
-			.getSTokenSupply(to, from, amount);
+			.getSTokenSupply(to);
 
 		// calculate the reward applying the moving reward rate
 		rewards = _calculatePendingRewards(
@@ -404,15 +406,17 @@ contract STokensV2 is
 	 * Emits a {TriggeredCalculateRewards} event with 'to' set to address, 'reward' set to amount of tokens and 'timestamp'
 	 *
 	 */
-	function calculateHolderRewards(
-		address to,
-		address from,
-		uint256 amount
-	) public virtual override whenNotPaused returns (bool success) {
+	function calculateHolderRewards(address to)
+		public
+		virtual
+		override
+		whenNotPaused
+		returns (uint256 rewards)
+	{
 		require(to != address(0) && to != address(0), "ST16");
-		uint256 rewards = _calculateHolderRewards(to, from, amount);
+		rewards = _calculateHolderRewards(to);
 		emit TriggeredCalculateHolderRewards(to, rewards, block.timestamp);
-		return true;
+		return rewards;
 	}
 
 	/**
@@ -445,7 +449,7 @@ contract STokensV2 is
 				_calculateRewards(to);
 			} else {
 				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
-				_calculateHolderRewards(to, from, amount);
+				_calculateHolderRewards(to);
 			}
 		}
 
@@ -462,28 +466,28 @@ contract STokensV2 is
 			if (to != address(0) && _whitelistedAddresses.contains(to)) {
 				_calculateRewards(from);
 				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
-				_calculateHolderRewards(to, from, amount);
+				_calculateHolderRewards(to);
 			}
 		}
 
 		if (from != address(0) && _whitelistedAddresses.contains(from)) {
 			if (to == address(0)) {
 				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
-				_calculateHolderRewards(from, to, amount);
+				_calculateHolderRewards(from);
 			}
 
 			if (to != address(0) && !_whitelistedAddresses.contains(to)) {
 				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
-				_calculateHolderRewards(from, to, amount);
+				_calculateHolderRewards(from);
 				_calculateRewards(to);
 			}
 
 			if (to != address(0) && _whitelistedAddresses.contains(to)) {
 				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _lastMovingRewardTimestamp);
-				_calculateHolderRewards(from, address(0), amount);
+				_calculateHolderRewards(from);
 
 				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, address(0), _rewardRate, _lastMovingRewardTimestamp);
-				_calculateHolderRewards(to, address(0), amount);
+				_calculateHolderRewards(to);
 			}
 		}
 	}

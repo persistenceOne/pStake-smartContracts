@@ -30,7 +30,7 @@ interface IStakeLPCore {
 	 */
 	function addLiquidity(address lpToken, uint256 amount)
 		external
-		returns (uint256, uint256);
+		returns (bool success);
 
 	/**
 	 * @dev remove liquidity
@@ -39,7 +39,34 @@ interface IStakeLPCore {
 	 */
 	function removeLiquidity(address lpToken, uint256 amount)
 		external
-		returns (uint256, uint256);
+		returns (bool success);
+
+	/**
+	 * @dev remove liquidity
+	 *
+	 * Returns a uint256
+	 */
+	function calculateRewards(address whitelistedAddress)
+		external
+		returns (
+			uint256 reward,
+			uint256[] memory otherRewardAmounts,
+			address[] memory otherRewardTokens
+		);
+
+	/**
+	 * @dev remove liquidity
+	 *
+	 * Returns a uint256
+	 */
+	function calculateSyncedRewards(address whitelistedAddress)
+		external
+		returns (
+			uint256 reward,
+			uint256 holderReward,
+			uint256[] memory otherRewardAmounts,
+			address[] memory otherRewardTokens
+		);
 
 	/**
 	 * @dev Set UTokens smart contract.
@@ -90,31 +117,108 @@ interface IStakeLPCore {
 	 *
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
-	event CalculateRewardsAndLiquidity(
+	event CalculateRewards(
 		address indexed holderAddress,
 		address indexed lpToken,
 		address indexed to,
-		uint256 liquidity,
-		uint256 reward
+		uint256 reward,
+		uint256[] otherRewardAmounts,
+		address[] otherRewardTokens,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted when a new whitelisted address is added
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 */
+	event TriggeredCalculateRewards(
+		address indexed holderAddress,
+		address indexed lpToken,
+		address indexed to,
+		uint256 reward,
+		uint256[] otherRewardAmounts,
+		address[] otherRewardTokens,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted when a new whitelisted address is added
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 */
+	event TriggeredCalculateSyncedRewards(
+		address indexed holderAddress,
+		address indexed lpToken,
+		address indexed to,
+		uint256 reward,
+		uint256 holderReward,
+		uint256[] otherRewardAmounts,
+		address[] otherRewardTokens,
+		uint256 timestamp
 	);
 
 	/**
 	 * @dev Emitted
 	 */
-	event AddLiquidity(
-		address lpToken,
-		uint256 amount,
-		uint256 rewards,
-		uint256 liquidity
+	event AddLiquidity(address lpToken, uint256 amount, uint256 timestamp);
+
+	/**
+	 * @dev Emitted
+	 */
+	event RemoveLiquidity(address lpToken, uint256 amount, uint256 timestamp);
+
+	/**
+	 * @dev Emitted
+	 */
+	event SetHolderAddressForRewards(
+		address holderContractAddress,
+		address[] rewardTokenContractAddress,
+		uint256[] rewardTokenEmissions,
+		uint256 timestamp
 	);
 
 	/**
 	 * @dev Emitted
 	 */
-	event RemoveLiquidity(
-		address lpToken,
-		uint256 amount,
-		uint256 rewards,
-		uint256 liquidity
+	event RemoveHolderAddressForRewards(
+		address holderContractAddress,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted
+	 */
+	event SetHolderAddressesForRewards(
+		address[] holderContractAddresses,
+		address[] rewardTokenContractAddress,
+		uint256[] rewardTokenEmissions,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted
+	 */
+	event RemoveHolderAddressesForRewards(
+		address[] holderContractAddresses,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted
+	 */
+	event RemoveTokenContractForRewards(
+		address holderContractAddress,
+		address[] rewardTokenContractAddress,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted
+	 */
+	event RemoveTokenContractsForRewards(
+		address[] holderContractAddresses,
+		address[] rewardTokenContractAddress,
+		uint256 timestamp
 	);
 }

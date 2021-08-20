@@ -21,6 +21,9 @@ contract UTokensV2 is
 	address public _liquidStakingContract;
 	address public _wrapperContract;
 
+	// variable pertaining to contract upgrades versioning
+	uint256 private _version;
+
 	/**
 	 * @dev Constructor for initializing the UToken contract.
 	 * @param bridgeAdminAddress - address of the bridge admin.

@@ -12,6 +12,9 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
 	address public _stakeLPContract;
 	ISTokens public _sTokens;
 
+	// variable pertaining to contract upgrades versioning
+	uint256 private _version;
+
 	/**
 	 * @dev Constructor for initializing the Holder Uniswap contract.
 	 * @param sTokenContract - address of the SToken contract.
@@ -32,11 +35,12 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
 	 * @dev get SToken reserve supply of the whitelisted contract
 	 * argument names commented to suppress warnings
 	 */
-	function getSTokenSupply(
-		address to,
-		address, /* from */
-		uint256 /* amount */
-	) public view override returns (uint256 sTokenSupply) {
+	function getSTokenSupply(address to)
+		public
+		view
+		override
+		returns (uint256 sTokenSupply)
+	{
 		sTokenSupply = _sTokens.balanceOf(to);
 		return sTokenSupply;
 	}

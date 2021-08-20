@@ -22,11 +22,7 @@ interface IHolder {
 	/**
 	 * @dev returns stoken supply
 	 */
-	function getSTokenSupply(
-		address to,
-		address from,
-		uint256 amount
-	) external view returns (uint256);
+	function getSTokenSupply(address to) external view returns (uint256);
 
 	function safeTransfer(
 		address token,

@@ -26,7 +26,7 @@ contract TokenWrapperV2 is
 	uint256 private _minWithdraw;
 	uint256 private _depositFee;
 	uint256 private _withdrawFee;
-	uint256 private _valueDivisor;
+	uint256 public _valueDivisor;
 
 	// constants defining access control ROLES
 	bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
@@ -36,6 +36,9 @@ contract TokenWrapperV2 is
 	bytes public hrpBytes;
 	bytes public controlDigitBytes;
 	uint256 public dataBytesSize;
+
+	// variable pertaining to contract upgrades versioning
+	uint256 private _version;
 
 	/*
 	 * @dev Constructor for initializing the TokenWrapper contract.

@@ -18,6 +18,9 @@ contract PSTAKE is
 	// variables capturing data of other contracts in the product
 	address public _stakeLPCoreContract;
 
+	// variable pertaining to contract upgrades versioning
+	uint256 private _version;
+
 	/**
 	 * @dev Constructor for initializing the UToken contract.
 	 * @param pauserAddress - address of the pauser admin.

@@ -63,7 +63,7 @@ interface ISTokens is IERC20Upgradeable {
 	 *
 	 * Emits a {TriggeredCalculateRewards} event.
 	 */
-	function calculateRewards(address to) external returns (bool success);
+	function calculateRewards(address to) external returns (uint256 rewards);
 
 	/**
 	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
@@ -72,11 +72,9 @@ interface ISTokens is IERC20Upgradeable {
 	 *
 	 * Emits a {TriggeredCalculateRewards} event.
 	 */
-	function calculateHolderRewards(
-		address to,
-		address from,
-		uint256 amount
-	) external returns (bool success);
+	function calculateHolderRewards(address to)
+		external
+		returns (uint256 rewards);
 
 	/**
 	 * @dev Set UTokens smart contract.

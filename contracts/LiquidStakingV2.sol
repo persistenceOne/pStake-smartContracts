@@ -26,7 +26,7 @@ contract LiquidStakingV2 is
 	uint256 private _minUnstake;
 	uint256 private _stakeFee;
 	uint256 private _unstakeFee;
-	uint256 private _valueDivisor;
+	uint256 public _valueDivisor;
 
 	// constants defining access control ROLES
 	bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -38,13 +38,16 @@ contract LiquidStakingV2 is
 	uint256 private _unstakeEpochPrevious;
 
 	//Mapping to handle the Expiry period
-	mapping(address => uint256[]) private _unstakingExpiration;
+	mapping(address => uint256[]) public _unstakingExpiration;
 
 	//Mapping to handle the Expiry amount
-	mapping(address => uint256[]) private _unstakingAmount;
+	mapping(address => uint256[]) public _unstakingAmount;
 
 	//mappint to handle a counter variable indicating from what index to start the loop.
-	mapping(address => uint256) internal _withdrawCounters;
+	mapping(address => uint256) private _withdrawCounters;
+
+	// variable pertaining to contract upgrades versioning
+	uint256 private _version;
 
 	/**
 	 * @dev Constructor for initializing the LiquidStaking contract.
