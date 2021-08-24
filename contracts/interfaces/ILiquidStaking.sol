@@ -6,6 +6,75 @@ pragma solidity >=0.7.0;
  */
 interface ILiquidStaking {
 	/**
+	 * @dev Set 'fees', called from admin
+	 * @param stakeFee: stake fee
+	 * @param unstakeFee: unstake fee
+	 *
+	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
+	 *
+	 */
+	function setFees(uint256 stakeFee, uint256 unstakeFee)
+		external
+		returns (bool success);
+
+	/**
+	 * @dev Set 'unstake props', called from admin
+	 * @param unstakingLockTime: varies from 21 hours to 21 days
+	 *
+	 * Emits a {SetUnstakeProps} event with 'fee' set to the stake and unstake.
+	 *
+	 */
+	function setUnstakingLockTime(uint256 unstakingLockTime)
+		external
+		returns (bool success);
+
+	/**
+	 * @dev get fees, min values, value divisor and epoch props
+	 *
+	 */
+	function getStakeUnstakeProps()
+		external
+		view
+		returns (
+			uint256 stakeFee,
+			uint256 unstakeFee,
+			uint256 minStake,
+			uint256 minUnstake,
+			uint256 valueDivisor,
+			uint256 epochInterval,
+			uint256 unstakeEpoch,
+			uint256 unstakeEpochPrevious,
+			uint256 unstakingLockTime
+		);
+
+	/**
+	 * @dev Set 'minimum values', called from admin
+	 * @param minStake: stake minimum value
+	 * @param minUnstake: unstake minimum value
+	 *
+	 * Emits a {SetMinimumValues} event with 'minimum value' set to the stake and unstake.
+	 *
+	 */
+	function setMinimumValues(uint256 minStake, uint256 minUnstake)
+		external
+		returns (bool success);
+
+	/**
+	 * @dev Set 'unstake epoch', called from admin
+	 * @param unstakeEpoch: unstake epoch
+	 * @param unstakeEpochPrevious: unstake epoch previous(initially set to same value as unstakeEpoch)
+	 * @param epochInterval: varies from 3 hours to 3 days
+	 *
+	 * Emits a {SetUnstakeEpoch} event with 'unstakeEpoch'
+	 *
+	 */
+	function setUnstakeEpoch(
+		uint256 unstakeEpoch,
+		uint256 unstakeEpochPrevious,
+		uint256 epochInterval
+	) external returns (bool success);
+
+	/**
 	 *  @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
 	 *
 	 * Returns a boolean value indicating whether the operation succeeded.
@@ -83,6 +152,24 @@ interface ILiquidStaking {
 	 * Emits a {SetContract} event.
 	 */
 	function setSTokensContract(address sAddress) external;
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when fees are set

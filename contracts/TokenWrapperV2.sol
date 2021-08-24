@@ -38,7 +38,7 @@ contract TokenWrapperV2 is
 	uint256 public dataBytesSize;
 
 	// variable pertaining to contract upgrades versioning
-	uint256 private _version;
+	uint256 public _version;
 
 	/*
 	 * @dev Constructor for initializing the TokenWrapper contract.
@@ -78,6 +78,7 @@ contract TokenWrapperV2 is
 	function setFees(uint256 depositFee, uint256 withdrawFee)
 		public
 		virtual
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW1");
@@ -102,6 +103,7 @@ contract TokenWrapperV2 is
 		public
 		view
 		virtual
+		override
 		returns (
 			uint256 depositFee,
 			uint256 withdrawFee,
@@ -128,6 +130,7 @@ contract TokenWrapperV2 is
 	function setMinimumValues(uint256 minDeposit, uint256 minWithdraw)
 		public
 		virtual
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
@@ -159,7 +162,7 @@ contract TokenWrapperV2 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual returns (bool success) {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "TW7");
 		_pause();
 		return true;
@@ -172,7 +175,7 @@ contract TokenWrapperV2 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual returns (bool success) {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "TW8");
 		_unpause();
 		return true;

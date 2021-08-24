@@ -47,6 +47,23 @@ interface ISTokens is IERC20Upgradeable {
 	function setRewardRate(uint256 rewardRate) external returns (bool success);
 
 	/**
+	 * @dev get reward rate and value divisor
+	 */
+	function getRewardRate()
+		external
+		view
+		returns (uint256[] memory rewardRate, uint256 valueDivisor);
+
+	/**
+	 * @dev get rewards till timestamp
+	 * @param to: account address
+	 */
+	function getLastUserRewardTimestamp(address to)
+		external
+		view
+		returns (uint256 lastUserRewardTimestamp);
+
+	/**
 	 * @dev calculates the reward that is pending to be received.
 	 *
 	 * Returns pending reward.
@@ -77,6 +94,31 @@ interface ISTokens is IERC20Upgradeable {
 		returns (uint256 rewards);
 
 	/**
+	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 *
+	 * Emits a {TriggeredCalculateRewards} event.
+	 */
+	function setWhitelistedAddress(
+		address whitelistedAddress,
+		address holderContractAddress,
+		address lpContractAddress
+	) external returns (bool success);
+
+	/*
+	 * @dev remove 'whitelisted address', performed by admin only
+	 * @param whitelistedAddress: contract address of the whitelisted party
+	 * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
+	 *
+	 * Emits a {RemoveWhitelistedAddress} event
+	 *
+	 */
+	function removeWhitelistedAddress(address whitelistedAddress)
+		external
+		returns (bool success);
+
+	/**
 	 * @dev Set UTokens smart contract.
 	 *
 	 * Emits a {SetContract} event.
@@ -87,6 +129,24 @@ interface ISTokens is IERC20Upgradeable {
 	 * @dev Set LiquidStaking smart contract.
 	 */
 	function setLiquidStakingContract(address liquidStakingContract) external;
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when contract addresses are set

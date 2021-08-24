@@ -44,10 +44,10 @@ contract LiquidStakingV2 is
 	mapping(address => uint256[]) public _unstakingAmount;
 
 	//mappint to handle a counter variable indicating from what index to start the loop.
-	mapping(address => uint256) private _withdrawCounters;
+	mapping(address => uint256) public _withdrawCounters;
 
 	// variable pertaining to contract upgrades versioning
-	uint256 private _version;
+	uint256 public _version;
 
 	/**
 	 * @dev Constructor for initializing the LiquidStaking contract.
@@ -89,6 +89,7 @@ contract LiquidStakingV2 is
 	function setFees(uint256 stakeFee, uint256 unstakeFee)
 		public
 		virtual
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ1");
@@ -115,6 +116,7 @@ contract LiquidStakingV2 is
 	function setUnstakingLockTime(uint256 unstakingLockTime)
 		public
 		virtual
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ3");
@@ -131,6 +133,7 @@ contract LiquidStakingV2 is
 		public
 		view
 		virtual
+		override
 		returns (
 			uint256 stakeFee,
 			uint256 unstakeFee,
@@ -165,6 +168,7 @@ contract LiquidStakingV2 is
 	function setMinimumValues(uint256 minStake, uint256 minUnstake)
 		public
 		virtual
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
@@ -189,7 +193,7 @@ contract LiquidStakingV2 is
 		uint256 unstakeEpoch,
 		uint256 unstakeEpochPrevious,
 		uint256 epochInterval
-	) public virtual returns (bool success) {
+	) public virtual override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
 		require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
 		// require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
@@ -480,7 +484,7 @@ contract LiquidStakingV2 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual returns (bool success) {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LQ22");
 		_pause();
 		return true;
@@ -493,7 +497,7 @@ contract LiquidStakingV2 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual returns (bool success) {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LQ23");
 		_unpause();
 		return true;

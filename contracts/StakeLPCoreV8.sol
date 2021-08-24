@@ -42,10 +42,9 @@ contract StakeLPCoreV8 is
 	//Private instances of contracts to handle Utokens and Stokens
 	IUTokens public _uTokens;
 	ISTokens public _sTokens;
-	IPSTAKE public _pstakeTokens;
 
 	// variable pertaining to contract upgrades versioning
-	uint256 private _version;
+	uint256 public _version;
 
 	// variables pertaining to maintaining reward tokens and amounts to be disbursed
 	// List of Holder Contract Addresses
@@ -71,13 +70,11 @@ contract StakeLPCoreV8 is
 	 * @dev Constructor for initializing the LiquidStaking contract.
 	 * @param uAddress - address of the UToken contract.
 	 * @param sAddress - address of the SToken contract.
-	 * @param pStakeAddress - address of the pStake contract address.
 
 	 */
 	function initialize(
 		address uAddress,
 		address sAddress,
-		address pStakeAddress,
 		address pauserAddress,
 		uint256 valueDivisor
 	) public virtual initializer {
@@ -87,7 +84,6 @@ contract StakeLPCoreV8 is
 		_setupRole(PAUSER_ROLE, pauserAddress);
 		setUTokensContract(uAddress);
 		setSTokensContract(sAddress);
-		setPSTAKEContract(pStakeAddress);
 		_valueDivisor = valueDivisor;
 	}
 
@@ -112,6 +108,8 @@ contract StakeLPCoreV8 is
 	)
 		public
 		view
+		virtual
+		override
 		returns (
 			uint256 reward,
 			uint256[] memory otherRewardAmounts,
@@ -311,6 +309,7 @@ contract StakeLPCoreV8 is
 	 */
 	function calculateRewards(address whitelistedAddress)
 		public
+		virtual
 		override
 		whenNotPaused
 		returns (
@@ -357,6 +356,7 @@ contract StakeLPCoreV8 is
 	 */
 	function calculateSyncedRewards(address whitelistedAddress)
 		public
+		virtual
 		override
 		whenNotPaused
 		returns (
@@ -525,19 +525,6 @@ contract StakeLPCoreV8 is
 		emit SetSTokensContract(sAddress);
 	}
 
-	/**
-	 * @dev Set 'contract address', called from constructor
-	 * @param pstakeAddress: pStake contract address
-	 *
-	 * Emits a {SetPSTAKEContract} event with '_contract' set to the stoken contract address.
-	 *
-	 */
-	function setPSTAKEContract(address pstakeAddress) public virtual override {
-		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP11");
-		_pstakeTokens = IPSTAKE(pstakeAddress);
-		emit SetPSTAKEContract(pstakeAddress);
-	}
-
 	/*
 	 * @dev calculate liquidity and reward tokens and disburse to user
 	 * @param lpToken: lp token contract address
@@ -593,7 +580,7 @@ contract StakeLPCoreV8 is
 		address holderContractAddress,
 		address[] memory rewardTokenContractAddresses,
 		uint256[] memory rewardTokenEmissions
-	) public returns (bool success) {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP15");
 		// check if the holder contract address is not zero
 		require(
@@ -628,7 +615,7 @@ contract StakeLPCoreV8 is
 		address[] memory holderContractAddresses,
 		address[] memory rewardTokenContractAddresses,
 		uint256[] memory rewardTokenEmissions
-	) public returns (bool success) {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP16");
 		require(
 			rewardTokenContractAddresses.length == rewardTokenEmissions.length,
@@ -696,6 +683,7 @@ contract StakeLPCoreV8 is
 	 */
 	function removeHolderAddressForRewards(address holderContractAddress)
 		public
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP15");
@@ -720,7 +708,7 @@ contract StakeLPCoreV8 is
 	 */
 	function removeHolderAddressesForRewards(
 		address[] memory holderContractAddresses
-	) public returns (bool success) {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP16");
 		uint256 _holderContractAddressesLength = holderContractAddresses.length;
 		uint256 i;
@@ -799,7 +787,7 @@ contract StakeLPCoreV8 is
 	function removeTokenContractForRewards(
 		address holderContractAddress,
 		address[] memory rewardTokenContractAddresses
-	) public returns (bool success) {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP15");
 		// check if the holder contract address is not zero
 		require(holderContractAddress != address(0), "LP14");
@@ -826,7 +814,7 @@ contract StakeLPCoreV8 is
 	function removeTokenContractsForRewards(
 		address[] memory holderContractAddresses,
 		address[] memory rewardTokenContractAddresses
-	) public returns (bool success) {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP16");
 		uint256 _holderContractAddressesLength = holderContractAddresses.length;
 		uint256 i;
@@ -856,7 +844,7 @@ contract StakeLPCoreV8 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual returns (bool success) {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LP12");
 		_pause();
 		return true;
@@ -869,7 +857,7 @@ contract StakeLPCoreV8 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual returns (bool success) {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LP13");
 		_unpause();
 		return true;

@@ -48,7 +48,7 @@ contract STokensV2 is
 	mapping(address => uint256) private _lastUserRewardTimestamp;
 
 	// variable pertaining to contract upgrades versioning
-	uint256 private _version;
+	uint256 public _version;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -148,6 +148,7 @@ contract STokensV2 is
 		public
 		view
 		virtual
+		override
 		returns (uint256[] memory rewardRate, uint256 valueDivisor)
 	{
 		rewardRate = _rewardRate;
@@ -162,6 +163,7 @@ contract STokensV2 is
 		public
 		view
 		virtual
+		override
 		returns (uint256 lastUserRewardTimestamp)
 	{
 		lastUserRewardTimestamp = _lastUserRewardTimestamp[to];
@@ -332,10 +334,13 @@ contract STokensV2 is
 		_lastUserRewardTimestamp[to] = block.timestamp;
 
 		// mint uTokens only if reward is greater than zero
-		if (_reward > 0) {
+		/* if (_reward > 0) {
 			// Mint new uTokens and send to the callers account
 			_uTokens.mint(to, _reward);
-		}
+		} */
+
+		// mint uTokens even when _reward value is zero
+		_uTokens.mint(to, _reward);
 
 		emit CalculateRewards(to, _reward, block.timestamp);
 		return _reward;
@@ -503,7 +508,7 @@ contract STokensV2 is
 		address whitelistedAddress,
 		address holderContractAddress,
 		address lpContractAddress
-	) public virtual returns (bool success) {
+	) public virtual override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST8");
 		// lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
 		require(whitelistedAddress != address(0), "ST9");
@@ -535,6 +540,7 @@ contract STokensV2 is
 	function removeWhitelistedAddress(address whitelistedAddress)
 		public
 		virtual
+		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST10");
@@ -603,7 +609,7 @@ contract STokensV2 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual returns (bool success) {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "ST14");
 		_pause();
 		return true;
@@ -616,7 +622,7 @@ contract STokensV2 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual returns (bool success) {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "ST15");
 		_unpause();
 		return true;

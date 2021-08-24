@@ -1,10 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
-pragma solidity >= 0.7.0;
-
+pragma solidity >=0.7.0;
 
 import "./BytesLib.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
-
 
 // requirement: validate addresses like cosmosvaloper1susdz7trk9edeqf3qprkpunzqn4lyhvlduzncj
 /* 
@@ -28,388 +26,527 @@ steps:
 */
 
 contract Bech32Validation is Initializable {
-    using BytesLib for bytes;
+	using BytesLib for bytes;
 
-    bytes constant CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l';
-    bytes hrpBytes;
-    bytes controlDigitBytes;
-    uint dataSize;
+	bytes constant CHARSET = "qpzry9x8gf2tvdw0s3jn54khce6mua7l";
+	bytes hrpBytes;
+	bytes controlDigitBytes;
+	uint256 dataSize;
 
-    /*
-  * @dev Constructor for initializing the Bech32Validation contract.
-  * sets hrpBytes, controlDigitBytes and dataSize value
-  */
-    function initialize() public virtual initializer {
-        hrpBytes = "cosmos";
-        controlDigitBytes = "1"; 
-        dataSize = 38;
-    }
+	/*
+	 * @dev Constructor for initializing the Bech32Validation contract.
+	 * sets hrpBytes, controlDigitBytes and dataSize value
+	 */
+	function initialize() public virtual initializer {
+		hrpBytes = "cosmos";
+		controlDigitBytes = "1";
+		dataSize = 38;
+	}
 
-    /**
-     * @dev Return bool value based on address validation
-     * @param blockchainAddress: account address
-     */
-    function isBech32AddressValid(string memory blockchainAddress) public view returns(bool) {
-        return bech32ValidateStr(blockchainAddress);
-    }
+	/**
+	 * @dev Return bool value based on address validation
+	 * @param blockchainAddress: account address
+	 */
+	function isBech32AddressValid(string memory blockchainAddress)
+		public
+		view
+		returns (bool)
+	{
+		return bech32ValidateStr(blockchainAddress);
+	}
 
-    /**
-     * @dev splits the address with the hrp and validates the address
-     * @param addressDigestStr_: account address
-     */
-    function bech32ValidateStr(string memory addressDigestStr_) public view returns(bool) {
-        bool isValid;
+	/**
+	 * @dev splits the address with the hrp and validates the address
+	 * @param addressDigestStr_: account address
+	 */
+	function bech32ValidateStr(string memory addressDigestStr_)
+		public
+		view
+		returns (bool)
+	{
+		bool isValid;
 
-        // split hrp and compare with the bytes hrp stored
-        isValid = hrpValidateStr(addressDigestStr_);
-        if(!isValid) return isValid;
+		// split hrp and compare with the bytes hrp stored
+		isValid = hrpValidateStr(addressDigestStr_);
+		if (!isValid) return isValid;
 
-        // split controlDigit_ and compare with the bytes controlDigit_ stored
-        isValid = controlDigitValidateStr(addressDigestStr_);
-        if(!isValid) return isValid;
+		// split controlDigit_ and compare with the bytes controlDigit_ stored
+		isValid = controlDigitValidateStr(addressDigestStr_);
+		if (!isValid) return isValid;
 
-        // split addressData and compare the length with dataSize_
-        isValid = dataSizeValidateStr(addressDigestStr_);
-        if(!isValid) return isValid;
+		// split addressData and compare the length with dataSize_
+		isValid = dataSizeValidateStr(addressDigestStr_);
+		if (!isValid) return isValid;
 
-        // validate checksum
-        isValid = checksumValidateStr(addressDigestStr_);
-        if(!isValid) return isValid;
-       
-        return isValid;
-    }
+		// validate checksum
+		isValid = checksumValidateStr(addressDigestStr_);
+		if (!isValid) return isValid;
 
-    /**
-     * @dev split hrp and compare with the bytes hrp stored
-     * @param addressDigestBytes_: account address in bytes
-     * @param hrpBytes_: hrp in bytes
-     * @param controlDigitBytes_: set digit bytes (initially set to 1)
-     * @param dataSize_: data size (initially set to 38)
-     */
-    function bech32Validate(bytes memory addressDigestBytes_, bytes memory hrpBytes_, bytes memory controlDigitBytes_, uint dataSize_) public pure returns(bool) {
-        bool isValid;
+		return isValid;
+	}
 
-        // split hrp and compare with the bytes hrp stored
-        isValid = hrpValidate(addressDigestBytes_, hrpBytes_);
-        if(!isValid) return isValid;
+	/**
+	 * @dev split hrp and compare with the bytes hrp stored
+	 * @param addressDigestBytes_: account address in bytes
+	 * @param hrpBytes_: hrp in bytes
+	 * @param controlDigitBytes_: set digit bytes (initially set to 1)
+	 * @param dataSize_: data size (initially set to 38)
+	 */
+	function bech32Validate(
+		bytes memory addressDigestBytes_,
+		bytes memory hrpBytes_,
+		bytes memory controlDigitBytes_,
+		uint256 dataSize_
+	) public pure returns (bool) {
+		bool isValid;
 
-        // split controlDigit_ and compare with the bytes controlDigit_ stored
-        isValid = controlDigitValidate(addressDigestBytes_, hrpBytes_, controlDigitBytes_);
-        if(!isValid) return isValid;
+		// split hrp and compare with the bytes hrp stored
+		isValid = hrpValidate(addressDigestBytes_, hrpBytes_);
+		if (!isValid) return isValid;
 
-        // split addressData and compare the length with dataSize_
-        isValid = dataSizeValidate(addressDigestBytes_, hrpBytes_, dataSize_);
-        if(!isValid) return isValid;
+		// split controlDigit_ and compare with the bytes controlDigit_ stored
+		isValid = controlDigitValidate(
+			addressDigestBytes_,
+			hrpBytes_,
+			controlDigitBytes_
+		);
+		if (!isValid) return isValid;
 
-        // validate checksum
-        isValid = checksumValidate(addressDigestBytes_, hrpBytes_);
-        if(!isValid) return isValid;
-       
-        return isValid;
-    }
+		// split addressData and compare the length with dataSize_
+		isValid = dataSizeValidate(addressDigestBytes_, hrpBytes_, dataSize_);
+		if (!isValid) return isValid;
 
-    /**
-     * @dev converted address to bytes and validates its length and validates hrp
-     * @param addressDigestStr_: account address
-     */
-    function hrpValidateStr(string memory addressDigestStr_) public view returns(bool) {
-        bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
-        if(addressDigestBytes_.length != 45) return false;
-        return hrpValidate(addressDigestBytes_, hrpBytes);
-    }
+		// validate checksum
+		isValid = checksumValidate(addressDigestBytes_, hrpBytes_);
+		if (!isValid) return isValid;
 
-    /**
-     * @dev slices the account address in bytes and compares it with hrpBytes
-     * @param addressDigestBytes_: account address n bytes
-     * @param hrpBytes_: hrp converted to bytes
-     */
-    function hrpValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_) public pure returns(bool) {
-        bytes memory hrpDigestBytes = addressDigestBytes_.slice(0, hrpBytes_.length);
-        if(!hrpDigestBytes.equal(hrpBytes_)) return false;
-        return true;
-    }
+		return isValid;
+	}
 
-    /**
-     * @dev Returns account address converted to bytes and validates control digits
-     * @param addressDigestStr_: account address
-     */
-    function controlDigitValidateStr(string memory addressDigestStr_) public view returns(bool) {
-        bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
-        return controlDigitValidate(addressDigestBytes_, hrpBytes, controlDigitBytes);
-    }
+	/**
+	 * @dev converted address to bytes and validates its length and validates hrp
+	 * @param addressDigestStr_: account address
+	 */
+	function hrpValidateStr(string memory addressDigestStr_)
+		public
+		view
+		returns (bool)
+	{
+		bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
+		if (addressDigestBytes_.length != 45) return false;
+		return hrpValidate(addressDigestBytes_, hrpBytes);
+	}
 
-    /**
-     * @dev slices the account address in bytes and compares it with control digest bytes
-     * @param addressDigestBytes_: account address converted to bytes
-     * @param hrpBytes_: hrp in bytes
-     * @param controlDigit_: control digit in bytes
-     */
-    function controlDigitValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_, bytes memory controlDigit_) public pure returns(bool) {
-        bytes memory _controlDigestBytes = addressDigestBytes_.slice(hrpBytes_.length, 1);
-        if(!_controlDigestBytes.equal(controlDigit_)) return false;
-        return true;
-    }
+	/**
+	 * @dev slices the account address in bytes and compares it with hrpBytes
+	 * @param addressDigestBytes_: account address n bytes
+	 * @param hrpBytes_: hrp converted to bytes
+	 */
+	function hrpValidate(
+		bytes memory addressDigestBytes_,
+		bytes memory hrpBytes_
+	) public pure returns (bool) {
+		bytes memory hrpDigestBytes = addressDigestBytes_.slice(
+			0,
+			hrpBytes_.length
+		);
+		if (!hrpDigestBytes.equal(hrpBytes_)) return false;
+		return true;
+	}
 
-    /**
-     * @dev validates the dara size
-     * @param addressDigestStr_: account address
-     */
-    function dataSizeValidateStr(string memory addressDigestStr_) public view returns(bool) {
-        bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
-        return dataSizeValidate(addressDigestBytes_, hrpBytes, dataSize);
-    }
+	/**
+	 * @dev Returns account address converted to bytes and validates control digits
+	 * @param addressDigestStr_: account address
+	 */
+	function controlDigitValidateStr(string memory addressDigestStr_)
+		public
+		view
+		returns (bool)
+	{
+		bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
+		return
+			controlDigitValidate(
+				addressDigestBytes_,
+				hrpBytes,
+				controlDigitBytes
+			);
+	}
 
-    /**
-     * @dev validates the dara size
-     * @param addressDigestBytes_: account address in bytes
-     * @param hrpBytes_: hrp in bytes
-     * @param dataSize_: data size in bytes
-     */
-    function dataSizeValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_, uint dataSize_) public pure returns(bool) {
-        bytes memory _dataDigestBytes = addressDigestBytes_.slice(hrpBytes_.length+1, (addressDigestBytes_.length-hrpBytes_.length-1));
-        if(_dataDigestBytes.length != dataSize_) return false;
-        return true;
-    }
+	/**
+	 * @dev slices the account address in bytes and compares it with control digest bytes
+	 * @param addressDigestBytes_: account address converted to bytes
+	 * @param hrpBytes_: hrp in bytes
+	 * @param controlDigit_: control digit in bytes
+	 */
+	function controlDigitValidate(
+		bytes memory addressDigestBytes_,
+		bytes memory hrpBytes_,
+		bytes memory controlDigit_
+	) public pure returns (bool) {
+		bytes memory _controlDigestBytes = addressDigestBytes_.slice(
+			hrpBytes_.length,
+			1
+		);
+		if (!_controlDigestBytes.equal(controlDigit_)) return false;
+		return true;
+	}
 
-    /**
-     * @dev validates the checksun
-     * @param addressDigestStr_: account address
-     */
-    function checksumValidateStr(string memory addressDigestStr_) public view returns(bool) {
-        bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
-        return checksumValidate(addressDigestBytes_, hrpBytes);
-    }
+	/**
+	 * @dev validates the dara size
+	 * @param addressDigestStr_: account address
+	 */
+	function dataSizeValidateStr(string memory addressDigestStr_)
+		public
+		view
+		returns (bool)
+	{
+		bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
+		return dataSizeValidate(addressDigestBytes_, hrpBytes, dataSize);
+	}
 
-    /**
-     * @dev calculates checksummed data and return bool
-     * @param addressDigestBytes_: account address in bytes
-     * @param hrpBytes_: hrp in bytes
-     */
-    function checksumValidate(bytes memory addressDigestBytes_, bytes memory hrpBytes_) public pure returns(bool) {
-        bool isValid;
-        bytes memory checksummedDataBytes;
+	/**
+	 * @dev validates the dara size
+	 * @param addressDigestBytes_: account address in bytes
+	 * @param hrpBytes_: hrp in bytes
+	 * @param dataSize_: data size in bytes
+	 */
+	function dataSizeValidate(
+		bytes memory addressDigestBytes_,
+		bytes memory hrpBytes_,
+		uint256 dataSize_
+	) public pure returns (bool) {
+		bytes memory _dataDigestBytes = addressDigestBytes_.slice(
+			hrpBytes_.length + 1,
+			(addressDigestBytes_.length - hrpBytes_.length - 1)
+		);
+		if (_dataDigestBytes.length != dataSize_) return false;
+		return true;
+	}
 
-        // convert addressDigestBytes to addressDigest
-        // uint[] addressDigest = decode(_dataDigestBytes);
-        bytes memory dataBytes = addressDigestBytes_.slice(hrpBytes_.length + 1, addressDigestBytes_.length - hrpBytes_.length - 1);
-        bytes memory dataSliceBytes = addressDigestBytes_.slice(hrpBytes_.length + 1, (addressDigestBytes_.length - 6 - hrpBytes_.length - 1));
+	/**
+	 * @dev validates the checksun
+	 * @param addressDigestStr_: account address
+	 */
+	function checksumValidateStr(string memory addressDigestStr_)
+		public
+		view
+		returns (bool)
+	{
+		bytes memory addressDigestBytes_ = bytes(addressDigestStr_);
+		return checksumValidate(addressDigestBytes_, hrpBytes);
+	}
 
-        // convert data slice bytes to uint[]
-        // uint[] memory dataSlice = toUintFromBytes(dataSliceBytes);
-        uint[] memory dataSlice = decode(dataSliceBytes);
-        if(dataSlice.length == 0) return false;
+	/**
+	 * @dev calculates checksummed data and return bool
+	 * @param addressDigestBytes_: account address in bytes
+	 * @param hrpBytes_: hrp in bytes
+	 */
+	function checksumValidate(
+		bytes memory addressDigestBytes_,
+		bytes memory hrpBytes_
+	) public pure returns (bool) {
+		bool isValid;
+		bytes memory checksummedDataBytes;
 
-        // convert hrp Bytes to uint[]
-        uint[] memory hrp = toUintFromBytes(hrpBytes_);
+		// convert addressDigestBytes to addressDigest
+		// uint[] addressDigest = decode(_dataDigestBytes);
+		bytes memory dataBytes = addressDigestBytes_.slice(
+			hrpBytes_.length + 1,
+			addressDigestBytes_.length - hrpBytes_.length - 1
+		);
+		bytes memory dataSliceBytes = addressDigestBytes_.slice(
+			hrpBytes_.length + 1,
+			(addressDigestBytes_.length - 6 - hrpBytes_.length - 1)
+		);
 
-        // calculate checksummed data
-        checksummedDataBytes = encode(hrp, dataSlice);
-        isValid = dataBytes.equal(checksummedDataBytes);
-        // isValid = dataSliceBytes.equal(checksummedDataBytes);
+		// convert data slice bytes to uint[]
+		// uint[] memory dataSlice = toUintFromBytes(dataSliceBytes);
+		uint256[] memory dataSlice = decode(dataSliceBytes);
+		if (dataSlice.length == 0) return false;
 
-        return isValid;
-    }
+		// convert hrp Bytes to uint[]
+		uint256[] memory hrp = toUintFromBytes(hrpBytes_);
 
-    /**
-     * @dev decodes the account address and returns decoded bytes
-     * @param addressDigestStr_: account address
-     */
-    function decodeStr(string memory addressDigestStr_) public pure returns(uint[] memory decodedBytes) {
-        bytes memory _addressDigestBytes = bytes(addressDigestStr_);
-        decodedBytes = decode(_addressDigestBytes);
-        return decodedBytes;
-    }
+		// calculate checksummed data
+		checksummedDataBytes = encode(hrp, dataSlice);
+		isValid = dataBytes.equal(checksummedDataBytes);
+		// isValid = dataSliceBytes.equal(checksummedDataBytes);
 
-    /**
-     * @dev decodes the account address and returns decoded bytes array
-     * @param addressDigestBytes_: account address in bytes
-     */
-    function decode(bytes memory addressDigestBytes_) public pure returns(uint[] memory decodedBytes) {
-        decodedBytes = new uint[](addressDigestBytes_.length);
-        uint[] memory nullBytes;
-        uint charsetIndex;
+		return isValid;
+	}
 
-        for (uint addressDigestBytesIndex = 0; addressDigestBytesIndex < addressDigestBytes_.length; addressDigestBytesIndex++) {
-            for (charsetIndex = 0; charsetIndex < CHARSET.length; charsetIndex++) {
-                if(addressDigestBytes_[addressDigestBytesIndex] == CHARSET[charsetIndex])
-                break;
-            }
-            if(charsetIndex == CHARSET.length) return nullBytes;
-            decodedBytes[addressDigestBytesIndex] = charsetIndex;
-        }
-        return decodedBytes;
-    }
+	/**
+	 * @dev decodes the account address and returns decoded bytes
+	 * @param addressDigestStr_: account address
+	 */
+	function decodeStr(string memory addressDigestStr_)
+		public
+		pure
+		returns (uint256[] memory decodedBytes)
+	{
+		bytes memory _addressDigestBytes = bytes(addressDigestStr_);
+		decodedBytes = decode(_addressDigestBytes);
+		return decodedBytes;
+	}
 
-    /**
-     * @dev converts string to uint and returns data digest array
-     * @param dataDigestStr_: data digest
-     */
-    function toUintFromStr(string memory dataDigestStr_) public pure returns(uint[] memory dataDigest) {
-        bytes memory _dataDigestBytes = bytes(dataDigestStr_);
-        return toUintFromBytes(_dataDigestBytes);
-    }
+	/**
+	 * @dev decodes the account address and returns decoded bytes array
+	 * @param addressDigestBytes_: account address in bytes
+	 */
+	function decode(bytes memory addressDigestBytes_)
+		public
+		pure
+		returns (uint256[] memory decodedBytes)
+	{
+		decodedBytes = new uint256[](addressDigestBytes_.length);
+		uint256[] memory nullBytes;
+		uint256 charsetIndex;
 
-    /**
-     * @dev converts bytes to uint and returns data digest array
-     * @param dataDigestBytes_: data digest in bytes
-     */
-    function toUintFromBytes(bytes memory dataDigestBytes_) public pure returns(uint[] memory dataDigest) {
-        dataDigest = new uint[](dataDigestBytes_.length);
-        for (uint dataDigestIndex = 0; dataDigestIndex < dataDigestBytes_.length; dataDigestIndex++) {
-            dataDigest[dataDigestIndex] = uint256(uint8(dataDigestBytes_[dataDigestIndex]));
-        }
-        return dataDigest;
-    }
+		for (
+			uint256 addressDigestBytesIndex = 0;
+			addressDigestBytesIndex < addressDigestBytes_.length;
+			addressDigestBytesIndex++
+		) {
+			for (
+				charsetIndex = 0;
+				charsetIndex < CHARSET.length;
+				charsetIndex++
+			) {
+				if (
+					addressDigestBytes_[addressDigestBytesIndex] ==
+					CHARSET[charsetIndex]
+				) break;
+			}
+			if (charsetIndex == CHARSET.length) return nullBytes;
+			decodedBytes[addressDigestBytesIndex] = charsetIndex;
+		}
+		return decodedBytes;
+	}
 
-    /**
-     * @dev converts bytes2 to uint and returns data digest array
-     * @param dataDigestBytes_: data digest in bytes
-     */
-    function toUintFromBytes2(bytes memory dataDigestBytes_) public pure returns(uint[] memory dataDigest) {
-        dataDigest = new uint[](dataDigestBytes_.length);
-        for (uint dataDigestIndex = 0; dataDigestIndex < dataDigestBytes_.length; dataDigestIndex++) {
-            dataDigest[dataDigestIndex] = uint256(bytes32(dataDigestBytes_[dataDigestIndex]));
-        }
-        return dataDigest;
-    }
+	/**
+	 * @dev converts string to uint and returns data digest array
+	 * @param dataDigestStr_: data digest
+	 */
+	function toUintFromStr(string memory dataDigestStr_)
+		public
+		pure
+		returns (uint256[] memory dataDigest)
+	{
+		bytes memory _dataDigestBytes = bytes(dataDigestStr_);
+		return toUintFromBytes(_dataDigestBytes);
+	}
 
-    /**
-     * @dev checks the polymod and return int value
-     * @param values: values in array
-     */
-    function polymod(uint[] memory values) internal pure returns(uint) {
-        uint32[5] memory GENERATOR = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3];
-        uint chk = 1;
-        for (uint p = 0; p < values.length; p++) {
-            uint top = chk >> 25;
-            chk = (chk & 0x1ffffff) << 5 ^ values[p];
-            for (uint i = 0; i < 5; i++) {
-                if ((top >> i) & 1 == 1) {
-                    chk ^= GENERATOR[i];
-                }
-            }
-        }
-        return chk;
-    }
+	/**
+	 * @dev converts bytes to uint and returns data digest array
+	 * @param dataDigestBytes_: data digest in bytes
+	 */
+	function toUintFromBytes(bytes memory dataDigestBytes_)
+		public
+		pure
+		returns (uint256[] memory dataDigest)
+	{
+		dataDigest = new uint256[](dataDigestBytes_.length);
+		for (
+			uint256 dataDigestIndex = 0;
+			dataDigestIndex < dataDigestBytes_.length;
+			dataDigestIndex++
+		) {
+			dataDigest[dataDigestIndex] = uint256(
+				uint8(dataDigestBytes_[dataDigestIndex])
+			);
+		}
+		return dataDigest;
+	}
 
-    /**
-     * @dev expands the hrp and return int[] value
-     * @param hrp: hrp in array
-     */
-    function hrpExpand(uint[] memory hrp) internal pure returns (uint[] memory) {
-        uint[] memory ret = new uint[](hrp.length+hrp.length+1);
-        for (uint p = 0; p < hrp.length; p++) {
-            ret[p] = hrp[p] >> 5;
-        }
-        ret[hrp.length] = 0;
-        for (uint p = 0; p < hrp.length; p++) {
-            ret[p+hrp.length+1] = hrp[p] & 31;
-        }
-        return ret;
-    }
+	/**
+	 * @dev converts bytes2 to uint and returns data digest array
+	 * @param dataDigestBytes_: data digest in bytes
+	 */
+	function toUintFromBytes2(bytes memory dataDigestBytes_)
+		public
+		pure
+		returns (uint256[] memory dataDigest)
+	{
+		dataDigest = new uint256[](dataDigestBytes_.length);
+		for (
+			uint256 dataDigestIndex = 0;
+			dataDigestIndex < dataDigestBytes_.length;
+			dataDigestIndex++
+		) {
+			dataDigest[dataDigestIndex] = uint256(
+				bytes32(dataDigestBytes_[dataDigestIndex])
+			);
+		}
+		return dataDigest;
+	}
 
-    /**
-     * @dev  combines two strings together
-     * @param left: left int value in array
-     * @param right: right int value in array
-     */
-    function concat(uint[] memory left, uint[] memory right) internal pure returns(uint[] memory) {
-        uint[] memory ret = new uint[](left.length + right.length);
+	/**
+	 * @dev checks the polymod and return int value
+	 * @param values: values in array
+	 */
+	function polymod(uint256[] memory values) internal pure returns (uint256) {
+		uint32[5] memory GENERATOR = [
+			0x3b6a57b2,
+			0x26508e6d,
+			0x1ea119fa,
+			0x3d4233dd,
+			0x2a1462b3
+		];
+		uint256 chk = 1;
+		for (uint256 p = 0; p < values.length; p++) {
+			uint256 top = chk >> 25;
+			chk = ((chk & 0x1ffffff) << 5) ^ values[p];
+			for (uint256 i = 0; i < 5; i++) {
+				if ((top >> i) & 1 == 1) {
+					chk ^= GENERATOR[i];
+				}
+			}
+		}
+		return chk;
+	}
 
-        uint i = 0;
-        for (; i < left.length; i++) {
-            ret[i] = left[i];
-        }
+	/**
+	 * @dev expands the hrp and return int[] value
+	 * @param hrp: hrp in array
+	 */
+	function hrpExpand(uint256[] memory hrp)
+		internal
+		pure
+		returns (uint256[] memory)
+	{
+		uint256[] memory ret = new uint256[](hrp.length + hrp.length + 1);
+		for (uint256 p = 0; p < hrp.length; p++) {
+			ret[p] = hrp[p] >> 5;
+		}
+		ret[hrp.length] = 0;
+		for (uint256 p = 0; p < hrp.length; p++) {
+			ret[p + hrp.length + 1] = hrp[p] & 31;
+		}
+		return ret;
+	}
 
-        uint j = 0;
-        while (j < right.length) {
-            ret[i++] = right[j++];
-        }
+	/**
+	 * @dev  combines two strings together
+	 * @param left: left int value in array
+	 * @param right: right int value in array
+	 */
+	function concat(uint256[] memory left, uint256[] memory right)
+		internal
+		pure
+		returns (uint256[] memory)
+	{
+		uint256[] memory ret = new uint256[](left.length + right.length);
 
-        return ret;
-    }
+		uint256 i = 0;
+		for (; i < left.length; i++) {
+			ret[i] = left[i];
+		}
 
-    /**
-     * @dev  add trailing padding to the data
-     * @param array: array int value in array
-     * @param val: value
-     * @param num: num
-     */
-    function extend(uint[] memory array, uint val, uint num) internal pure returns(uint[] memory) {
-        uint[] memory ret = new uint[](array.length + num);
+		uint256 j = 0;
+		while (j < right.length) {
+			ret[i++] = right[j++];
+		}
 
-        uint i = 0;
-        for (; i < array.length; i++) {
-            ret[i] = array[i];
-        }
+		return ret;
+	}
 
-        uint j = 0;
-        while (j < num) {
-            ret[i++] = val;
-            j++;
-        }
+	/**
+	 * @dev  add trailing padding to the data
+	 * @param array: array int value in array
+	 * @param val: value
+	 * @param num: num
+	 */
+	function extend(
+		uint256[] memory array,
+		uint256 val,
+		uint256 num
+	) internal pure returns (uint256[] memory) {
+		uint256[] memory ret = new uint256[](array.length + num);
 
-        return ret;
-    }
+		uint256 i = 0;
+		for (; i < array.length; i++) {
+			ret[i] = array[i];
+		}
 
-    /**
-    * @dev  create checksum
-    * @param hrp: hrp int value in array
-    * @param data: data int value in array
-    */
-    function createChecksum(uint[] memory hrp, uint[] memory data) internal pure returns (uint[] memory) {
-        uint[] memory values = extend(concat(hrpExpand(hrp), data), 0, 6);
-        uint mod = polymod(values) ^ 1;
-        uint[] memory ret = new uint[](6);
-        for (uint p = 0; p < 6; p++) {
-            ret[p] = (mod >> 5 * (5 - p)) & 31;
-        }
-        return ret;
-    }
+		uint256 j = 0;
+		while (j < num) {
+			ret[i++] = val;
+			j++;
+		}
 
-    /**
-    * @dev  encode to the bech32 alphabet list
-    * @param hrp: hrp int value in array
-    * @param data: data int value in array
-    */
-    function encode(uint[] memory hrp, uint[] memory data) internal pure returns (bytes memory) {
-        uint[] memory combined = concat(data, createChecksum(hrp, data));
-        // uint[] memory combined = data;
+		return ret;
+	}
 
-        // TODO: prepend hrp
+	/**
+	 * @dev  create checksum
+	 * @param hrp: hrp int value in array
+	 * @param data: data int value in array
+	 */
+	function createChecksum(uint256[] memory hrp, uint256[] memory data)
+		internal
+		pure
+		returns (uint256[] memory)
+	{
+		uint256[] memory values = extend(concat(hrpExpand(hrp), data), 0, 6);
+		uint256 mod = polymod(values) ^ 1;
+		uint256[] memory ret = new uint256[](6);
+		for (uint256 p = 0; p < 6; p++) {
+			ret[p] = (mod >> (5 * (5 - p))) & 31;
+		}
+		return ret;
+	}
 
-        // convert uint[] to bytes
-        bytes memory ret = new bytes(combined.length);
-        for (uint p = 0; p < combined.length; p++) {
-            ret[p] = CHARSET[combined[p]];
-        }
+	/**
+	 * @dev  encode to the bech32 alphabet list
+	 * @param hrp: hrp int value in array
+	 * @param data: data int value in array
+	 */
+	function encode(uint256[] memory hrp, uint256[] memory data)
+		internal
+		pure
+		returns (bytes memory)
+	{
+		uint256[] memory combined = concat(data, createChecksum(hrp, data));
+		// uint[] memory combined = data;
 
-        return ret;
-    }
+		// TODO: prepend hrp
 
-    /**
-    * @dev  converts the data
-    * @param data: data int value in array
-    * @param inBits: inBits
-    * @param outBits: outBits
-    */
-    function convert(uint[] memory data, uint inBits, uint outBits) internal pure returns (uint[] memory) {
-        uint value = 0;
-        uint bits = 0;
-        uint maxV = (1 << outBits) - 1;
+		// convert uint[] to bytes
+		bytes memory ret = new bytes(combined.length);
+		for (uint256 p = 0; p < combined.length; p++) {
+			ret[p] = CHARSET[combined[p]];
+		}
 
-        uint[] memory ret = new uint[](32);
-        uint j = 0;
-        for (uint i = 0; i < data.length; ++i) {
-            value = (value << inBits) | data[i];
-            bits += inBits;
+		return ret;
+	}
 
-            while (bits >= outBits) {
-                bits -= outBits;
-                ret[j] = (value >> bits) & maxV;
-                j += 1;
-            }
-        }
-        return ret;
-    }
+	/**
+	 * @dev  converts the data
+	 * @param data: data int value in array
+	 * @param inBits: inBits
+	 * @param outBits: outBits
+	 */
+	function convert(
+		uint256[] memory data,
+		uint256 inBits,
+		uint256 outBits
+	) internal pure returns (uint256[] memory) {
+		uint256 value = 0;
+		uint256 bits = 0;
+		uint256 maxV = (1 << outBits) - 1;
+
+		uint256[] memory ret = new uint256[](32);
+		uint256 j = 0;
+		for (uint256 i = 0; i < data.length; ++i) {
+			value = (value << inBits) | data[i];
+			bits += inBits;
+
+			while (bits >= outBits) {
+				bits -= outBits;
+				ret[j] = (value >> bits) & maxV;
+				j += 1;
+			}
+		}
+		return ret;
+	}
 }

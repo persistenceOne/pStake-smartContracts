@@ -5,6 +5,29 @@ pragma solidity >=0.7.0;
  * @dev Interface of the IStakeLPCore.
  */
 interface IStakeLPCore {
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param to: user address
+	 * @param liquidityWeightFactor: coming as an argument for further calculations
+	 * @param rewardWeightFactor: coming as an argument for further calculations
+	 * @param valueDivisor: coming as an argument for further calculations
+	 */
+	function calculatePendingRewards(
+		address holderAddress,
+		address lpToken,
+		address to
+	)
+		external
+		view
+		returns (
+			uint256 reward,
+			uint256[] memory otherRewardAmounts,
+			address[] memory otherRewardTokens,
+			uint256[] memory updatedRewardPoolBalances,
+			uint256 updatedSupplyLPTimeshare
+		);
+
 	/**
 	 * @dev Mints `amount` tokens to the caller's address `to`.
 	 *
@@ -22,24 +45,6 @@ interface IStakeLPCore {
 	 * Emits a {Transfer} event.
 	 */
 	//function burn(address from, uint256 tokens) external returns (bool);
-
-	/**
-	 * @dev adds liquidity
-	 *
-	 * Returns a uint256
-	 */
-	function addLiquidity(address lpToken, uint256 amount)
-		external
-		returns (bool success);
-
-	/**
-	 * @dev remove liquidity
-	 *
-	 * Returns a uint256
-	 */
-	function removeLiquidity(address lpToken, uint256 amount)
-		external
-		returns (bool success);
 
 	/**
 	 * @dev remove liquidity
@@ -69,6 +74,24 @@ interface IStakeLPCore {
 		);
 
 	/**
+	 * @dev adds liquidity
+	 *
+	 * Returns a uint256
+	 */
+	function addLiquidity(address lpToken, uint256 amount)
+		external
+		returns (bool success);
+
+	/**
+	 * @dev remove liquidity
+	 *
+	 * Returns a uint256
+	 */
+	function removeLiquidity(address lpToken, uint256 amount)
+		external
+		returns (bool success);
+
+	/**
 	 * @dev Set UTokens smart contract.
 	 *
 	 *
@@ -84,13 +107,83 @@ interface IStakeLPCore {
 	 */
 	function setSTokensContract(address sAddress) external;
 
-	/**
-	 * @dev Set UTokens smart contract.
-	 *
-	 *
-	 * Emits a {SetContract} event.
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param amount: token amount
 	 */
-	function setPSTAKEContract(address sAddress) external;
+	function setHolderAddressForRewards(
+		address holderContractAddress,
+		address[] memory rewardTokenContractAddresses,
+		uint256[] memory rewardTokenEmissions
+	) external returns (bool success);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param amount: token amount
+	 */
+	function setHolderAddressesForRewards(
+		address[] memory holderContractAddresses,
+		address[] memory rewardTokenContractAddresses,
+		uint256[] memory rewardTokenEmissions
+	) external returns (bool success);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param amount: token amount
+	 */
+	function removeHolderAddressForRewards(address holderContractAddress)
+		external
+		returns (bool success);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param amount: token amount
+	 */
+	function removeHolderAddressesForRewards(
+		address[] memory holderContractAddresses
+	) external returns (bool success);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param amount: token amount
+	 */
+	function removeTokenContractForRewards(
+		address holderContractAddress,
+		address[] memory rewardTokenContractAddresses
+	) external returns (bool success);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param lpToken: lp token contract address
+	 * @param amount: token amount
+	 */
+	function removeTokenContractsForRewards(
+		address[] memory holderContractAddresses,
+		address[] memory rewardTokenContractAddresses
+	) external returns (bool success);
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Set LiquidStaking smart contract.

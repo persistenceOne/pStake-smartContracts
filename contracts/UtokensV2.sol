@@ -22,7 +22,7 @@ contract UTokensV2 is
 	address public _wrapperContract;
 
 	// variable pertaining to contract upgrades versioning
-	uint256 private _version;
+	uint256 public _version;
 
 	/**
 	 * @dev Constructor for initializing the UToken contract.
@@ -154,7 +154,7 @@ contract UTokensV2 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual returns (bool success) {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "UT6");
 		_pause();
 		return true;
@@ -167,7 +167,7 @@ contract UTokensV2 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual returns (bool success) {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "UT7");
 		_unpause();
 		return true;

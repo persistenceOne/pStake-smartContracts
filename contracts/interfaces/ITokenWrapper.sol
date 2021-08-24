@@ -5,6 +5,37 @@ pragma solidity >=0.7.0;
  * @dev Interface of the ITokenWrapper.
  */
 interface ITokenWrapper {
+	function setFees(uint256 depositFee, uint256 withdrawFee)
+		external
+		returns (bool success);
+
+	/**
+	 * @dev get fees, minimum set values and value divisor
+	 *
+	 */
+	function getProps()
+		external
+		view
+		returns (
+			uint256 depositFee,
+			uint256 withdrawFee,
+			uint256 minDeposit,
+			uint256 minWithdraw,
+			uint256 valueDivisor
+		);
+
+	/**
+	 * @dev Set 'minimum values', called from admin
+	 * @param minDeposit: deposit minimum value
+	 * @param minWithdraw: withdraw minimum value
+	 *
+	 * Emits a {SetMinimumValues} event with 'minimum value' set to withdraw.
+	 *
+	 */
+	function setMinimumValues(uint256 minDeposit, uint256 minWithdraw)
+		external
+		returns (bool success);
+
 	/**
 	 * @dev Set UTokens smart contract.
 	 * Emits a {SetUTokensContract} event.
@@ -47,6 +78,24 @@ interface ITokenWrapper {
 		uint256 tokens,
 		string memory toChainAddress
 	) external;
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when fees are set

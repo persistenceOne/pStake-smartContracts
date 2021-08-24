@@ -38,6 +38,7 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
 	function getSTokenSupply(address to)
 		public
 		view
+		virtual
 		override
 		returns (uint256 sTokenSupply)
 	{
