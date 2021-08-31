@@ -37,6 +37,9 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable {
 
 	/**
 	 * @dev get SToken reserve supply of the whitelisted contract
+	 * @param to - to address
+	 * @param from - from address
+	 * @param amount: token amount
 	 *
 	 */
 	function getSTokenSupply(
@@ -78,6 +81,13 @@ contract HolderUniswap is IHolder, Initializable, AccessControlUpgradeable {
 		emit SetStakeLPContract(stakeLPContract);
 	}
 
+	/*
+	 * @dev performs safe transfer
+	 * @param token: token address
+	 * @param to: to address
+	 * @param value: token amount
+	 *
+	 */
 	function safeTransfer(
 		address token,
 		address to,

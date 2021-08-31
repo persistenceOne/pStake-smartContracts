@@ -36,6 +36,13 @@ library FullMath {
 		return l * r;
 	}
 
+	/**
+	 * @dev  Calculates floor(a×b÷denominator) with full precision. Throws if result overflows a uint256 or denominator == 0
+	 * @param a The multiplicand
+	 * @param b The multiplier
+	 * @param denominator The divisor
+	 * @return result The 256-bit result
+	 */
 	function mulDiv(
 		uint256 x,
 		uint256 y,

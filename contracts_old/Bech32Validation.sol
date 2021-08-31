@@ -57,7 +57,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev splits the address with the hrp and validates the address
-	 * @param addressDigestStr_: account address
+	 * @param addressDigestStr_: account address in string
 	 */
 	function bech32ValidateStr(string memory addressDigestStr_)
 		public
@@ -89,7 +89,7 @@ contract Bech32Validation is Initializable {
 	 * @dev split hrp and compare with the bytes hrp stored
 	 * @param addressDigestBytes_: account address in bytes
 	 * @param hrpBytes_: hrp in bytes
-	 * @param controlDigitBytes_: set digit bytes (initially set to 1)
+	 * @param controlDigitBytes_: digit bytes (initially set to 1)
 	 * @param dataSize_: data size (initially set to 38)
 	 */
 	function bech32Validate(
@@ -125,7 +125,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev converted address to bytes and validates its length and validates hrp
-	 * @param addressDigestStr_: account address
+	 * @param addressDigestStr_: account address in string
 	 */
 	function hrpValidateStr(string memory addressDigestStr_)
 		public
@@ -139,7 +139,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev slices the account address in bytes and compares it with hrpBytes
-	 * @param addressDigestBytes_: account address n bytes
+	 * @param addressDigestBytes_: account address in bytes
 	 * @param hrpBytes_: hrp converted to bytes
 	 */
 	function hrpValidate(
@@ -156,7 +156,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev Returns account address converted to bytes and validates control digits
-	 * @param addressDigestStr_: account address
+	 * @param addressDigestStr_: account address in string
 	 */
 	function controlDigitValidateStr(string memory addressDigestStr_)
 		public
@@ -193,7 +193,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev validates the dara size
-	 * @param addressDigestStr_: account address
+	 * @param addressDigestStr_: account address in string
 	 */
 	function dataSizeValidateStr(string memory addressDigestStr_)
 		public
@@ -225,7 +225,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev validates the checksun
-	 * @param addressDigestStr_: account address
+	 * @param addressDigestStr_: account address in string
 	 */
 	function checksumValidateStr(string memory addressDigestStr_)
 		public
@@ -277,7 +277,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev decodes the account address and returns decoded bytes
-	 * @param addressDigestStr_: account address
+	 * @param addressDigestStr_: account address in string
 	 */
 	function decodeStr(string memory addressDigestStr_)
 		public
@@ -325,7 +325,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev converts string to uint and returns data digest array
-	 * @param dataDigestStr_: data digest
+	 * @param dataDigestStr_: data digest in string
 	 */
 	function toUintFromStr(string memory dataDigestStr_)
 		public
@@ -381,7 +381,7 @@ contract Bech32Validation is Initializable {
 	}
 
 	/**
-	 * @dev checks the polymod and return int value
+	 * @dev checks the polymod and returns int value
 	 * @param values: values in array
 	 */
 	function polymod(uint256[] memory values) internal pure returns (uint256) {
@@ -407,7 +407,7 @@ contract Bech32Validation is Initializable {
 
 	/**
 	 * @dev expands the hrp and return int[] value
-	 * @param hrp: hrp in array
+	 * @param hrp: hrp value in array
 	 */
 	function hrpExpand(uint256[] memory hrp)
 		internal

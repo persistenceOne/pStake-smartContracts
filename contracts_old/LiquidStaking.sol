@@ -306,6 +306,7 @@ contract LiquidStaking is
 
 	/**
 	 * @dev returns the nearest epoch milestone in the future
+	 * @param _unstakeTimestamp: timestamp when the unstake of tokens happened
 	 */
 	function getUnstakeEpochMilestone(uint256 _unstakeTimestamp)
 		public
@@ -333,6 +334,7 @@ contract LiquidStaking is
 
 	/**
 	 * @dev returns the time left for unbonding to finish
+	 * @param _unstakeTimestamp: timestamp when the unstake of tokens happened
 	 */
 	function getUnstakeTime(uint256 _unstakeTimestamp)
 		public

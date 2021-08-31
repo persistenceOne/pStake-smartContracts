@@ -45,6 +45,7 @@ contract StakeLPCore is
 	 * @param uAddress - address of the UToken contract.
 	 * @param sAddress - address of the SToken contract.
 	 * @param pStakeAddress - address of the pStake contract address.
+	 * @param pauserAddress - address of the pauser admin.
 	 */
 	function initialize(
 		address uAddress,
@@ -66,9 +67,6 @@ contract StakeLPCore is
 	 * @dev calculate liquidity and reward tokens and disburse to user
 	 * @param lpToken: lp token contract address
 	 * @param to: user address
-	 * @param liquidityWeightFactor: coming as an argument for further calculations
-	 * @param rewardWeightFactor: coming as an argument for further calculations
-	 * @param valueDivisor: coming as an argument for further calculations
 	 */
 	function calculatePendingRewardsAndLiquidity(address lpToken, address to)
 		public
@@ -117,11 +115,9 @@ contract StakeLPCore is
 
 	/*
 	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param holderAddress: holder contract address
 	 * @param lpToken: lp token contract address
 	 * @param to: user address
-	 * @param liquidityWeightFactor: coming as an argument for further calculations
-	 * @param rewardWeightFactor: coming as an argument for further calculations
-	 * @param valueDivisor: coming as an argument for further calculations
 	 */
 	function _calculateRewardsAndLiquidity(
 		address holderAddress,
