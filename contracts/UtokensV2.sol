@@ -4,11 +4,11 @@ pragma solidity >=0.7.0;
 import "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/IUTokens.sol";
+import "./interfaces/IUTokensV2.sol";
 
 contract UTokensV2 is
 	ERC20Upgradeable,
-	IUTokens,
+	IUTokensV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {

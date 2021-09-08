@@ -6,15 +6,6 @@ pragma solidity >=0.7.0;
  */
 interface IHolder {
 	/**
-	 * @dev get SToken reserve supply of the whitelisted contract
-	 * argument names commented to suppress warnings
-	 */
-	function getSTokenSupply(address to)
-		external
-		view
-		returns (uint256 sTokenSupply);
-
-	/**
 	 * @dev Set UTokens smart contract.
 	 *
 	 * Emits a {SetSTokensContract} event.
@@ -29,10 +20,14 @@ interface IHolder {
 	function setStakeLPContract(address stakeLPContract) external;
 
 	/**
-	 * @dev Set UTokens smart contract.
-	 *
-	 * Emits a {SetSTokensContract} event.
+	 * @dev returns stoken supply
 	 */
+	function getSTokenSupply(
+		address to,
+		address from,
+		uint256 amount
+	) external view returns (uint256);
+
 	function safeTransfer(
 		address token,
 		address to,

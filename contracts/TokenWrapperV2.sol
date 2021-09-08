@@ -4,13 +4,13 @@ pragma solidity >=0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/IUTokens.sol";
-import "./interfaces/ITokenWrapper.sol";
+import "./interfaces/IUTokensV2.sol";
+import "./interfaces/ITokenWrapperV2.sol";
 import "./libraries/Bech32.sol";
 import "./libraries/FullMath.sol";
 
 contract TokenWrapperV2 is
-	ITokenWrapper,
+	ITokenWrapperV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -19,7 +19,7 @@ contract TokenWrapperV2 is
 	using Bech32 for string;
 
 	//Private instances of contracts to handle Utokens and Stokens
-	IUTokens public _uTokens;
+	IUTokensV2 public _uTokens;
 
 	// defining the fees and minimum values
 	uint256 private _minDeposit;
@@ -151,7 +151,7 @@ contract TokenWrapperV2 is
 	 */
 	function setUTokensContract(address uAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW6");
-		_uTokens = IUTokens(uAddress);
+		_uTokens = IUTokensV2(uAddress);
 		emit SetUTokensContract(uAddress);
 	}
 

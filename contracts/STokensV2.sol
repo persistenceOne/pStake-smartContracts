@@ -6,14 +6,14 @@ import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/ISTokens.sol";
-import "./interfaces/IUTokens.sol";
-import "./interfaces/IHolder.sol";
+import "./interfaces/ISTokensV2.sol";
+import "./interfaces/IUTokensV2.sol";
+import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
 contract STokensV2 is
 	ERC20Upgradeable,
-	ISTokens,
+	ISTokensV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -39,7 +39,7 @@ contract STokensV2 is
 	// variables capturing data of other contracts in the product
 	address public _liquidStakingContract;
 	// address public _stakeLPCoreContract;
-	IUTokens public _uTokens;
+	IUTokensV2 public _uTokens;
 
 	// variables pertaining to moving reward rate logic
 	uint256[] private _rewardRate;
@@ -233,7 +233,11 @@ contract STokensV2 is
 		uint256 _lastMovingRewardLength = _lastMovingRewardTimestamp.length.sub(
 			1
 		);
-		for (_index = _lastMovingRewardLength; _index >= 0; ) {
+		for (
+			_index = _lastMovingRewardLength;
+			_index >= 0;
+			_index = _index.sub(1)
+		) {
 			// logic applies for all indexes of array except last index
 			if (_index < _lastMovingRewardTimestamp.length.sub(1)) {
 				if (_lastMovingRewardTimestamp[_index] > lastRewardTimestamp) {
@@ -287,11 +291,6 @@ contract STokensV2 is
 					);
 					break;
 				}
-			}
-
-			if (_index == 0) break;
-			else {
-				_index = _index.sub(1);
 			}
 		}
 		return pendingRewards;
@@ -383,7 +382,7 @@ contract STokensV2 is
 				_lpContractAddress[to] != address(0),
 			"ST6"
 		);
-		uint256 _sTokenSupply = IHolder(_holderContractAddress[to])
+		uint256 _sTokenSupply = IHolderV2(_holderContractAddress[to])
 			.getSTokenSupply(to);
 
 		// calculate the reward applying the moving reward rate
@@ -453,7 +452,7 @@ contract STokensV2 is
 			if (!_whitelistedAddresses.contains(to)) {
 				_calculateRewards(to);
 			} else {
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to);
 			}
 		}
@@ -470,28 +469,28 @@ contract STokensV2 is
 
 			if (to != address(0) && _whitelistedAddresses.contains(to)) {
 				_calculateRewards(from);
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to);
 			}
 		}
 
 		if (from != address(0) && _whitelistedAddresses.contains(from)) {
 			if (to == address(0)) {
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(from);
 			}
 
 			if (to != address(0) && !_whitelistedAddresses.contains(to)) {
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(from);
 				_calculateRewards(to);
 			}
 
 			if (to != address(0) && _whitelistedAddresses.contains(to)) {
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _lastMovingRewardTimestamp);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(from);
 
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, address(0), _rewardRate, _lastMovingRewardTimestamp);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(to, address(0), _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to);
 			}
 		}
@@ -581,7 +580,7 @@ contract STokensV2 is
 		override
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST12");
-		_uTokens = IUTokens(uTokenContract);
+		_uTokens = IUTokensV2(uTokenContract);
 		emit SetUTokensContract(uTokenContract);
 	}
 

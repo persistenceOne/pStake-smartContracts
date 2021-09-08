@@ -4,13 +4,13 @@ pragma solidity >=0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "./interfaces/ISTokens.sol";
-import "./interfaces/IUTokens.sol";
-import "./interfaces/ILiquidStaking.sol";
+import "./interfaces/ISTokensV2.sol";
+import "./interfaces/IUTokensV2.sol";
+import "./interfaces/ILiquidStakingV2.sol";
 import "./libraries/FullMath.sol";
 
 contract LiquidStakingV2 is
-	ILiquidStaking,
+	ILiquidStakingV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -18,8 +18,8 @@ contract LiquidStakingV2 is
 	using FullMath for uint256;
 
 	//Private instances of contracts to handle Utokens and Stokens
-	IUTokens public _uTokens;
-	ISTokens public _sTokens;
+	IUTokensV2 public _uTokens;
+	ISTokensV2 public _sTokens;
 
 	// defining the fees and minimum values
 	uint256 private _minStake;
@@ -214,7 +214,7 @@ contract LiquidStakingV2 is
 	 */
 	function setUTokensContract(address uAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ10");
-		_uTokens = IUTokens(uAddress);
+		_uTokens = IUTokensV2(uAddress);
 		emit SetUTokensContract(uAddress);
 	}
 
@@ -227,7 +227,7 @@ contract LiquidStakingV2 is
 	 */
 	function setSTokensContract(address sAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ11");
-		_sTokens = ISTokens(sAddress);
+		_sTokens = ISTokensV2(sAddress);
 		emit SetSTokensContract(sAddress);
 	}
 

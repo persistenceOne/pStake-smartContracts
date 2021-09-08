@@ -1,0 +1,2037 @@
+{
+  "contractName": "IUTokensV2",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Approval",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_contract",
+          "type": "address"
+        }
+      ],
+      "name": "SetLiquidStakingContract",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_contract",
+          "type": "address"
+        }
+      ],
+      "name": "SetSTokensContract",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "_contract",
+          "type": "address"
+        }
+      ],
+      "name": "SetWrapperContract",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "value",
+          "type": "uint256"
+        }
+      ],
+      "name": "Transfer",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        }
+      ],
+      "name": "allowance",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "spender",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "approve",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "balanceOf",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "totalSupply",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transfer",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sender",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "recipient",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "transferFrom",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        }
+      ],
+      "name": "mint",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "from",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "tokens",
+          "type": "uint256"
+        }
+      ],
+      "name": "burn",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "liquidStakingContract",
+          "type": "address"
+        }
+      ],
+      "name": "setLiquidStakingContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "stokenContract",
+          "type": "address"
+        }
+      ],
+      "name": "setSTokenContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "wrapperTokensContract",
+          "type": "address"
+        }
+      ],
+      "name": "setWrapperContract",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Approval\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"}],\"name\":\"SetLiquidStakingContract\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"}],\"name\":\"SetSTokensContract\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"_contract\",\"type\":\"address\"}],\"name\":\"SetWrapperContract\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"value\",\"type\":\"uint256\"}],\"name\":\"Transfer\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"}],\"name\":\"allowance\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"spender\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"approve\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"balanceOf\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"from\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"}],\"name\":\"burn\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"tokens\",\"type\":\"uint256\"}],\"name\":\"mint\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pause\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"liquidStakingContract\",\"type\":\"address\"}],\"name\":\"setLiquidStakingContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"stokenContract\",\"type\":\"address\"}],\"name\":\"setSTokenContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"wrapperTokensContract\",\"type\":\"address\"}],\"name\":\"setWrapperContract\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"totalSupply\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transfer\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"sender\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"recipient\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"transferFrom\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"unpause\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"details\":\"Interface of the IUTokens.\",\"events\":{\"SetLiquidStakingContract(address)\":{\"details\":\"Emitted when contract addresses are set\"},\"SetSTokensContract(address)\":{\"details\":\"Emitted when contract addresses are set\"},\"SetWrapperContract(address)\":{\"details\":\"Emitted when contract addresses are set\"}},\"kind\":\"dev\",\"methods\":{\"allowance(address,address)\":{\"details\":\"Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called.\"},\"approve(address,uint256)\":{\"details\":\"Sets `amount` as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event.\"},\"balanceOf(address)\":{\"details\":\"Returns the amount of tokens owned by `account`.\"},\"burn(address,uint256)\":{\"details\":\"Burns `amount` tokens to the caller's address `from`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"mint(address,uint256)\":{\"details\":\"Mints `amount` tokens to the caller's address `to`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"pause()\":{\"details\":\"Triggers stopped state. Requirements: - The contract must not be paused.\"},\"setLiquidStakingContract(address)\":{\"details\":\"Set LiquidStaking smart contract.\"},\"setSTokenContract(address)\":{\"details\":\"Set STokens smart contract.\"},\"setWrapperContract(address)\":{\"details\":\"Set PegTokens smart contract.\"},\"totalSupply()\":{\"details\":\"Returns the amount of tokens in existence.\"},\"transfer(address,uint256)\":{\"details\":\"Moves `amount` tokens from the caller's account to `recipient`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"transferFrom(address,address,uint256)\":{\"details\":\"Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event.\"},\"unpause()\":{\"details\":\"Returns to normal state. Requirements: - The contract must be paused.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/interfaces/IUTokensV2.sol\":\"IUTokensV2\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol\":{\"keccak256\":\"0xa1931c47a617014f858580db625aa0dcf343796f39acd4b5b51effc092a1f0a9\",\"license\":\"MIT\",\"urls\":[\"bzz-raw://2cbeb499bad52667b96dd7df8e9b1f583e8c07afaba0018a75e5b7ff6e777173\",\"dweb:/ipfs/QmPLJnuhEcWnpmhMHKsiuVHVxMwb5k6idYyjajbrtZLz5B\"]},\"project:/contracts/interfaces/IUTokensV2.sol\":{\"keccak256\":\"0xc940b24b233016f7d4d439541ef2b157fd38ee0dc723a1f47ad99d616c3ecd7e\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://ab124b9ee26403d87616cc043b2e1dc74f083beb04762a758ce8bfe4a94b0337\",\"dweb:/ipfs/Qmf6RNB8zbenHv4oWuJEycqugujzCPUhDhe6BVfgZfUebf\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity >=0.7.0;\n\nimport \"@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol\";\n\n/**\n * @dev Interface of the IUTokens.\n */\ninterface IUTokensV2 is IERC20Upgradeable {\n\t/**\n\t * @dev Mints `amount` tokens to the caller's address `to`.\n\t *\n\t * Returns a boolean value indicating whether the operation succeeded.\n\t *\n\t * Emits a {Transfer} event.\n\t */\n\tfunction mint(address to, uint256 tokens) external returns (bool success);\n\n\t/**\n\t * @dev Burns `amount` tokens to the caller's address `from`.\n\t *\n\t * Returns a boolean value indicating whether the operation succeeded.\n\t *\n\t * Emits a {Transfer} event.\n\t */\n\tfunction burn(address from, uint256 tokens) external returns (bool success);\n\n\t/**\n\t * @dev Set LiquidStaking smart contract.\n\t */\n\tfunction setLiquidStakingContract(address liquidStakingContract) external;\n\n\t/**\n\t * @dev Set STokens smart contract.\n\t */\n\tfunction setSTokenContract(address stokenContract) external;\n\n\t/**\n\t * @dev Set PegTokens smart contract.\n\t */\n\tfunction setWrapperContract(address wrapperTokensContract) external;\n\n\t/**\n\t * @dev Triggers stopped state.\n\t *\n\t * Requirements:\n\t *\n\t * - The contract must not be paused.\n\t */\n\tfunction pause() external returns (bool success);\n\n\t/**\n\t * @dev Returns to normal state.\n\t *\n\t * Requirements:\n\t *\n\t * - The contract must be paused.\n\t */\n\tfunction unpause() external returns (bool success);\n\n\t/**\n\t * @dev Emitted when contract addresses are set\n\t */\n\tevent SetSTokensContract(address indexed _contract);\n\n\t/**\n\t * @dev Emitted when contract addresses are set\n\t */\n\tevent SetWrapperContract(address indexed _contract);\n\n\t/**\n\t * @dev Emitted when contract addresses are set\n\t */\n\tevent SetLiquidStakingContract(address indexed _contract);\n}\n",
+  "sourcePath": "C:\\Users\\Kamlesh\\Persistence\\pStake\\codebase\\pStake-smartContracts\\contracts\\interfaces\\IUTokensV2.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/interfaces/IUTokensV2.sol",
+    "exportedSymbols": {
+      "IERC20Upgradeable": [
+        1336
+      ],
+      "IUTokensV2": [
+        17805
+      ]
+    },
+    "id": 17806,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 17735,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:24:41"
+      },
+      {
+        "absolutePath": "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "file": "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+        "id": 17736,
+        "nodeType": "ImportDirective",
+        "scope": 17806,
+        "sourceUnit": 1337,
+        "src": "65:79:41",
+        "symbolAliases": [],
+        "unitAlias": ""
+      },
+      {
+        "abstract": false,
+        "baseContracts": [
+          {
+            "baseName": {
+              "id": 17738,
+              "name": "IERC20Upgradeable",
+              "nodeType": "UserDefinedTypeName",
+              "referencedDeclaration": 1336,
+              "src": "213:17:41",
+              "typeDescriptions": {
+                "typeIdentifier": "t_contract$_IERC20Upgradeable_$1336",
+                "typeString": "contract IERC20Upgradeable"
+              }
+            },
+            "id": 17739,
+            "nodeType": "InheritanceSpecifier",
+            "src": "213:17:41"
+          }
+        ],
+        "contractDependencies": [
+          1336
+        ],
+        "contractKind": "interface",
+        "documentation": {
+          "id": 17737,
+          "nodeType": "StructuredDocumentation",
+          "src": "146:42:41",
+          "text": " @dev Interface of the IUTokens."
+        },
+        "fullyImplemented": false,
+        "id": 17805,
+        "linearizedBaseContracts": [
+          17805,
+          1336
+        ],
+        "name": "IUTokensV2",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 17740,
+              "nodeType": "StructuredDocumentation",
+              "src": "234:179:41",
+              "text": " @dev Mints `amount` tokens to the caller's address `to`.\n Returns a boolean value indicating whether the operation succeeded.\n Emits a {Transfer} event."
+            },
+            "functionSelector": "40c10f19",
+            "id": 17749,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "mint",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17745,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17742,
+                  "mutability": "mutable",
+                  "name": "to",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17749,
+                  "src": "429:10:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17741,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "429:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 17744,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17749,
+                  "src": "441:14:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 17743,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "441:7:41",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "428:28:41"
+            },
+            "returnParameters": {
+              "id": 17748,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17747,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17749,
+                  "src": "475:12:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 17746,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "475:4:41",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "474:14:41"
+            },
+            "scope": 17805,
+            "src": "415:74:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 17750,
+              "nodeType": "StructuredDocumentation",
+              "src": "492:181:41",
+              "text": " @dev Burns `amount` tokens to the caller's address `from`.\n Returns a boolean value indicating whether the operation succeeded.\n Emits a {Transfer} event."
+            },
+            "functionSelector": "9dc29fac",
+            "id": 17759,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "burn",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17755,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17752,
+                  "mutability": "mutable",
+                  "name": "from",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17759,
+                  "src": "689:12:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17751,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "689:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 17754,
+                  "mutability": "mutable",
+                  "name": "tokens",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17759,
+                  "src": "703:14:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 17753,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "703:7:41",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "688:30:41"
+            },
+            "returnParameters": {
+              "id": 17758,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17757,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17759,
+                  "src": "737:12:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 17756,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "737:4:41",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "736:14:41"
+            },
+            "scope": 17805,
+            "src": "675:76:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 17760,
+              "nodeType": "StructuredDocumentation",
+              "src": "754:51:41",
+              "text": " @dev Set LiquidStaking smart contract."
+            },
+            "functionSelector": "58f8943e",
+            "id": 17765,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setLiquidStakingContract",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17763,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17762,
+                  "mutability": "mutable",
+                  "name": "liquidStakingContract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17765,
+                  "src": "841:29:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17761,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "841:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "840:31:41"
+            },
+            "returnParameters": {
+              "id": 17764,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "880:0:41"
+            },
+            "scope": 17805,
+            "src": "807:74:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 17766,
+              "nodeType": "StructuredDocumentation",
+              "src": "884:45:41",
+              "text": " @dev Set STokens smart contract."
+            },
+            "functionSelector": "e8cb7844",
+            "id": 17771,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setSTokenContract",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17769,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17768,
+                  "mutability": "mutable",
+                  "name": "stokenContract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17771,
+                  "src": "958:22:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17767,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "958:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "957:24:41"
+            },
+            "returnParameters": {
+              "id": 17770,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "990:0:41"
+            },
+            "scope": 17805,
+            "src": "931:60:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 17772,
+              "nodeType": "StructuredDocumentation",
+              "src": "994:47:41",
+              "text": " @dev Set PegTokens smart contract."
+            },
+            "functionSelector": "4e558127",
+            "id": 17777,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setWrapperContract",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17775,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17774,
+                  "mutability": "mutable",
+                  "name": "wrapperTokensContract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17777,
+                  "src": "1071:29:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17773,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1071:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1070:31:41"
+            },
+            "returnParameters": {
+              "id": 17776,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1110:0:41"
+            },
+            "scope": 17805,
+            "src": "1043:68:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 17778,
+              "nodeType": "StructuredDocumentation",
+              "src": "1114:106:41",
+              "text": " @dev Triggers stopped state.\n Requirements:\n - The contract must not be paused."
+            },
+            "functionSelector": "8456cb59",
+            "id": 17783,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "pause",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17779,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1236:2:41"
+            },
+            "returnParameters": {
+              "id": 17782,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17781,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17783,
+                  "src": "1257:12:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 17780,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1257:4:41",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1256:14:41"
+            },
+            "scope": 17805,
+            "src": "1222:49:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 17784,
+              "nodeType": "StructuredDocumentation",
+              "src": "1274:103:41",
+              "text": " @dev Returns to normal state.\n Requirements:\n - The contract must be paused."
+            },
+            "functionSelector": "3f4ba83a",
+            "id": 17789,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "unpause",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 17785,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1395:2:41"
+            },
+            "returnParameters": {
+              "id": 17788,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17787,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17789,
+                  "src": "1416:12:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 17786,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1416:4:41",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1415:14:41"
+            },
+            "scope": 17805,
+            "src": "1379:51:41",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 17790,
+              "nodeType": "StructuredDocumentation",
+              "src": "1433:57:41",
+              "text": " @dev Emitted when contract addresses are set"
+            },
+            "id": 17794,
+            "name": "SetSTokensContract",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 17793,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17792,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "_contract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17794,
+                  "src": "1517:25:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17791,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1517:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1516:27:41"
+            },
+            "src": "1492:52:41"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 17795,
+              "nodeType": "StructuredDocumentation",
+              "src": "1547:57:41",
+              "text": " @dev Emitted when contract addresses are set"
+            },
+            "id": 17799,
+            "name": "SetWrapperContract",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 17798,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17797,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "_contract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17799,
+                  "src": "1631:25:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17796,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1631:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1630:27:41"
+            },
+            "src": "1606:52:41"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 17800,
+              "nodeType": "StructuredDocumentation",
+              "src": "1661:57:41",
+              "text": " @dev Emitted when contract addresses are set"
+            },
+            "id": 17804,
+            "name": "SetLiquidStakingContract",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 17803,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 17802,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "_contract",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 17804,
+                  "src": "1751:25:41",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 17801,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1751:7:41",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1750:27:41"
+            },
+            "src": "1720:58:41"
+          }
+        ],
+        "scope": 17806,
+        "src": "189:1591:41"
+      }
+    ],
+    "src": "39:1742:41"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/interfaces/IUTokensV2.sol",
+      "exportedSymbols": {
+        "IERC20Upgradeable": [
+          1336
+        ],
+        "IUTokensV2": [
+          17805
+        ]
+      },
+      "license": "UNLICENSED"
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            ">=",
+            "0.7",
+            ".0"
+          ]
+        },
+        "id": 17735,
+        "name": "PragmaDirective",
+        "src": "39:24:41"
+      },
+      {
+        "attributes": {
+          "SourceUnit": 1337,
+          "absolutePath": "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+          "file": "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol",
+          "scope": 17806,
+          "symbolAliases": [
+            null
+          ],
+          "unitAlias": ""
+        },
+        "id": 17736,
+        "name": "ImportDirective",
+        "src": "65:79:41"
+      },
+      {
+        "attributes": {
+          "abstract": false,
+          "contractDependencies": [
+            1336
+          ],
+          "contractKind": "interface",
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            17805,
+            1336
+          ],
+          "name": "IUTokensV2",
+          "scope": 17806
+        },
+        "children": [
+          {
+            "attributes": {
+              "text": " @dev Interface of the IUTokens."
+            },
+            "id": 17737,
+            "name": "StructuredDocumentation",
+            "src": "146:42:41"
+          },
+          {
+            "attributes": {},
+            "children": [
+              {
+                "attributes": {
+                  "name": "IERC20Upgradeable",
+                  "referencedDeclaration": 1336,
+                  "type": "contract IERC20Upgradeable"
+                },
+                "id": 17738,
+                "name": "UserDefinedTypeName",
+                "src": "213:17:41"
+              }
+            ],
+            "id": 17739,
+            "name": "InheritanceSpecifier",
+            "src": "213:17:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "40c10f19",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "mint",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Mints `amount` tokens to the caller's address `to`.\n Returns a boolean value indicating whether the operation succeeded.\n Emits a {Transfer} event."
+                },
+                "id": 17740,
+                "name": "StructuredDocumentation",
+                "src": "234:179:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "to",
+                      "scope": 17749,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17741,
+                        "name": "ElementaryTypeName",
+                        "src": "429:7:41"
+                      }
+                    ],
+                    "id": 17742,
+                    "name": "VariableDeclaration",
+                    "src": "429:10:41"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "tokens",
+                      "scope": 17749,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 17743,
+                        "name": "ElementaryTypeName",
+                        "src": "441:7:41"
+                      }
+                    ],
+                    "id": 17744,
+                    "name": "VariableDeclaration",
+                    "src": "441:14:41"
+                  }
+                ],
+                "id": 17745,
+                "name": "ParameterList",
+                "src": "428:28:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 17749,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 17746,
+                        "name": "ElementaryTypeName",
+                        "src": "475:4:41"
+                      }
+                    ],
+                    "id": 17747,
+                    "name": "VariableDeclaration",
+                    "src": "475:12:41"
+                  }
+                ],
+                "id": 17748,
+                "name": "ParameterList",
+                "src": "474:14:41"
+              }
+            ],
+            "id": 17749,
+            "name": "FunctionDefinition",
+            "src": "415:74:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "9dc29fac",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "burn",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Burns `amount` tokens to the caller's address `from`.\n Returns a boolean value indicating whether the operation succeeded.\n Emits a {Transfer} event."
+                },
+                "id": 17750,
+                "name": "StructuredDocumentation",
+                "src": "492:181:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "from",
+                      "scope": 17759,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17751,
+                        "name": "ElementaryTypeName",
+                        "src": "689:7:41"
+                      }
+                    ],
+                    "id": 17752,
+                    "name": "VariableDeclaration",
+                    "src": "689:12:41"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "tokens",
+                      "scope": 17759,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 17753,
+                        "name": "ElementaryTypeName",
+                        "src": "703:7:41"
+                      }
+                    ],
+                    "id": 17754,
+                    "name": "VariableDeclaration",
+                    "src": "703:14:41"
+                  }
+                ],
+                "id": 17755,
+                "name": "ParameterList",
+                "src": "688:30:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 17759,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 17756,
+                        "name": "ElementaryTypeName",
+                        "src": "737:4:41"
+                      }
+                    ],
+                    "id": 17757,
+                    "name": "VariableDeclaration",
+                    "src": "737:12:41"
+                  }
+                ],
+                "id": 17758,
+                "name": "ParameterList",
+                "src": "736:14:41"
+              }
+            ],
+            "id": 17759,
+            "name": "FunctionDefinition",
+            "src": "675:76:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "58f8943e",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "setLiquidStakingContract",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Set LiquidStaking smart contract."
+                },
+                "id": 17760,
+                "name": "StructuredDocumentation",
+                "src": "754:51:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "liquidStakingContract",
+                      "scope": 17765,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17761,
+                        "name": "ElementaryTypeName",
+                        "src": "841:7:41"
+                      }
+                    ],
+                    "id": 17762,
+                    "name": "VariableDeclaration",
+                    "src": "841:29:41"
+                  }
+                ],
+                "id": 17763,
+                "name": "ParameterList",
+                "src": "840:31:41"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 17764,
+                "name": "ParameterList",
+                "src": "880:0:41"
+              }
+            ],
+            "id": 17765,
+            "name": "FunctionDefinition",
+            "src": "807:74:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "e8cb7844",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "setSTokenContract",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Set STokens smart contract."
+                },
+                "id": 17766,
+                "name": "StructuredDocumentation",
+                "src": "884:45:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "stokenContract",
+                      "scope": 17771,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17767,
+                        "name": "ElementaryTypeName",
+                        "src": "958:7:41"
+                      }
+                    ],
+                    "id": 17768,
+                    "name": "VariableDeclaration",
+                    "src": "958:22:41"
+                  }
+                ],
+                "id": 17769,
+                "name": "ParameterList",
+                "src": "957:24:41"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 17770,
+                "name": "ParameterList",
+                "src": "990:0:41"
+              }
+            ],
+            "id": 17771,
+            "name": "FunctionDefinition",
+            "src": "931:60:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "4e558127",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "setWrapperContract",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Set PegTokens smart contract."
+                },
+                "id": 17772,
+                "name": "StructuredDocumentation",
+                "src": "994:47:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "wrapperTokensContract",
+                      "scope": 17777,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17773,
+                        "name": "ElementaryTypeName",
+                        "src": "1071:7:41"
+                      }
+                    ],
+                    "id": 17774,
+                    "name": "VariableDeclaration",
+                    "src": "1071:29:41"
+                  }
+                ],
+                "id": 17775,
+                "name": "ParameterList",
+                "src": "1070:31:41"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 17776,
+                "name": "ParameterList",
+                "src": "1110:0:41"
+              }
+            ],
+            "id": 17777,
+            "name": "FunctionDefinition",
+            "src": "1043:68:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "8456cb59",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "pause",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Triggers stopped state.\n Requirements:\n - The contract must not be paused."
+                },
+                "id": 17778,
+                "name": "StructuredDocumentation",
+                "src": "1114:106:41"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 17779,
+                "name": "ParameterList",
+                "src": "1236:2:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 17783,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 17780,
+                        "name": "ElementaryTypeName",
+                        "src": "1257:4:41"
+                      }
+                    ],
+                    "id": 17781,
+                    "name": "VariableDeclaration",
+                    "src": "1257:12:41"
+                  }
+                ],
+                "id": 17782,
+                "name": "ParameterList",
+                "src": "1256:14:41"
+              }
+            ],
+            "id": 17783,
+            "name": "FunctionDefinition",
+            "src": "1222:49:41"
+          },
+          {
+            "attributes": {
+              "functionSelector": "3f4ba83a",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "unpause",
+              "scope": 17805,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Returns to normal state.\n Requirements:\n - The contract must be paused."
+                },
+                "id": 17784,
+                "name": "StructuredDocumentation",
+                "src": "1274:103:41"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 17785,
+                "name": "ParameterList",
+                "src": "1395:2:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 17789,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 17786,
+                        "name": "ElementaryTypeName",
+                        "src": "1416:4:41"
+                      }
+                    ],
+                    "id": 17787,
+                    "name": "VariableDeclaration",
+                    "src": "1416:12:41"
+                  }
+                ],
+                "id": 17788,
+                "name": "ParameterList",
+                "src": "1415:14:41"
+              }
+            ],
+            "id": 17789,
+            "name": "FunctionDefinition",
+            "src": "1379:51:41"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetSTokensContract"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when contract addresses are set"
+                },
+                "id": 17790,
+                "name": "StructuredDocumentation",
+                "src": "1433:57:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "_contract",
+                      "scope": 17794,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17791,
+                        "name": "ElementaryTypeName",
+                        "src": "1517:7:41"
+                      }
+                    ],
+                    "id": 17792,
+                    "name": "VariableDeclaration",
+                    "src": "1517:25:41"
+                  }
+                ],
+                "id": 17793,
+                "name": "ParameterList",
+                "src": "1516:27:41"
+              }
+            ],
+            "id": 17794,
+            "name": "EventDefinition",
+            "src": "1492:52:41"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetWrapperContract"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when contract addresses are set"
+                },
+                "id": 17795,
+                "name": "StructuredDocumentation",
+                "src": "1547:57:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "_contract",
+                      "scope": 17799,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17796,
+                        "name": "ElementaryTypeName",
+                        "src": "1631:7:41"
+                      }
+                    ],
+                    "id": 17797,
+                    "name": "VariableDeclaration",
+                    "src": "1631:25:41"
+                  }
+                ],
+                "id": 17798,
+                "name": "ParameterList",
+                "src": "1630:27:41"
+              }
+            ],
+            "id": 17799,
+            "name": "EventDefinition",
+            "src": "1606:52:41"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetLiquidStakingContract"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when contract addresses are set"
+                },
+                "id": 17800,
+                "name": "StructuredDocumentation",
+                "src": "1661:57:41"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "_contract",
+                      "scope": 17804,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 17801,
+                        "name": "ElementaryTypeName",
+                        "src": "1751:7:41"
+                      }
+                    ],
+                    "id": 17802,
+                    "name": "VariableDeclaration",
+                    "src": "1751:25:41"
+                  }
+                ],
+                "id": 17803,
+                "name": "ParameterList",
+                "src": "1750:27:41"
+              }
+            ],
+            "id": 17804,
+            "name": "EventDefinition",
+            "src": "1720:58:41"
+          }
+        ],
+        "id": 17805,
+        "name": "ContractDefinition",
+        "src": "189:1591:41"
+      }
+    ],
+    "id": 17806,
+    "name": "SourceUnit",
+    "src": "39:1742:41"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.6+commit.7338295f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.3",
+  "updatedAt": "2021-08-31T04:24:30.700Z",
+  "devdoc": {
+    "details": "Interface of the IUTokens.",
+    "events": {
+      "SetLiquidStakingContract(address)": {
+        "details": "Emitted when contract addresses are set"
+      },
+      "SetSTokensContract(address)": {
+        "details": "Emitted when contract addresses are set"
+      },
+      "SetWrapperContract(address)": {
+        "details": "Emitted when contract addresses are set"
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "allowance(address,address)": {
+        "details": "Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through {transferFrom}. This is zero by default. This value changes when {approve} or {transferFrom} are called."
+      },
+      "approve(address,uint256)": {
+        "details": "Sets `amount` as the allowance of `spender` over the caller's tokens. Returns a boolean value indicating whether the operation succeeded. IMPORTANT: Beware that changing an allowance with this method brings the risk that someone may use both the old and the new allowance by unfortunate transaction ordering. One possible solution to mitigate this race condition is to first reduce the spender's allowance to 0 and set the desired value afterwards: https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729 Emits an {Approval} event."
+      },
+      "balanceOf(address)": {
+        "details": "Returns the amount of tokens owned by `account`."
+      },
+      "burn(address,uint256)": {
+        "details": "Burns `amount` tokens to the caller's address `from`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+      },
+      "mint(address,uint256)": {
+        "details": "Mints `amount` tokens to the caller's address `to`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+      },
+      "pause()": {
+        "details": "Triggers stopped state. Requirements: - The contract must not be paused."
+      },
+      "setLiquidStakingContract(address)": {
+        "details": "Set LiquidStaking smart contract."
+      },
+      "setSTokenContract(address)": {
+        "details": "Set STokens smart contract."
+      },
+      "setWrapperContract(address)": {
+        "details": "Set PegTokens smart contract."
+      },
+      "totalSupply()": {
+        "details": "Returns the amount of tokens in existence."
+      },
+      "transfer(address,uint256)": {
+        "details": "Moves `amount` tokens from the caller's account to `recipient`. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+      },
+      "transferFrom(address,address,uint256)": {
+        "details": "Moves `amount` tokens from `sender` to `recipient` using the allowance mechanism. `amount` is then deducted from the caller's allowance. Returns a boolean value indicating whether the operation succeeded. Emits a {Transfer} event."
+      },
+      "unpause()": {
+        "details": "Returns to normal state. Requirements: - The contract must be paused."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.7.0;
 
-import "../interfaces/IHolder.sol";
-import "../interfaces/ISTokens.sol";
+import "../interfaces/IHolderV2.sol";
+import "../interfaces/ISTokensV2.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "../libraries/TransferHelper.sol";
 
-contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
+contract HolderUniswapV2 is IHolderV2, Initializable, AccessControlUpgradeable {
 	// variables capturing data of other contracts in the product
 	address public _stakeLPContract;
-	ISTokens public _sTokens;
+	ISTokensV2 public _sTokens;
 
 	// variable pertaining to contract upgrades versioning
 	uint256 private _version;
@@ -27,7 +27,7 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
 	{
 		__AccessControl_init();
 		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-		_sTokens = ISTokens(sTokenContract);
+		_sTokens = ISTokensV2(sTokenContract);
 		_stakeLPContract = stakeLPContract;
 	}
 
@@ -55,7 +55,7 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
 	 */
 	function setSTokensContract(address sAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "HU1");
-		_sTokens = ISTokens(sAddress);
+		_sTokens = ISTokensV2(sAddress);
 		emit SetSTokensContract(sAddress);
 	}
 
@@ -85,5 +85,17 @@ contract HolderUniswapV2 is IHolder, Initializable, AccessControlUpgradeable {
 
 		// finally transfer the new LP Tokens to the user address
 		TransferHelper.safeTransfer(token, to, value);
+	}
+
+	function safeTransferFrom(
+		address token,
+		address from,
+		address to,
+		uint256 value
+	) public virtual override {
+		require(_msgSender() == _stakeLPContract, "HU4");
+
+		// finally transfer the new LP Tokens to the user address
+		TransferHelper.safeTransferFrom(token, from, to, value);
 	}
 }
