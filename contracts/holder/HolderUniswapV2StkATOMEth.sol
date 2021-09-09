@@ -3,14 +3,27 @@ pragma solidity >=0.7.0;
 
 import "../interfaces/IHolderV2.sol";
 import "../interfaces/ISTokensV2.sol";
+import "../interfaces/ISTokens.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "../libraries/TransferHelper.sol";
 
-contract HolderUniswapV2 is IHolderV2, Initializable, AccessControlUpgradeable {
+contract HolderUniswapV2StkATOMEth is
+	IHolderV2,
+	Initializable,
+	AccessControlUpgradeable
+{
 	// variables capturing data of other contracts in the product
-	address public _stakeLPContract;
-	ISTokensV2 public _sTokens;
+	address private _stakeLPContract;
+	ISTokens private _sTokenContract;
+
+	// value divisor to make weight factor a fraction if need be
+	uint256 private _valueDivisor;
+
+	//Private instances of contracts to handle Utokens and Stokens
+	ISTokens private _sTokens;
+
+	ISTokensV2 public _sTokensV2;
 
 	// variable pertaining to contract upgrades versioning
 	uint256 private _version;
@@ -27,7 +40,7 @@ contract HolderUniswapV2 is IHolderV2, Initializable, AccessControlUpgradeable {
 	{
 		__AccessControl_init();
 		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-		_sTokens = ISTokensV2(sTokenContract);
+		_sTokensV2 = ISTokensV2(sTokenContract);
 		_stakeLPContract = stakeLPContract;
 	}
 
@@ -42,7 +55,7 @@ contract HolderUniswapV2 is IHolderV2, Initializable, AccessControlUpgradeable {
 		override
 		returns (uint256 sTokenSupply)
 	{
-		sTokenSupply = _sTokens.balanceOf(to);
+		sTokenSupply = _sTokensV2.balanceOf(to);
 		return sTokenSupply;
 	}
 
@@ -55,7 +68,7 @@ contract HolderUniswapV2 is IHolderV2, Initializable, AccessControlUpgradeable {
 	 */
 	function setSTokensContract(address sAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "HU1");
-		_sTokens = ISTokensV2(sAddress);
+		_sTokensV2 = ISTokensV2(sAddress);
 		emit SetSTokensContract(sAddress);
 	}
 

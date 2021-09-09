@@ -62,19 +62,19 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-     /* provider: () =>
+      /* provider: () =>
         new HDWalletProvider(
           "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
           `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
         ),*/
       provider: () =>
-          new HDWalletProvider(
-              mnemonic,
-              `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-          ),
+        new HDWalletProvider(
+          mnemonic,
+          `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
+        ),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
-      gasPrice: 30000000000,
+      gasPrice: 100000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )
@@ -87,10 +87,10 @@ module.exports = {
            `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
          ),*/
       provider: () =>
-          new HDWalletProvider(
-              mnemonic,
-              `https://eth-mainnet.alchemyapi.io/v2/vD3x9QX71JVFQhFTYPZa_3eP-RfkODNi`
-          ),
+        new HDWalletProvider(
+          mnemonic,
+          `https://eth-mainnet.alchemyapi.io/v2/vD3x9QX71JVFQhFTYPZa_3eP-RfkODNi`
+        ),
       network_id: 1, // Mainnet's id
       gas: 10000000, // Ropsten has a lower block limit than mainnet
       gasPrice: 50000000000,

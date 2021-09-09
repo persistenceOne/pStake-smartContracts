@@ -1,11 +1,8 @@
 const StakeLPArtifactV8 = artifacts.require("StakeLPCoreV8");
-// const StakeLPArtifactV7 = artifacts.require("StakeLPCoreV7");
+const StakeLPArtifactV7 = artifacts.require("StakeLPCoreV7");
 
 const { upgradeProxy } = require("@openzeppelin/truffle-upgrades");
 var StakeLPInstance;
-const StakeLPArtifactV7 = {
-  address: "0x6532f1cc72F34523aB815d2A7f2754afec17c8B4",
-};
 
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
@@ -21,7 +18,7 @@ module.exports = async function (deployer, network, accounts) {
 
   if (network === "ropsten") {
     let gasPriceRopsten = 1e11;
-    let gasLimitRopsten = 5000000;
+    let gasLimitRopsten = 7000000;
     await upgradeStakeLPCoreV2(
       gasPriceRopsten,
       gasLimitRopsten,
@@ -66,6 +63,8 @@ async function upgradeStakeLPCoreV2(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
+  let from_defaultAdmin = accounts[0];
+
   // console.log("StakeLP address: ", StakeLPArtifactV7.address);
 
   /* StakeLPInstance = await upgradeProxy(
@@ -81,6 +80,14 @@ async function upgradeStakeLPCoreV2(gasPrice, gasLimit, deployer, accounts) {
   );
 
   console.log("StakeLP upgraded: ", StakeLPInstance.address);
+
+  // set contract addresses in UTokens Contract
+  const txReceipt = await StakeLPInstance.upgradeToV8({
+    from: from_defaultAdmin,
+    gasPrice: gasPrice,
+    gas: gasLimit,
+  });
+  console.log("upgradeToV8() done");
 
   console.log("ALL DONE.");
 }
