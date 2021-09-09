@@ -74,7 +74,7 @@ interface IStakeLPCoreV2 {
 	 *
 	 * Returns a uint256
 	 */
-	function calculateRewards(address whitelistedAddress)
+	function calculateRewards(address whitelistedAddress, address sTokenAddress)
 		external
 		returns (
 			uint256 reward,
@@ -87,7 +87,10 @@ interface IStakeLPCoreV2 {
 	 *
 	 * Returns a uint256
 	 */
-	function calculateSyncedRewards(address whitelistedAddress)
+	function calculateSyncedRewards(
+		address whitelistedAddress,
+		address sTokenAddress
+	)
 		external
 		returns (
 			uint256 reward,
@@ -101,18 +104,22 @@ interface IStakeLPCoreV2 {
 	 *
 	 * Returns a uint256
 	 */
-	function addLiquidity(address lpToken, uint256 amount)
-		external
-		returns (bool success);
+	function addLiquidity(
+		address lpToken,
+		address sTokenAddress,
+		uint256 amount
+	) external returns (bool success);
 
 	/**
 	 * @dev remove liquidity
 	 *
 	 * Returns a uint256
 	 */
-	function removeLiquidity(address lpToken, uint256 amount)
-		external
-		returns (bool success);
+	function removeLiquidity(
+		address lpToken,
+		address sTokenAddress,
+		uint256 amount
+	) external returns (bool success);
 
 	/**
 	 * @dev Set UTokens smart contract.
@@ -270,6 +277,7 @@ interface IStakeLPCoreV2 {
 	event TriggeredCalculateRewardsStakeLP(
 		address indexed holderAddress,
 		address indexed lpToken,
+		address uTokenAddress,
 		address indexed to,
 		uint256 tokens,
 		uint256[] otherRewardAmounts,
@@ -285,8 +293,9 @@ interface IStakeLPCoreV2 {
 	event TriggeredCalculateSyncedRewards(
 		address indexed holderAddress,
 		address indexed lpToken,
+		address uTokenAddress,
 		address indexed to,
-		uint256 reward,
+		uint256 tokens,
 		uint256 holderReward,
 		uint256[] otherRewardAmounts,
 		address[] otherRewardTokens,
@@ -296,12 +305,12 @@ interface IStakeLPCoreV2 {
 	/**
 	 * @dev Emitted
 	 */
-	event AddLiquidity(address lpToken, uint256 amount, uint256 timestamp);
+	event AddLiquidity(address lpToken, uint256 tokens, uint256 timestamp);
 
 	/**
 	 * @dev Emitted
 	 */
-	event RemoveLiquidity(address lpToken, uint256 amount, uint256 timestamp);
+	event RemoveLiquidity(address lpToken, uint256 tokens, uint256 timestamp);
 
 	/**
 	 * @dev Emitted
@@ -362,7 +371,7 @@ interface IStakeLPCoreV2 {
 		address holderContractAddress,
 		address rewardTokenContractAddress,
 		address rewardSender,
-		uint256 rewardAmount,
+		uint256 tokens,
 		uint256 timestamp
 	);
 
@@ -373,6 +382,7 @@ interface IStakeLPCoreV2 {
 		address holderContractAddress,
 		address rewardTokenContractAddress,
 		uint256 rewardTokenEmission,
+		uint256 valueDivisor,
 		uint256 timestamp
 	);
 }

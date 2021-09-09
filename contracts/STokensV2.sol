@@ -103,6 +103,7 @@ contract STokensV2 is
 		returns (
 			address holderAddress,
 			address lpAddress,
+			address uTokenAddress,
 			uint256 lastHolderRewardTimestamp
 		)
 	{
@@ -112,6 +113,7 @@ contract STokensV2 is
 		lastHolderRewardTimestamp = _lastHolderRewardTimestamp[
 			whitelistedAddress
 		];
+		uTokenAddress = address(_uTokens);
 	}
 
 	/*

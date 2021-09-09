@@ -42,6 +42,7 @@ contract StakeLPCoreV8 is
 	//Private instances of contracts to handle Utokens and Stokens
 	IUTokensV2 public _uTokens;
 	ISTokensV2 public _sTokens;
+	IPSTAKE public _pstakeTokens;
 
 	// variable pertaining to contract upgrades versioning
 	uint256 public _version;
@@ -54,16 +55,8 @@ contract StakeLPCoreV8 is
 	// index of reward token address in the _rewardTokenList array, for the reward token, for the holder contract
 	mapping(address => mapping(address => uint256))
 		public _rewardTokenListIndex;
-	// last updated reward pool balance, for the reward token, for the holder contract
-	/* mapping(address => mapping(address => uint256))
-		public _lastRewardPoolBalance; */
-	// last recorded timestamp when the reward pool balance was updated,
-	// for the reward token, for the holder contract
-	/* mapping(address => mapping(address => uint256))
-		public _lastRewardPoolBalanceTimestamp; */
 	// valueDivisor to store fractional values for various reward attributes like _rewardTokenEmission
 	uint256 public _valueDivisor;
-
 	// emission (per second) of reward token into the 'reward pool', for the reward token, for the holder contract
 	mapping(address => mapping(address => uint256[]))
 		public _rewardTokenEmission;
@@ -100,7 +93,7 @@ contract StakeLPCoreV8 is
 		_setupRole(PAUSER_ROLE, pauserAddress);
 		setUTokensContract(uAddress);
 		setSTokensContract(sAddress);
-		// _valueDivisor = valueDivisor;
+		_valueDivisor = valueDivisor;
 	}
 
 	function upgradeToV8() public {
@@ -152,10 +145,6 @@ contract StakeLPCoreV8 is
 		if (arrayLength > 0) {
 			// array will be updated in twos. at least for the first time
 			assert(arrayLength != 1);
-			// get the last timestamp entry, i.e.
-			/* uint256 timeStampEnd = _rewardEmissionTimestampArray[
-				arrayLength.sub(1)
-			]; */
 			// if last timestamp is in the future (or exact present), then update the last entry
 			if (
 				_rewardEmissionTimestampArray[arrayLength.sub(1)] >=
@@ -180,13 +169,15 @@ contract StakeLPCoreV8 is
 				lastRewardAmount = lastRewardAmount.add(rewardAmount);
 				// calculated updated timestamp which also includes any remainder emission at the end
 				// also consider what next timestamp entry should be
-				uint256 updatedTimestampRemainder = lastRewardAmount.mod(
-					lastRewardEmission
-				) > 0
+				uint256 updatedTimestampRemainder = (
+					lastRewardAmount.mul(_valueDivisor)
+				).mod(lastRewardEmission) > 0
 					? 1
 					: 0;
 				uint256 updatedTimestamp = (
-					lastRewardAmount.div(lastRewardEmission)
+					(lastRewardAmount.mul(_valueDivisor)).div(
+						lastRewardEmission
+					)
 				).add(updatedTimestampRemainder).add(lastRewardTimestamp);
 				// update the timestamp endpoint for emission end to state variable
 				_rewardEmissionTimestampArray[
@@ -225,6 +216,8 @@ contract StakeLPCoreV8 is
 			rewardAmount,
 			block.timestamp
 		);
+
+		success = true;
 	}
 
 	/*
@@ -266,7 +259,6 @@ contract StakeLPCoreV8 is
 		uint256 updatedTimestampRemainder;
 		uint256 updatedTimestamp;
 		uint256 timeInterval;
-
 		// Check if the array has at least one (or two) entries. If so alter the penultimate or endpoint entry
 		if (arrayLength > 0) {
 			// array will be updated in twos. at least for the first time
@@ -296,14 +288,18 @@ contract StakeLPCoreV8 is
 
 					if (rewardTokenEmission > 0) {
 						// calculate the time interval across which emission will happen
-						updatedTimestampRemainder = rewardAmount.mod(
-							rewardTokenEmission
-						) > 0
+						updatedTimestampRemainder = (
+							rewardAmount.mul(_valueDivisor)
+						).mod(rewardTokenEmission) > 0
 							? 1
 							: 0;
 						updatedTimestamp = (
-							rewardAmount.div(rewardTokenEmission)
-						).add(updatedTimestampRemainder).add(block.timestamp);
+							(
+								(rewardAmount.mul(_valueDivisor)).div(
+									rewardTokenEmission
+								)
+							).add(updatedTimestampRemainder)
+						).add(block.timestamp);
 
 						// set the endpoint timestamp value
 						_rewardEmissionTimestampArray[
@@ -311,11 +307,11 @@ contract StakeLPCoreV8 is
 						] = updatedTimestamp;
 					} else {
 						// move the remnant reward amount to sink
+						// rewardSinkLocal = rewardSinkLocal.add(rewardAmount);
+						// rewardSinkLocal += rewardAmount;
 						_rewardSink[holderContractAddress][
 							rewardTokenContractAddress
-						] = _rewardSink[holderContractAddress][
-							rewardTokenContractAddress
-						].add(rewardAmount);
+						] += rewardAmount;
 
 						// remove the endpoint reward amount
 						_cummulativeRewardAmount[holderContractAddress][
@@ -338,8 +334,9 @@ contract StakeLPCoreV8 is
 						_rewardEmissionTimestampArray[arrayLength.sub(2)]
 					);
 
-					rewardAmount = timeInterval.mul(
-						_rewardTokenEmissionArray[arrayLength.sub(2)]
+					rewardAmount = timeInterval.mulDiv(
+						_rewardTokenEmissionArray[arrayLength.sub(2)],
+						_valueDivisor
 					);
 
 					remainingRewardAmount = _cummulativeRewardAmountArray[
@@ -377,13 +374,15 @@ contract StakeLPCoreV8 is
 							rewardTokenContractAddress
 						].push(0);
 						// calculate the time interval across which emission will happen
-						updatedTimestampRemainder = remainingRewardAmount.mod(
-							rewardTokenEmission
-						) > 0
+						updatedTimestampRemainder = (
+							remainingRewardAmount.mul(_valueDivisor)
+						).mod(rewardTokenEmission) > 0
 							? 1
 							: 0;
 						updatedTimestamp = (
-							remainingRewardAmount.div(rewardTokenEmission)
+							(remainingRewardAmount.mul(_valueDivisor)).div(
+								rewardTokenEmission
+							)
 						).add(updatedTimestampRemainder).add(block.timestamp);
 
 						// set the new endpoint reward timestamp
@@ -391,11 +390,13 @@ contract StakeLPCoreV8 is
 							rewardTokenContractAddress
 						].push(updatedTimestamp);
 					} else {
+						/* rewardSinkLocal = rewardSinkLocal.add(
+							remainingRewardAmount
+						); */
+						// rewardSinkLocal += remainingRewardAmount;
 						_rewardSink[holderContractAddress][
 							rewardTokenContractAddress
-						] = _rewardSink[holderContractAddress][
-							rewardTokenContractAddress
-						].add(remainingRewardAmount);
+						] += remainingRewardAmount;
 					}
 				}
 			} else {
@@ -435,14 +436,16 @@ contract StakeLPCoreV8 is
 					].push(block.timestamp);
 
 					// calculate the time interval across which emission will happen
-					updatedTimestampRemainder = rewardAmount.mod(
-						rewardTokenEmission
-					) > 0
+					updatedTimestampRemainder = (
+						rewardAmount.mul(_valueDivisor)
+					).mod(rewardTokenEmission) > 0
 						? 1
 						: 0;
-					updatedTimestamp = (rewardAmount.div(rewardTokenEmission))
-						.add(updatedTimestampRemainder)
-						.add(block.timestamp);
+					updatedTimestamp = (
+						(rewardAmount.mul(_valueDivisor)).div(
+							rewardTokenEmission
+						)
+					).add(updatedTimestampRemainder).add(block.timestamp);
 
 					// set the new endpoint reward timestamp
 					_rewardEmissionTimestamp[holderContractAddress][
@@ -458,14 +461,16 @@ contract StakeLPCoreV8 is
 					.balanceOf(holderContractAddress);
 				if (rewardAmount > 0) {
 					// calculate the time interval across which emission will happen
-					updatedTimestampRemainder = rewardAmount.mod(
-						rewardTokenEmission
-					) > 0
+					updatedTimestampRemainder = (
+						rewardAmount.mul(_valueDivisor)
+					).mod(rewardTokenEmission) > 0
 						? 1
 						: 0;
-					updatedTimestamp = (rewardAmount.div(rewardTokenEmission))
-						.add(updatedTimestampRemainder)
-						.add(block.timestamp);
+					updatedTimestamp = (
+						(rewardAmount.mul(_valueDivisor)).div(
+							rewardTokenEmission
+						)
+					).add(updatedTimestampRemainder).add(block.timestamp);
 
 					// set the new penultimate reward amount
 					_cummulativeRewardAmount[holderContractAddress][
@@ -508,8 +513,10 @@ contract StakeLPCoreV8 is
 			holderContractAddress,
 			rewardTokenContractAddress,
 			rewardTokenEmission,
+			_valueDivisor,
 			block.timestamp
 		);
+		success = true;
 	}
 
 	/*
@@ -672,72 +679,71 @@ contract StakeLPCoreV8 is
 		)
 	{
 		// make sure _totalSupplyLPTimeShare is not zero
-		if (_totalSupplyLPTimeShare > 0) {
-			uint256 _rewardTokenListLength = _rewardTokenList[holderAddress]
-				.length;
-			otherRewardAmounts = new uint256[](_rewardTokenListLength);
-			otherRewardTokens = new address[](_rewardTokenListLength);
-			updatedRewardPoolBalances = new uint256[](_rewardTokenListLength);
+		if (_totalSupplyLPTimeShare == 0) {
+			return (
+				otherRewardAmounts,
+				otherRewardTokens,
+				updatedRewardPoolBalances
+			);
+		}
+		uint256 _rewardTokenListLength = _rewardTokenList[holderAddress].length;
+		otherRewardAmounts = new uint256[](_rewardTokenListLength);
+		otherRewardTokens = new address[](_rewardTokenListLength);
+		updatedRewardPoolBalances = new uint256[](_rewardTokenListLength);
 
-			uint256 _updatedRewardPool;
-			uint256 _startingCumulativeRewardValue;
-			uint256 _endingCumulativeRewardValue;
+		uint256 _updatedRewardPool;
+		uint256 _startingCumulativeRewardValue;
+		uint256 _endingCumulativeRewardValue;
 
-			for (uint256 i = 0; i < _rewardTokenListLength; i = i.add(1)) {
-				// allocate token contract address to otherRewardTokens
-				otherRewardTokens[i] = _rewardTokenList[holderAddress][i];
+		for (uint256 i = 0; i < _rewardTokenListLength; i = i.add(1)) {
+			// allocate token contract address to otherRewardTokens
+			otherRewardTokens[i] = _rewardTokenList[holderAddress][i];
 
-				// calculate the updated reward pool to be considered for user's reward share calculation
-				// if no emission array is found or current time has crossed the last entry of _rewardEmissionTimestamp
-				// (reward endpoint timestamp) then set the updated reward pool to zero
-				if (
-					_rewardEmissionTimestamp[holderAddress][
-						otherRewardTokens[i]
-					].length ==
-					0 ||
-					_rewardPoolUserTimestamp[holderAddress][
-						otherRewardTokens[i]
-					][to] >
-					_rewardEmissionTimestamp[holderAddress][
-						otherRewardTokens[i]
-					][
-						_rewardEmissionTimestamp[holderAddress][
-							otherRewardTokens[i]
-						].length.sub(1)
-					]
-				) {
-					_updatedRewardPool = 0;
-				} else {
-					// calculate reward pool balance as per user's _rewardPoolUserTimestamp and current time
-					_startingCumulativeRewardValue = _getCumulativeRewardValue(
-						holderAddress,
-						otherRewardTokens[i],
-						_rewardPoolUserTimestamp[holderAddress][
-							otherRewardTokens[i]
-						][to]
-					);
-					_endingCumulativeRewardValue = _getCumulativeRewardValue(
-						holderAddress,
-						otherRewardTokens[i],
-						block.timestamp
-					);
-					_updatedRewardPool = _endingCumulativeRewardValue.sub(
-						_startingCumulativeRewardValue
-					);
-				}
+			// calculate the updated reward pool to be considered for user's reward share calculation
+			// if no emission array is found or current time has crossed the last entry of _rewardEmissionTimestamp
+			// (reward endpoint timestamp) then set the updated reward pool to zero
+			uint256 _rewardEmissionTimestampLength = _rewardEmissionTimestamp[
+				holderAddress
+			][otherRewardTokens[i]].length;
+			uint256 _rewardPoolUserTimestampLocal = _rewardPoolUserTimestamp[
+				holderAddress
+			][otherRewardTokens[i]][to];
+			if (
+				_rewardEmissionTimestampLength == 0 ||
+				_rewardPoolUserTimestampLocal >
+				_rewardEmissionTimestamp[holderAddress][otherRewardTokens[i]][
+					_rewardEmissionTimestampLength.sub(1)
+				]
+			) {
+				_updatedRewardPool = 0;
+			} else {
+				// calculate reward pool balance as per user's _rewardPoolUserTimestamp and current time
+				_startingCumulativeRewardValue = _getCumulativeRewardValue(
+					holderAddress,
+					otherRewardTokens[i],
+					_rewardPoolUserTimestampLocal
+				);
+				_endingCumulativeRewardValue = _getCumulativeRewardValue(
+					holderAddress,
+					otherRewardTokens[i],
+					block.timestamp
+				);
+				_updatedRewardPool = _endingCumulativeRewardValue.sub(
+					_startingCumulativeRewardValue
+				);
+			}
 
-				// calculate reward amount values for each reward token by calculating LPTimeShare of the updatedRewardPool
-				if (_updatedRewardPool > 0) {
-					// calculate user's reward for that particular reward token
-					otherRewardAmounts[i] = _updatedRewardPool.mulDiv(
-						_userLPTimeShare,
-						_totalSupplyLPTimeShare
-					);
-					// allocate updated reward pool balance after subtracting user's reward amounts
-					updatedRewardPoolBalances[i] = _updatedRewardPool.sub(
-						otherRewardAmounts[i]
-					);
-				}
+			// calculate reward amount values for each reward token by calculating LPTimeShare of the updatedRewardPool
+			if (_updatedRewardPool > 0) {
+				// calculate user's reward for that particular reward token
+				otherRewardAmounts[i] = _updatedRewardPool.mulDiv(
+					_userLPTimeShare,
+					_totalSupplyLPTimeShare
+				);
+				// allocate updated reward pool balance after subtracting user's reward amounts
+				updatedRewardPoolBalances[i] = _updatedRewardPool.sub(
+					otherRewardAmounts[i]
+				);
 			}
 		}
 	}
@@ -753,6 +759,7 @@ contract StakeLPCoreV8 is
 	function _calculateRewards(
 		address holderAddress,
 		address lpToken,
+		address uTokenAddress,
 		address to
 	)
 		internal
@@ -780,25 +787,13 @@ contract StakeLPCoreV8 is
 
 		// DISBURSE THE REWARD TOKENS TO USER (transfer)
 		if (reward > 0)
-			IHolderV2(holderAddress).safeTransfer(
-				address(_uTokens),
-				to,
-				reward
-			);
+			IHolderV2(holderAddress).safeTransfer(uTokenAddress, to, reward);
 
 		// DISBURSE THE OTHER REWARD TOKENS TO USER (transfer)
 		uint256 i;
 		uint256 otherRewardTokensLength = otherRewardTokens.length;
 		for (i = 0; i < otherRewardTokensLength; i = i.add(1)) {
-			//  update the reward pool balance and last timestamp
-			//  corresonding to that particular reward token
-			/* _lastRewardPoolBalance[holderAddress][
-				otherRewardTokens[i]
-			] = updatedRewardPoolBalances[i];
-			_lastRewardPoolBalanceTimestamp[holderAddress][
-				otherRewardTokens[i]
-			] = block.timestamp; */
-
+			// set the last 'updated reward pool' calculation timestamp to current time
 			_rewardPoolUserTimestamp[holderAddress][otherRewardTokens[i]][
 				to
 			] = block.timestamp;
@@ -831,7 +826,7 @@ contract StakeLPCoreV8 is
 	 * @param lpToken: lp token contract address
 	 * @param amount: token amount
 	 */
-	function calculateRewards(address whitelistedAddress)
+	function calculateRewards(address whitelistedAddress, address sTokenAddress)
 		public
 		virtual
 		override
@@ -843,26 +838,39 @@ contract StakeLPCoreV8 is
 		)
 	{
 		// check for validity of arguments
-		require(whitelistedAddress != address(0), "LP11");
-
-		// check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
-		(address _holderAddress, address _lpToken, ) = _sTokens.getHolderData(
-			whitelistedAddress
+		require(
+			whitelistedAddress != address(0) && sTokenAddress != address(0),
+			"LP11"
 		);
 
+		// check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
+		(
+			address _holderAddress,
+			address _lpToken,
+			address _uTokenAddress,
+
+		) = ISTokensV2(sTokenAddress).getHolderData(whitelistedAddress);
+
 		// (bool _isContractWhitelisted, address _holderAddress) = _sTokens.isContractWhitelisted(_lpToken);
-		require(_lpToken != address(0) && _holderAddress != address(0), "LP12");
+		require(
+			_lpToken != address(0) &&
+				_holderAddress != address(0) &&
+				_uTokenAddress != address(0),
+			"LP12"
+		);
 
 		// calculate liquidity and reward tokens and disburse to user
 		(reward, otherRewardAmounts, otherRewardTokens) = _calculateRewards(
 			_holderAddress,
 			_lpToken,
+			_uTokenAddress,
 			_msgSender()
 		);
 
 		emit TriggeredCalculateRewardsStakeLP(
 			_holderAddress,
 			_lpToken,
+			_uTokenAddress,
 			_msgSender(),
 			reward,
 			otherRewardAmounts,
@@ -878,7 +886,10 @@ contract StakeLPCoreV8 is
 	 * @param lpToken: lp token contract address
 	 * @param amount: token amount
 	 */
-	function calculateSyncedRewards(address whitelistedAddress)
+	function calculateSyncedRewards(
+		address whitelistedAddress,
+		address sTokenAddress
+	)
 		public
 		virtual
 		override
@@ -891,15 +902,26 @@ contract StakeLPCoreV8 is
 		)
 	{
 		// check for validity of arguments
-		require(whitelistedAddress != address(0), "LP13");
-
-		// check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
-		(address _holderAddress, address _lpToken, ) = _sTokens.getHolderData(
-			whitelistedAddress
+		require(
+			whitelistedAddress != address(0) && sTokenAddress != address(0),
+			"LP13"
 		);
 
+		// check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
+		(
+			address _holderAddress,
+			address _lpToken,
+			address _uTokenAddress,
+
+		) = ISTokensV2(sTokenAddress).getHolderData(whitelistedAddress);
+
 		// (bool _isContractWhitelisted, address _holderAddress) = _sTokens.isContractWhitelisted(_lpToken);
-		require(_lpToken != address(0) && _holderAddress != address(0), "LP14");
+		require(
+			_lpToken != address(0) &&
+				_holderAddress != address(0) &&
+				_uTokenAddress != address(0),
+			"LP14"
+		);
 
 		// initiate calculateHolderRewards first, using STokens contract
 		// to sync the reward pool in holder contract with rewards from whitelisted contract
@@ -910,12 +932,14 @@ contract StakeLPCoreV8 is
 		(reward, otherRewardAmounts, otherRewardTokens) = _calculateRewards(
 			_holderAddress,
 			_lpToken,
+			_uTokenAddress,
 			_msgSender()
 		);
 
 		emit TriggeredCalculateSyncedRewards(
 			_holderAddress,
 			_lpToken,
+			_uTokenAddress,
 			_msgSender(),
 			reward,
 			holderReward,
@@ -935,26 +959,42 @@ contract StakeLPCoreV8 is
 	 * Emits a {AddLiquidity} event with 'lpToken, amount, rewards and liquidity'
 	 *
 	 */
-	function addLiquidity(address whitelistedAddress, uint256 amount)
-		public
-		virtual
-		override
-		whenNotPaused
-		returns (bool success)
-	{
+	function addLiquidity(
+		address whitelistedAddress,
+		address sTokenAddress,
+		uint256 amount
+	) public virtual override whenNotPaused returns (bool success) {
 		// check for validity of arguments
-		require(amount > 0 && whitelistedAddress != address(0), "LP15");
+		require(
+			amount > 0 &&
+				whitelistedAddress != address(0) &&
+				sTokenAddress != address(0),
+			"LP15"
+		);
 
 		// check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
 		// (bool _isContractWhitelisted, address _holderAddress) = _sTokens.isContractWhitelisted(_lpToken);
-		(address _holderAddress, address _lpToken, ) = _sTokens.getHolderData(
-			whitelistedAddress
+		(
+			address _holderAddress,
+			address _lpToken,
+			address _uTokenAddress,
+
+		) = ISTokensV2(sTokenAddress).getHolderData(whitelistedAddress);
+		require(
+			_holderAddress != address(0) &&
+				_lpToken != address(0) &&
+				_uTokenAddress != address(0),
+			"LP16"
 		);
-		require(_holderAddress != address(0) && _lpToken != address(0), "LP16");
 		address messageSender = _msgSender();
 
 		// calculate liquidity and reward tokens and disburse to user
-		_calculateRewards(_holderAddress, _lpToken, messageSender);
+		_calculateRewards(
+			_holderAddress,
+			_lpToken,
+			_uTokenAddress,
+			messageSender
+		);
 		// finally transfer the new LP Tokens to the StakeLP contract
 		TransferHelper.safeTransferFrom(
 			_lpToken,
@@ -984,29 +1024,45 @@ contract StakeLPCoreV8 is
 	 * Emits a {RemoveLiquidity} event with 'lpToken, amount, rewards and liquidity'
 	 *
 	 */
-	function removeLiquidity(address whitelistedAddress, uint256 amount)
-		public
-		virtual
-		override
-		whenNotPaused
-		returns (bool success)
-	{
+	function removeLiquidity(
+		address whitelistedAddress,
+		address sTokenAddress,
+		uint256 amount
+	) public virtual override whenNotPaused returns (bool success) {
 		// check for validity of arguments
-		require(amount > 0 && whitelistedAddress != address(0), "LP17");
+		require(
+			amount > 0 &&
+				whitelistedAddress != address(0) &&
+				sTokenAddress != address(0),
+			"LP17"
+		);
 
 		// check if lpToken contract of DeFi product address is whitelisted and has valid holder contract
 		// (bool _isContractWhitelisted, address _holderAddress) = _sTokens.isContractWhitelisted(lpToken);
-		(address _holderAddress, address _lpToken, ) = _sTokens.getHolderData(
-			whitelistedAddress
+		(
+			address _holderAddress,
+			address _lpToken,
+			address _uTokenAddress,
+
+		) = ISTokensV2(sTokenAddress).getHolderData(whitelistedAddress);
+		require(
+			_holderAddress != address(0) &&
+				_lpToken != address(0) &&
+				_uTokenAddress != address(0),
+			"LP18"
 		);
-		require(_holderAddress != address(0) && _lpToken != address(0), "LP18");
 		address messageSender = _msgSender();
 
 		// check if suffecient balance is there
 		require(_lpBalance[_lpToken][messageSender] >= amount, "LP19");
 
 		// calculate liquidity and reward tokens and disburse to user
-		_calculateRewards(_holderAddress, _lpToken, messageSender);
+		_calculateRewards(
+			_holderAddress,
+			_lpToken,
+			_uTokenAddress,
+			messageSender
+		);
 
 		// finally transfer the LP Tokens to the user
 		TransferHelper.safeTransfer(_lpToken, messageSender, amount);

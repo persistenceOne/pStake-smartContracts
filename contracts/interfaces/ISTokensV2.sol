@@ -36,6 +36,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 		returns (
 			address holderAddress,
 			address lpAddress,
+			address uTokenAddress,
 			uint256 lastHolderRewardTimestamp
 		);
 
