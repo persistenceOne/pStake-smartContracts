@@ -84,8 +84,8 @@ contract StakeLPCoreV8 is
 	function initialize(
 		address uAddress,
 		address sAddress,
-		address pauserAddress,
-		uint256 valueDivisor
+		address pStakeAddress,
+		address pauserAddress
 	) public virtual initializer {
 		__AccessControl_init();
 		__Pausable_init();
@@ -93,7 +93,8 @@ contract StakeLPCoreV8 is
 		_setupRole(PAUSER_ROLE, pauserAddress);
 		setUTokensContract(uAddress);
 		setSTokensContract(sAddress);
-		_valueDivisor = valueDivisor;
+		setPSTAKEContract(pStakeAddress);
+		// _lastLPTimeShareTimestamp = block.timestamp;
 	}
 
 	function upgradeToV8() public {
@@ -1103,6 +1104,19 @@ contract StakeLPCoreV8 is
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP21");
 		_sTokens = ISTokensV2(sAddress);
 		emit SetSTokensContract(sAddress);
+	}
+
+	/**
+	 * @dev Set 'contract address', called from constructor
+	 * @param pstakeAddress: pStake contract address
+	 *
+	 * Emits a {SetPSTAKEContract} event with '_contract' set to the stoken contract address.
+	 *
+	 */
+	function setPSTAKEContract(address pstakeAddress) public virtual override {
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP11");
+		_pstakeTokens = IPSTAKE(pstakeAddress);
+		emit SetPSTAKEContract(pstakeAddress);
 	}
 
 	/*

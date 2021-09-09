@@ -138,6 +138,14 @@ interface IStakeLPCoreV2 {
 	function setSTokensContract(address sAddress) external;
 
 	/**
+	 * @dev Set UTokens smart contract.
+	 *
+	 *
+	 * Emits a {SetContract} event.
+	 */
+	function setPSTAKEContract(address sAddress) external;
+
+	/**
 	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
 	 * @param holderAddress: holder contract address
 	 */
