@@ -1,24 +1,22 @@
-const HolderUniswapArtifact = artifacts.require("HolderUniswap");
-const StakeLPArtifact = artifacts.require("StakeLPCore");
-const PSTAKEArtifact = artifacts.require("PSTAKE");
-const LiquidStakingArtifact = artifacts.require("LiquidStaking");
-const TokenWrapperArtifact = artifacts.require("TokenWrapper");
-const STokensArtifact = artifacts.require("STokens");
-const UTokensArtifact = artifacts.require("UTokens");
+const LiquidStakingXPRTArtifact = artifacts.require("LiquidStakingXPRT");
+const TokenWrapperXPRTArtifact = artifacts.require("TokenWrapperXPRT");
+const STokensXPRTArtifact = artifacts.require("STokensXPRT");
+const UTokensXPRTArtifact = artifacts.require("UTokensXPRT");
 
-const uTokensJSON = require("../build/contracts/UTokens.json");
-const sTokensJSON = require("../build/contracts/STokens.json");
 var networkID;
 
 const { BN } = web3.utils.BN;
 const { deployProxy, upgradeProxy } = require("@openzeppelin/truffle-upgrades");
-var UTokensInstance,
-  STokensInstance,
-  TokenWrapperInstance,
-  LiquidStakingInstance,
-  HolderUniswapInstance,
-  StakeLPInstance,
-  PstakeInstance;
+var UTokensXPRTInstance,
+  STokensXPRTInstance,
+  TokenWrapperXPRTInstance,
+  LiquidStakingXPRTInstance;
+
+// compilation: npx truffle compile
+// test blockchain to deploy contracts in dev env
+// ganache-cli -m "baby year rocket october what surprise lab bag report swap game unveil" -p 8545 -b 10 -l 8000000 –callGasLimit “0x61a80” –-networkId 5777 –-chainId 5777
+// migration to ganache (development): npx truffle migrate
+// migration to ropsten: npx truffle migrate --network ropsten
 
 /*[ '0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7',
     '0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B',
@@ -62,62 +60,6 @@ module.exports = async function (deployer, network, accounts) {
   }
 };
 
-async function deployStakeLP(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-  //let defaultAdmin = "0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7";
-  let pauseAdmin = accounts[0];
-  let from_defaultAdmin = accounts[0];
-  let rewardDivisor = new BN("1000000000");
-
-  const uAddress = uTokensJSON.networks[networkID].address;
-  const sAddress = sTokensJSON.networks[networkID].address;
-
-  console.log("deployStakeLP() called");
-  console.log("uAddress: ", uAddress);
-  console.log("sAddress: ", sAddress);
-
-  PstakeInstance = await deployProxy(PSTAKEArtifact, [pauseAdmin], {
-    deployer,
-    initializer: "initialize",
-  });
-  console.log("PSTAKE deployed: ", PstakeInstance.address);
-
-  StakeLPInstance = await deployProxy(
-    StakeLPArtifact,
-    [uAddress, sAddress, PstakeInstance.address, pauseAdmin],
-    { deployer, initializer: "initialize" }
-  );
-  console.log("StakeLP deployed: ", StakeLPInstance.address);
-
-  HolderUniswapInstance = await deployProxy(
-    HolderUniswapArtifact,
-    [sAddress, StakeLPInstance.address, rewardDivisor],
-    { deployer, initializer: "initialize" }
-  );
-  console.log("HolderUniswap deployed: ", HolderUniswapInstance.address);
-
-  // set contract addresses in UTokens Contract
-  const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract.");
-
-  console.log("ALL DONE.");
-}
-
 async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   console.log(
     "inside deployAll(),",
@@ -135,39 +77,39 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0];
   //let rewardRate = new BN(3000000) //0.003
-  let rewardRate = new BN(222); // 222 * 10^-5
+  let rewardRate = new BN(1046); // 1046 * 10^-5
   let rewardDivisor = new BN("1000000000");
-  let epochInterval = "10800"; //3 hours
-  let unstakingLockTime = "75600"; // 21 hours
+  let epochInterval = "259200"; //3 hours
+  let unstakingLockTime = "1814400"; // 21 hours
 
   console.log(bridgeAdmin, "bridgeAdmin");
 
-  UTokensInstance = await deployProxy(
-    UTokensArtifact,
+  UTokensXPRTInstance = await deployProxy(
+    UTokensXPRTArtifact,
     [bridgeAdmin, pauseAdmin],
     { deployer, initializer: "initialize" }
   );
-  console.log("UTokens deployed: ", UTokensInstance.address);
+  console.log("UTokensXPRT deployed: ", UTokensXPRTInstance.address);
 
-  STokensInstance = await deployProxy(
-    STokensArtifact,
-    [UTokensInstance.address, pauseAdmin, rewardRate, rewardDivisor],
+  STokensXPRTInstance = await deployProxy(
+    STokensXPRTArtifact,
+    [UTokensXPRTInstance.address, pauseAdmin, rewardRate, rewardDivisor],
     { deployer, initializer: "initialize" }
   );
-  console.log("STokens deployed: ", STokensInstance.address);
+  console.log("STokensXPRT deployed: ", STokensXPRTInstance.address);
 
-  TokenWrapperInstance = await deployProxy(
-    TokenWrapperArtifact,
-    [UTokensInstance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
+  TokenWrapperXPRTInstance = await deployProxy(
+    TokenWrapperXPRTArtifact,
+    [UTokensXPRTInstance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
     { deployer, initializer: "initialize" }
   );
-  console.log("TokenWrapper deployed: ", TokenWrapperInstance.address);
+  console.log("TokenWrapperXPRT deployed: ", TokenWrapperXPRTInstance.address);
 
-  LiquidStakingInstance = await deployProxy(
-    LiquidStakingArtifact,
+  LiquidStakingXPRTInstance = await deployProxy(
+    LiquidStakingXPRTArtifact,
     [
-      UTokensInstance.address,
-      STokensInstance.address,
+      UTokensXPRTInstance.address,
+      STokensXPRTInstance.address,
       pauseAdmin,
       unstakingLockTime,
       epochInterval,
@@ -175,53 +117,55 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     ],
     { deployer, initializer: "initialize" }
   );
-  console.log("LiquidStaking deployed: ", LiquidStakingInstance.address);
+  console.log(
+    "LiquidStakingXPRT deployed: ",
+    LiquidStakingXPRTInstance.address
+  );
 
-  // set contract addresses in UTokens Contract
-  const txReceiptSetSTokenContract = await UTokensInstance.setSTokenContract(
-    STokensInstance.address,
-    {
+  // set contract addresses in UTokensXPRT Contract
+  const txReceiptSetSTokenContract =
+    await UTokensXPRTInstance.setSTokenContract(STokensXPRTInstance.address, {
       from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
-    }
-  );
-  console.log("setSTokenContract() set for UTokens contract.");
+    });
+  console.log("setSTokenContract() set for UTokensXPRT contract.");
 
-  const txReceiptSetWrapperContract = await UTokensInstance.setWrapperContract(
-    TokenWrapperInstance.address,
-    {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-  console.log("setWrapperContract() set for UTokens contract. ");
-
-  const txReceiptSetLiquidStakingContract =
-    await UTokensInstance.setLiquidStakingContract(
-      LiquidStakingInstance.address,
+  const txReceiptSetWrapperContract =
+    await UTokensXPRTInstance.setWrapperContract(
+      TokenWrapperXPRTInstance.address,
       {
         from: from_defaultAdmin,
         gasPrice: gasPrice,
         gas: gasLimit,
       }
     );
-  console.log("setLiquidStakingContract() set for UTokens contract.");
+  console.log("setWrapperContract() set for UTokensXPRT contract. ");
 
-  const txReceiptSetLiquidStakingContract2 =
-    await STokensInstance.setLiquidStakingContract(
-      LiquidStakingInstance.address,
+  const txReceiptSetLiquidStakingXPRTContract =
+    await UTokensXPRTInstance.setLiquidStakingContract(
+      LiquidStakingXPRTInstance.address,
       {
         from: from_defaultAdmin,
         gasPrice: gasPrice,
         gas: gasLimit,
       }
     );
-  console.log("setLiquidStakingContract() set for STokens contract.");
+  console.log("setLiquidStakingXPRTContract() set for UTokensXPRT contract.");
+
+  const txReceiptSetLiquidStakingXPRTContract2 =
+    await STokensXPRTInstance.setLiquidStakingContract(
+      LiquidStakingXPRTInstance.address,
+      {
+        from: from_defaultAdmin,
+        gasPrice: gasPrice,
+        gas: gasLimit,
+      }
+    );
+  console.log("setLiquidStakingXPRTContract() set for STokensXPRT contract.");
 
   //set min value for wrap
-  const txReceiptSetMinval = await TokenWrapperInstance.setMinimumValues(
+  const txReceiptSetMinval = await TokenWrapperXPRTInstance.setMinimumValues(
     "5000000",
     "1",
     {
@@ -231,165 +175,6 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     }
   );
   console.log("setMinimumValues() set for Token Wrapper contract.");
-
-  /* //set fees for wrap
-     const txReceiptSetFees = await TokenWrapperInstance.setFees(
-         "350000000","0",
-         {
-             from: from_defaultAdmin,
-             gasPrice: gasPrice,
-             gas: gasLimit,
-         }
-     );
-     console.log("setFees() set for Token Wrapper contract.");
-
-     //set fees for claim rewards
-     const txReceiptSetRewardFees = await STokensInstance.setFees(
-         "5000000000",
-         {
-             from: from_defaultAdmin,
-             gasPrice: gasPrice,
-             gas: gasLimit,
-         }
-     );
-     console.log("setFees() set for Stokens contract.");*/
-
-  console.log("ALL DONE.");
-}
-
-//upgrading all contracts
-async function upgradeAll(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-  let defaultAdmin = accounts[0];
-  let bridgeAdmin = accounts[1];
-  let pauseAdmin = accounts[2];
-  let rewardRate = new BN(3000000);
-
-  UTokensInstance = await upgradeProxy(uTokenAddress, UTokensArtifact, {
-    deployer,
-  });
-  console.log("UTokens upgraded: ", UTokensInstance.address);
-
-  STokensInstance = await upgradeProxy(sTokenAddress, STokensArtifact, {
-    deployer,
-  });
-  console.log("STokens upgraded: ", STokensInstance.address);
-
-  TokenWrapperInstance = await upgradeProxy(
-    tokenWrapperAddress,
-    TokenWrapperArtifact,
-    { deployer }
-  );
-  console.log("TokenWrapper upgraded: ", TokenWrapperInstance.address);
-
-  LiquidStakingInstance = await upgradeProxy(
-    liquidStakingAddress,
-    LiquidStakingArtifact,
-    { deployer }
-  );
-  console.log("LiquidStaking upgraded: ", LiquidStakingInstance.address);
-
-  console.log("ALL DONE.");
-}
-
-//upgrading UTokens contract
-async function upgradeUTokens(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-
-  UTokensInstance = await upgradeProxy(uTokenAddress, UTokensArtifact, {
-    deployer,
-  });
-  console.log("UTokens upgraded: ", UTokensInstance.address);
-
-  console.log("ALL DONE.");
-}
-
-//upgrading STokens contract
-async function upgradeSTokens(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-
-  STokensInstance = await upgradeProxy(sTokenAddress, STokensArtifact, {
-    deployer,
-  });
-  console.log("STokens upgraded: ", STokensInstance.address);
-
-  console.log("ALL DONE.");
-}
-
-//upgrading TokenWrapper contract
-async function upgradeTokenWrapper(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-
-  TokenWrapperInstance = await upgradeProxy(
-    tokenWrapperAddress,
-    TokenWrapperArtifact,
-    { deployer }
-  );
-  console.log("TokenWrapper upgraded: ", TokenWrapperInstance.address);
-
-  console.log("ALL DONE.");
-}
-
-//upgrading LiquidStaking contracts
-async function upgradeLiquidStaking(gasPrice, gasLimit, deployer, accounts) {
-  console.log(
-    "inside deployAll(),",
-    " gasPrice: ",
-    gasPrice,
-    " gasLimit: ",
-    gasLimit,
-    " deployer: ",
-    deployer.network,
-    " accounts: ",
-    accounts
-  );
-
-  LiquidStakingInstance = await upgradeProxy(
-    liquidStakingAddress,
-    LiquidStakingArtifact,
-    { deployer }
-  );
-  console.log("LiquidStaking upgraded: ", LiquidStakingInstance.address);
 
   console.log("ALL DONE.");
 }
