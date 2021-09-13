@@ -15,14 +15,6 @@ contract HolderSushiswapV2StkATOMEthV2 is
 {
 	// variables capturing data of other contracts in the product
 	address private _stakeLPContract;
-	ISTokens private _sTokenContract;
-
-	// value divisor to make weight factor a fraction if need be
-	uint256 private _valueDivisor;
-
-	//Private instances of contracts to handle Utokens and Stokens
-	ISTokens private _sTokens;
-
 	ISTokensV2 public _sTokensV2;
 
 	// variable pertaining to contract upgrades versioning
@@ -34,22 +26,15 @@ contract HolderSushiswapV2StkATOMEthV2 is
 	 * @param stakeLPContract - address of the StakeLPCore contract.
 	 * @param valueDivisor - valueDivisor set to 10^9.
 	 */
-	function initialize(
-		address sTokenContract,
-		address stakeLPContract,
-		uint256 valueDivisor
-	) public virtual initializer {
+	function initialize(address sTokenContract, address stakeLPContract)
+		public
+		virtual
+		initializer
+	{
 		__AccessControl_init();
 		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
-		_sTokenContract = ISTokens(sTokenContract);
+		_sTokensV2 = ISTokensV2(sTokenContract);
 		_stakeLPContract = stakeLPContract;
-		_valueDivisor = valueDivisor;
-	}
-
-	function upgradeToV2() public {
-		require(_version < 2, "LP37");
-		_version = 2;
-		_sTokensV2 = ISTokensV2(address(_sTokenContract));
 	}
 
 	/**
