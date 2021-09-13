@@ -3,7 +3,6 @@ pragma solidity >=0.7.0;
 
 import "../interfaces/IHolderV2.sol";
 import "../interfaces/ISTokensV2.sol";
-import "../interfaces/ISTokens.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "../libraries/TransferHelper.sol";
