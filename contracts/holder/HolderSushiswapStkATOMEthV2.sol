@@ -7,7 +7,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "../libraries/TransferHelper.sol";
 
-contract HolderSushiswapV2StkATOMEthV2 is
+contract HolderSushiswapStkATOMEthV2 is
 	IHolderV2,
 	Initializable,
 	AccessControlUpgradeable
@@ -23,7 +23,6 @@ contract HolderSushiswapV2StkATOMEthV2 is
 	 * @dev Constructor for initializing the Holder Uniswap contract.
 	 * @param sTokenContract - address of the SToken contract.
 	 * @param stakeLPContract - address of the StakeLPCore contract.
-	 * @param valueDivisor - valueDivisor set to 10^9.
 	 */
 	function initialize(address sTokenContract, address stakeLPContract)
 		public

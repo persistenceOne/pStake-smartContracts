@@ -23,7 +23,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-const mnemonic =
+const mnemonicPhrase =
   "baby year rocket october what surprise lab bag report swap game unveil";
 
 module.exports = {
@@ -62,16 +62,23 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-      /* provider: () =>
-        new HDWalletProvider(
-          "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
-          `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-        ),*/
-      provider: () =>
+      /*  provider: () =>
         new HDWalletProvider(
           mnemonic,
           `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-        ),
+        ), */
+
+      // ROPSTEN GETH RPC URL
+      /* HTTPS: https://ropsten.eth.audit.one/rpc
+        WS: https://ropsten.eth.audit.one/ws */
+
+      provider: () =>
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: mnemonicPhrase,
+          },
+          providerOrUrl: `http://13.232.138.144:8545`,
+        }),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
       gasPrice: 100000000000,

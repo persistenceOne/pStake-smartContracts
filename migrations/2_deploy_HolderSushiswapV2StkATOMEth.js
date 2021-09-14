@@ -1,4 +1,6 @@
-const HolderSushiswapV2StkATOMEthV2Artifact2 = artifacts.require("HolderSushiswapV2StkATOMEthV2");
+const HolderSushiswapStkATOMEthV2Artifact = artifacts.require(
+  "HolderSushiswapStkATOMEthV2"
+);
 //const STokensV2Artifact2 = artifacts.require("STokensV2");
 //const StakeLPCoreV8Artifact2 = artifacts.require("StakeLPCoreV8");
 
@@ -64,12 +66,19 @@ async function deployHolderSushiswapV2(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
+  const sTokenContract = "0x2f9104E4acd67A7105E953aFb7a546dA6Ea0f64C";
+  const stakeLPContract = "0x6532f1cc72F34523aB815d2A7f2754afec17c8B4";
+
   HolderSushiswapInstance = await deployProxy(
-    HolderSushiswapV2StkATOMEthV2Artifact2,
-    ["0x2f9104E4acd67A7105E953aFb7a546dA6Ea0f64C", "0x6532f1cc72F34523aB815d2A7f2754afec17c8B4"],
+    HolderSushiswapStkATOMEthV2Artifact,
+    [sTokenContract, stakeLPContract],
     { deployer, initializer: "initialize" }
   );
-  console.log("HolderSushiswapInstance deployed: ", HolderSushiswapInstance.address);
+
+  console.log(
+    "HolderSushiswapInstance deployed: ",
+    HolderSushiswapInstance.address
+  );
 
   console.log("ALL DONE.");
 }
