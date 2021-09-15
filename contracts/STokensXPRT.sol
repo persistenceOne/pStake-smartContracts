@@ -58,12 +58,14 @@ contract STokensXPRT is
 	 * @param valueDivisor - valueDivisor set to 10^9.
 	 */
 	function initialize(
+		string calldata tokenName,
+		string calldata tokenSymbol,
 		address uaddress,
 		address pauserAddress,
 		uint256 rewardRate,
 		uint256 valueDivisor
 	) public virtual initializer {
-		__ERC20_init("pSTAKE Staked XPRT", "stkXPRT");
+		__ERC20_init(tokenName, tokenSymbol);
 		__AccessControl_init();
 		__Pausable_init();
 		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());

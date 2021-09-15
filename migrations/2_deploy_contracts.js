@@ -6,30 +6,21 @@ const UTokensXPRTArtifact = artifacts.require("UTokensXPRT");
 var networkID;
 
 const { BN } = web3.utils.BN;
-const { deployProxy, upgradeProxy } = require("@openzeppelin/truffle-upgrades");
+const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 var UTokensXPRTInstance,
   STokensXPRTInstance,
   TokenWrapperXPRTInstance,
   LiquidStakingXPRTInstance;
 
-// compilation: npx truffle compile
-// test blockchain to deploy contracts in dev env
+// STEP1: copy contracts and create four new contracts, rename the contract names to respective token eg. LiquidStakingXPRT.sol
+// STEP2: in 2_deploy_contracts.js, input the PSTAKE ATTRIBUTES
+// 1. compilation of SCs: npx truffle compile
+// 2. Test in Ganache: command to deploy ganache is..
 // ganache-cli -m "baby year rocket october what surprise lab bag report swap game unveil" -p 8545 -b 10 -l 8000000 –callGasLimit “0x61a80” –-networkId 5777 –-chainId 5777
-// migration to ganache (development): npx truffle migrate
-// migration to ropsten: npx truffle migrate --network ropsten
 
-/*[ '0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7',
-    '0x51caF3f0E53BAAF12F8B0B6d98350CBA53e8DB7B',
-    '0xCC6F6821F903b1FC3C0c9597b26C84E31AC98B36',
-    '0xa69dE4538Fd5384FfB4e415B861dBc7eAED75dF2',
-    '0x609d344A04245104C312925D2F5aE04F643A10CB',
-    '0x7019943Ca5E81d10EFA8ACdd68B0B67Eb4B0a9f6',
-    '0x768D4C50C9D4Db6f12Bb47581E4c1823Ad9eCB49',
-    '0xe3355d5AD5f8dCdca879230e85eF0AaeE6f28d0B',
-    '0x528B19d24426C4A78D0fDC0933c3F91C87102adA',
-    '0x3F5fdb1c4B40b04f54082482DCBF9732c1199eB6' ]*/
+// 3. migration to ganache (development): npx truffle migrate
+// 4. migration to ropsten: npx truffle migrate --network ropsten
 
-//deploy ATOMs contracts
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
     let gasPriceGanache = 3e10;
@@ -72,35 +63,58 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     " accounts: ",
     accounts
   );
+
+  // PSTAKE ATTRIBUTES
   //let defaultAdmin = "0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7";
   let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0];
-  //let rewardRate = new BN(3000000) //0.003
-  let rewardRate = new BN(1046); // 1046 * 10^-5
+  let rewardRate = new BN(1046); // 1046 * 10^-9% per second equivalent to 33% apr
   let rewardDivisor = new BN("1000000000");
-  let epochInterval = "259200"; //3 hours
-  let unstakingLockTime = "1814400"; // 21 hours
-
-  console.log(bridgeAdmin, "bridgeAdmin");
+  let epochInterval = "259200"; //3 days
+  let unstakingLockTime = "1814400"; // 21 days
+  // token name and symbol
+  let pTokenName = "Persistence Pegged XPRT";
+  let stkTokenName = "Persistence Staked XPRT";
+  let pTokenSymbol = "pXPRT";
+  let stkTokenSymbol = "stkXPRT";
+  // bech 32 validation attributes
+  let hrpString = "persistence";
+  let controlDigitString = "1";
+  let dataSize = 38;
 
   UTokensXPRTInstance = await deployProxy(
     UTokensXPRTArtifact,
-    [bridgeAdmin, pauseAdmin],
+    [pTokenName, pTokenSymbol, bridgeAdmin, pauseAdmin],
     { deployer, initializer: "initialize" }
   );
   console.log("UTokensXPRT deployed: ", UTokensXPRTInstance.address);
 
   STokensXPRTInstance = await deployProxy(
     STokensXPRTArtifact,
-    [UTokensXPRTInstance.address, pauseAdmin, rewardRate, rewardDivisor],
+    [
+      stkTokenName,
+      stkTokenSymbol,
+      UTokensXPRTInstance.address,
+      pauseAdmin,
+      rewardRate,
+      rewardDivisor,
+    ],
     { deployer, initializer: "initialize" }
   );
   console.log("STokensXPRT deployed: ", STokensXPRTInstance.address);
 
   TokenWrapperXPRTInstance = await deployProxy(
     TokenWrapperXPRTArtifact,
-    [UTokensXPRTInstance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
+    [
+      UTokensXPRTInstance.address,
+      bridgeAdmin,
+      pauseAdmin,
+      rewardDivisor,
+      hrpString,
+      controlDigitString,
+      dataSize,
+    ],
     { deployer, initializer: "initialize" }
   );
   console.log("TokenWrapperXPRT deployed: ", TokenWrapperXPRTInstance.address);

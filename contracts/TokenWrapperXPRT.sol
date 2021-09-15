@@ -51,7 +51,10 @@ contract TokenWrapperXPRT is
 		address uAddress,
 		address bridgeAdminAddress,
 		address pauserAddress,
-		uint256 valueDivisor
+		uint256 valueDivisor,
+		string calldata hrpString,
+		string calldata controlDigitString,
+		uint256 dataSize
 	) public virtual initializer {
 		__AccessControl_init();
 		__Pausable_init();
@@ -62,9 +65,9 @@ contract TokenWrapperXPRT is
 		setMinimumValues(1, 1);
 		_valueDivisor = valueDivisor;
 		// setting bech32 validation attributes
-		hrpBytes = "persistence";
-		controlDigitBytes = "1";
-		dataBytesSize = 38;
+		hrpBytes = bytes(hrpString);
+		controlDigitBytes = bytes(controlDigitString);
+		dataBytesSize = dataSize;
 	}
 
 	/**

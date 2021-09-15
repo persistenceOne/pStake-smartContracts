@@ -29,12 +29,13 @@ contract UTokensXPRT is
 	 * @param bridgeAdminAddress - address of the bridge admin.
 	 * @param pauserAddress - address of the pauser admin.
 	 */
-	function initialize(address bridgeAdminAddress, address pauserAddress)
-		public
-		virtual
-		initializer
-	{
-		__ERC20_init("pSTAKE Pegged XPRT", "pXPRT");
+	function initialize(
+		string calldata tokenName,
+		string calldata tokenSymbol,
+		address bridgeAdminAddress,
+		address pauserAddress
+	) public virtual initializer {
+		__ERC20_init(tokenName, tokenSymbol);
 		__AccessControl_init();
 		__Pausable_init();
 		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
