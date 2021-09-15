@@ -13,13 +13,13 @@ var UTokensXPRTInstance,
   LiquidStakingXPRTInstance;
 
 // STEP1: copy contracts and create four new contracts, rename the contract names to respective token eg. LiquidStakingXPRT.sol
-// STEP2: in 2_deploy_contracts.js, input the PSTAKE ATTRIBUTES
-// 1. compilation of SCs: npx truffle compile
-// 2. Test in Ganache: command to deploy ganache is..
+// a. command for compilation of SCs: npx truffle compile
+// b. Test in Ganache: command to deploy ganache is..
 // ganache-cli -m "baby year rocket october what surprise lab bag report swap game unveil" -p 8545 -b 10 -l 8000000 –callGasLimit “0x61a80” –-networkId 5777 –-chainId 5777
 
-// 3. migration to ganache (development): npx truffle migrate
-// 4. migration to ropsten: npx truffle migrate --network ropsten
+// STEP2: in 2_deploy_contracts.js, input the PSTAKE ATTRIBUTES
+// a. command for migration to ganache (development): npx truffle migrate
+// b. command for migration to ropsten (testnet): npx truffle migrate --network ropsten
 
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
