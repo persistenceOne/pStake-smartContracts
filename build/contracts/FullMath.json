@@ -10,7 +10,7 @@
   "sourceMap": "194:876:21:-:0;;;;;;;;;;;;;;;;;;;;;;;;;",
   "deployedSourceMap": "194:876:21:-:0;;;;;;;;",
   "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity >=0.7.0;\n\n// taken from https://medium.com/coinmonks/math-in-solidity-part-3-percents-and-proportions-4db014e080b1\n// license is CC-BY-4.0\nlibrary FullMath {\n\tfunction fullMul(uint256 x, uint256 y)\n\t\tinternal\n\t\tpure\n\t\treturns (uint256 l, uint256 h)\n\t{\n\t\tuint256 mm = mulmod(x, y, uint256(-1));\n\t\tl = x * y;\n\t\th = mm - l;\n\t\tif (mm < l) h -= 1;\n\t}\n\n\tfunction fullDiv(\n\t\tuint256 l,\n\t\tuint256 h,\n\t\tuint256 d\n\t) private pure returns (uint256) {\n\t\tuint256 pow2 = d & -d;\n\t\td /= pow2;\n\t\tl /= pow2;\n\t\tl += h * ((-pow2) / pow2 + 1);\n\t\tuint256 r = 1;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\tr *= 2 - d * r;\n\t\treturn l * r;\n\t}\n\n\tfunction mulDiv(\n\t\tuint256 x,\n\t\tuint256 y,\n\t\tuint256 d\n\t) internal pure returns (uint256) {\n\t\t(uint256 l, uint256 h) = fullMul(x, y);\n\n\t\tuint256 mm = mulmod(x, y, d);\n\t\tif (mm > l) h -= 1;\n\t\tl -= mm;\n\n\t\tif (h == 0) return l / d;\n\n\t\trequire(h < d, \"FullMath: FULLDIV_OVERFLOW\");\n\t\treturn fullDiv(l, h, d);\n\t}\n}\n",
-  "sourcePath": "C:\\Users\\Kamlesh\\Persistence\\pStake\\codebase\\pStake-smartContracts\\contracts\\libraries\\FullMath.sol",
+  "sourcePath": "/home/aditimahesh/Documents/Work/Persistence/go/src/github.com/persistenceOne/pStakeSmartContracts/contracts/libraries/FullMath.sol",
   "ast": {
     "absolutePath": "project:/contracts/libraries/FullMath.sol",
     "exportedSymbols": {
@@ -5955,7 +5955,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-09-15T11:40:28.095Z",
+  "updatedAt": "2021-09-15T11:48:06.007Z",
   "devdoc": {
     "kind": "dev",
     "methods": {},
