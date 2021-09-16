@@ -23,7 +23,9 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-const mnemonic =
+// 0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7
+// 0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7
+const mnemonicPhrase =
   "gun defy tenant ripple vicious laptop dumb cream tourist demand humor elite";
 
 module.exports = {
@@ -80,8 +82,8 @@ module.exports = {
           providerOrUrl: `http://13.232.138.144:8545`,
         }),
       network_id: 3, // Ropsten's id
-      gas: 4900000, // Ropsten has a lower block limit than mainnet
-      gasPrice: 20000000000,
+      gas: 7900000, // Ropsten has a lower block limit than mainnet
+      gasPrice: 30000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )
@@ -152,7 +154,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "^0.7.0", // Fetch exact version from solc-bin (default: truffle's version)
+      version: "0.7.6", // Fetch exact version from solc-bin (default: truffle's version)
       docker: false, // Use "0.5.1" you've installed locally with docker (default: false)
       settings: {
         // See the solidity docs for advice about optimization and evmVersion
