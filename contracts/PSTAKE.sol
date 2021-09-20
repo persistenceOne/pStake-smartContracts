@@ -18,8 +18,8 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
    * @dev Constructor for initializing the UToken contract.
    * @param pauserAddress - address of the pauser admin.
    */
-    function initialize(address defaultAdminAddress, address pauserAddress) public virtual initializer {
-        __ERC20_init("pSTAKE Pegged ATOM", "pATOM");
+    function initialize(address defaultAdminAddress, address pauserAddress, string memory name, string memory symbol) public virtual initializer {
+        __ERC20_init(name, symbol);
         __AccessControl_init();
         __Pausable_init();
         _setupRole(DEFAULT_ADMIN_ROLE, defaultAdminAddress);
@@ -45,25 +45,6 @@ contract PSTAKE is IPSTAKE, ERC20Upgradeable, PausableUpgradeable, AccessControl
         _mint(to, tokens);
         return true;
     }
-
-    /*
-     * @dev Burn utokens for the provided 'address' and 'amount'
-     * @param from: account address, tokens: number of tokens
-     *
-     * Emits a {BurnTokens} event with 'from' set to address and 'tokens' set to amount of tokens.
-     *
-     * Requirements:
-     *
-     * - `amount` cannot be less than zero.
-     *
-     */
-    /* function burn(address from, uint256 tokens) public virtual override returns (bool success) {
-        require((tx.origin == from && _msgSender()==_liquidStakingContract) ||  // staking operation
-        (tx.origin == from && _msgSender() == _wrapperContract), "UT2"); // unwrap operation
-        _burn(from, tokens);
-        return true;
-    } */
-
 
     /*
      * @dev Set 'contract address', for liquid staking smart contract
