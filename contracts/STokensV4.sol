@@ -53,6 +53,7 @@ contract STokensV4 is
 	IRewardEmission public _iRewardEmission;
 	// required to store the whitelisting holder logic data initiated from StakeLPCore
 	address _stakeLPCoreContract;
+	address _whitelistedEmission;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -329,7 +330,8 @@ contract STokensV4 is
 		whenNotPaused
 		returns (uint256 reward)
 	{
-		require(to == _msgSender(), "ST5");
+		bool isContractWhitelistedLocal = _whitelistedAddresses.contains(to);
+		require(to == _msgSender() && !isContractWhitelistedLocal, "ST5");
 		reward = _calculateRewards(to);
 		emit TriggeredCalculateRewards(to, reward, block.timestamp);
 		return reward;
@@ -569,6 +571,23 @@ contract STokensV4 is
 	}
 
 	/*
+	 * @dev Set 'contract address', called from constructor
+	 * @param uTokenContract: utoken contract address
+	 *
+	 * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
+	 *
+	 */
+	function setWhitelistedEmissionContract(address whitelistedEmission)
+		public
+		virtual
+		override
+	{
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST12");
+		_whitelistedEmission = whitelistedEmission;
+		emit SetWhitelistedEmissionContract(whitelistedEmission);
+	}
+
+	/*
 	 * @dev Set 'whitelisted address', performed by admin only
 	 * @param whitelistedAddress: contract address of the whitelisted party
 	 *
@@ -580,7 +599,7 @@ contract STokensV4 is
 		address holderContractAddress,
 		address lpContractAddress
 	) public virtual override returns (bool success) {
-		require(_msgSender() == _stakeLPCoreContract, "ST8");
+		require(_msgSender() == _whitelistedEmission, "ST8");
 		// lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
 		require(whitelistedAddress != address(0), "ST9");
 		// add the whitelistedAddress if it isn't already available
@@ -614,7 +633,7 @@ contract STokensV4 is
 		override
 		returns (bool success)
 	{
-		require(_msgSender() == _stakeLPCoreContract, "ST10");
+		require(_msgSender() == _whitelistedEmission, "ST10");
 		require(whitelistedAddress != address(0), "ST11");
 		// remove whitelistedAddress from the list
 		_whitelistedAddresses.remove(whitelistedAddress);

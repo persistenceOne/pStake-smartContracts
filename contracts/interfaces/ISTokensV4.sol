@@ -258,4 +258,15 @@ interface ISTokensV4 is IERC20Upgradeable {
 	function isContractWhitelisted(address whitelistedAddress)
 		external
 		returns (bool result);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	function setWhitelistedEmissionContract(address whitelistedEmission)
+		external;
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetWhitelistedEmissionContract(address indexed _contract);
 }

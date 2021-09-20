@@ -414,30 +414,4 @@ interface IStakeLPCoreV5 {
 		uint256 tokens,
 		uint256 timestamp
 	);
-
-	function setWhitelistedAddress(
-		address whitelistedAddress,
-		address[] memory sTokenAddresses,
-		address holderContractAddress,
-		address lpContractAddress
-	) external returns (bool success);
-
-	event SetWhitelistedAddress(
-		address whitelistedAddress,
-		address[] sTokenAddressesLocal,
-		address holderContractAddress,
-		address lpContractAddress,
-		uint256 timestamp
-	);
-
-	function removeWhitelistedAddress(address whitelistedAddress)
-		external
-		returns (bool success);
-
-	event RemoveWhitelistedAddress(
-		address whitelistedAddress,
-		address[] sTokenAddressesLocal,
-		address holderAddressLocal,
-		uint256 timestamp
-	);
 }
