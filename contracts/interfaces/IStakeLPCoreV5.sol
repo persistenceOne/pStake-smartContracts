@@ -371,7 +371,7 @@ interface IStakeLPCoreV5 {
 	event AddLiquidityV2(
 		address indexed whitelistedAddress,
 		address indexed sTokenAddress,
-		address indexed msgSender,
+		address indexed accountAddress,
 		uint256 tokens,
 		uint256 timestamp
 	);
@@ -382,7 +382,7 @@ interface IStakeLPCoreV5 {
 	event RemoveLiquidityV2(
 		address indexed whitelistedAddress,
 		address indexed sTokenAddress,
-		address indexed msgSender,
+		address indexed accountAddress,
 		uint256 tokens,
 		uint256 timestamp
 	);
@@ -396,7 +396,7 @@ interface IStakeLPCoreV5 {
 		address indexed holderAddress,
 		address indexed lpToken,
 		address uTokenAddress,
-		address indexed to,
+		address indexed accountAddress,
 		uint256 tokens,
 		uint256 holderReward,
 		uint256[] otherRewardAmounts,
