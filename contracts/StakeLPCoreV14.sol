@@ -14,13 +14,11 @@ import "./interfaces/IPSTAKE.sol";
 import "./interfaces/IStakeLPCoreV5.sol";
 import "./libraries/TransferHelper.sol";
 import "./libraries/FullMath.sol";
-import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
 
 contract StakeLPCoreV14 is
 	IStakeLPCoreV5,
 	PausableUpgradeable,
-	AccessControlUpgradeable,
-	ReentrancyGuardUpgradeable
+	AccessControlUpgradeable
 {
 	using SafeMathUpgradeable for uint256;
 	using FullMath for uint256;
@@ -915,7 +913,6 @@ contract StakeLPCoreV14 is
 		virtual
 		override
 		whenNotPaused
-		nonReentrant
 		returns (
 			uint256 reward,
 			uint256 holderReward,
@@ -985,14 +982,7 @@ contract StakeLPCoreV14 is
 		address whitelistedAddress,
 		address sTokenAddress,
 		uint256 amount
-	)
-		public
-		virtual
-		override
-		whenNotPaused
-		nonReentrant
-		returns (bool success)
-	{
+	) public virtual override whenNotPaused returns (bool success) {
 		// directly call calculateSyncedRewards since all the require conditions are checked there
 		calculateSyncedRewards(whitelistedAddress, sTokenAddress);
 
@@ -1043,14 +1033,7 @@ contract StakeLPCoreV14 is
 		address whitelistedAddress,
 		address sTokenAddress,
 		uint256 amount
-	)
-		public
-		virtual
-		override
-		whenNotPaused
-		nonReentrant
-		returns (bool success)
-	{
+	) public virtual override whenNotPaused returns (bool success) {
 		// directly call calculateSyncedRewards since all the require conditions are checked there
 		calculateSyncedRewards(whitelistedAddress, sTokenAddress);
 
