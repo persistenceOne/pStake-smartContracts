@@ -395,9 +395,8 @@ contract STokensV3 is
 		if (pendingRewards > 0) {
 			rewards = pendingRewards;
 			_uTokens.mint(holderAddress, rewards);
-			emit CalculateHolderRewards(to, rewards, block.timestamp);
 		}
-
+		emit CalculateHolderRewards(to, rewards, block.timestamp);
 		return rewards;
 	}
 
@@ -520,7 +519,7 @@ contract STokensV3 is
 		override
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST12");
-		_uTokens = IUTokensV2(rewardEmissionContract);
+		_iRewardEmission = IRewardEmission(rewardEmissionContract);
 		emit SetRewardEmissionContract(rewardEmissionContract);
 	}
 
