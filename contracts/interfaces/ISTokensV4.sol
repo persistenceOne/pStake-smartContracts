@@ -234,18 +234,6 @@ interface ISTokensV4 is IERC20Upgradeable {
 	 *
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
-	event RemoveWhitelistedAddress(
-		address indexed whitelistedAddress,
-		address holderContractAddress,
-		address lpContractAddress,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted when a new whitelisted address is removed
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
-	 */
 	function getWhitelistData(address whitelistedAddress)
 		external
 		returns (
@@ -269,4 +257,16 @@ interface ISTokensV4 is IERC20Upgradeable {
 	 * @dev Emitted when contract addresses are set
 	 */
 	event SetWhitelistedEmissionContract(address indexed _contract);
+
+	/**
+	 * @dev Emitted when a new whitelisted address is removed
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 */
+	event RemoveWhitelistedAddress(
+		address indexed whitelistedAddress,
+		address holderContractAddress,
+		address lpContractAddress,
+		uint256 timestamp
+	);
 }

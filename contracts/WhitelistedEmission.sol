@@ -26,7 +26,7 @@ contract WhitelistedEmission is
 	// list of SToken addresses for a particular holder contract, for a particular whitelisted address
 	mapping(address => mapping(address => address[]))
 		public _whitelistedSTokenAddresses;
-	// holder addresses for a particular whitelisted contract
+	// holder address for a particular whitelisted contract
 	mapping(address => address) public _whitelistedAddressHolder;
 
 	/**
@@ -178,7 +178,7 @@ contract WhitelistedEmission is
 
 		// if whitelisted contract doesnt already exist then include it in the array
 		if (whitelistedAddressExists) {
-			// add the whitelistedAddress to the _holderWhitelists array
+			// remove the whitelistedAddress from the _holderWhitelists array
 			if (j == whitelistedAddressesLocal.length.sub(1)) {
 				whitelistedAddressesLocal.pop();
 			} else {
