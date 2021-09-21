@@ -25,7 +25,7 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
 // 0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7
 // 0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7
-const mnemonicPhrase =
+const mnemonic =
   "gun defy tenant ripple vicious laptop dumb cream tourist demand humor elite";
 
 module.exports = {
@@ -64,7 +64,7 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-      /*  provider: () =>
+      /* provider: () =>
         new HDWalletProvider(
           mnemonic,
           `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
@@ -77,7 +77,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider({
           mnemonic: {
-            phrase: mnemonicPhrase,
+            phrase: mnemonic,
           },
           providerOrUrl: `http://13.232.138.144:8545`,
         }),
@@ -154,7 +154,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: "0.7.6", // Fetch exact version from solc-bin (default: truffle's version)
+      version: "^0.7.6", // Fetch exact version from solc-bin (default: truffle's version)
       docker: false, // Use "0.5.1" you've installed locally with docker (default: false)
       settings: {
         // See the solidity docs for advice about optimization and evmVersion
