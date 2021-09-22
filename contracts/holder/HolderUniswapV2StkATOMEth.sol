@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity >=0.7.0;
 
-import "../interfaces/IHolder.sol";
+import "../interfaces/IHolderV2.sol";
 import "../interfaces/ISTokensV2.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
@@ -23,7 +23,6 @@ contract HolderUniswapV2StkATOMEth is
 
 	/**
 	 * @dev Constructor for initializing the Holder Uniswap contract.
-	 * @param sTokenContract - address of the SToken contract.
 	 * @param stakeLPContract - address of the StakeLPCore contract.
 	 */
 	function initialize(address stakeLPContract, uint256 valueDivisor)

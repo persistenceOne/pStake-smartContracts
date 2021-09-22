@@ -8,12 +8,12 @@ import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/ISTokensV2.sol";
 import "./interfaces/IUTokensV2.sol";
-import "./interfaces/IHolder.sol";
+import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
 contract STokensV2 is
 	ERC20Upgradeable,
-	ISTokensV5,
+	ISTokensV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
