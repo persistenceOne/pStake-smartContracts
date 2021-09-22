@@ -25,14 +25,21 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	function burn(address from, uint256 tokens) external returns (bool);
 
+	/**
+	 * @dev checks if given contract address is whitelisted
+	 *
+	 */
 	function isContractWhitelisted(address whitelistedAddress)
 		external
-		view
 		returns (bool result);
 
-	function getHolderData(address whitelistedAddress)
+	/**
+	 * @dev Emitted when a new whitelisted address is removed
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 */
+	function getWhitelistData(address whitelistedAddress)
 		external
-		view
 		returns (
 			address holderAddress,
 			address lpAddress,
@@ -46,23 +53,6 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	function setRewardRate(uint256 rewardRate) external returns (bool success);
-
-	/**
-	 * @dev get reward rate and value divisor
-	 */
-	function getRewardRate()
-		external
-		view
-		returns (uint256[] memory rewardRate, uint256 valueDivisor);
-
-	/**
-	 * @dev get rewards till timestamp
-	 * @param to: account address
-	 */
-	function getLastUserRewardTimestamp(address to)
-		external
-		view
-		returns (uint256 lastUserRewardTimestamp);
 
 	/**
 	 * @dev calculates the reward that is pending to be received.
@@ -95,31 +85,6 @@ interface ISTokensV2 is IERC20Upgradeable {
 		returns (uint256 rewards);
 
 	/**
-	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
-	 *
-	 * Emits a {TriggeredCalculateRewards} event.
-	 */
-	function setWhitelistedAddress(
-		address whitelistedAddress,
-		address holderContractAddress,
-		address lpContractAddress
-	) external returns (bool success);
-
-	/*
-	 * @dev remove 'whitelisted address', performed by admin only
-	 * @param whitelistedAddress: contract address of the whitelisted party
-	 * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
-	 *
-	 * Emits a {RemoveWhitelistedAddress} event
-	 *
-	 */
-	function removeWhitelistedAddress(address whitelistedAddress)
-		external
-		returns (bool success);
-
-	/**
 	 * @dev Set UTokens smart contract.
 	 *
 	 * Emits a {SetContract} event.
@@ -130,24 +95,6 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 * @dev Set LiquidStaking smart contract.
 	 */
 	function setLiquidStakingContract(address liquidStakingContract) external;
-
-	/**
-	 * @dev Triggers stopped state.
-	 *
-	 * Requirements:
-	 *
-	 * - The contract must not be paused.
-	 */
-	function pause() external returns (bool success);
-
-	/**
-	 * @dev Returns to normal state.
-	 *
-	 * Requirements:
-	 *
-	 * - The contract must be paused.
-	 */
-	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when contract addresses are set
@@ -172,16 +119,34 @@ interface ISTokensV2 is IERC20Upgradeable {
 	);
 
 	/**
-	 * @dev Emitted when a new whitelisted address is removed
+	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @param to: account address
+	 */
+	function calculatePendingHolderRewards(address to)
+		external
+		returns (
+			uint256 pendingRewards,
+			address holderAddress,
+			address lpAddress
+		);
+
+	/**
+	 * @dev get reward rate and value divisor
+	 */
+	function getUTokenAddress() external view returns (address uTokenAddress);
+
+	/**
+	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
 	 *
 	 * Returns a boolean value indicating whether the operation succeeded.
+	 *
+	 * Emits a {TriggeredCalculateRewards} event.
 	 */
-	event RemoveWhitelistedAddress(
-		address indexed whitelistedAddress,
+	function setWhitelistedAddress(
+		address whitelistedAddress,
 		address holderContractAddress,
-		address lpContractAddress,
-		uint256 timestamp
-	);
+		address lpContractAddress
+	) external returns (bool success);
 
 	/**
 	 * @dev Emitted when `rewards` tokens are moved to account
@@ -195,12 +160,13 @@ interface ISTokensV2 is IERC20Upgradeable {
 	);
 
 	/**
-	 * @dev Emitted when `rewards` tokens are moved to holder account
+	 * @dev Emitted when `rewards` tokens are moved to account
 	 *
 	 * Note that `value` may be zero.
 	 */
-	event CalculateHolderRewards(
+	event TriggeredCalculateHolderRewards(
 		address indexed accountAddress,
+		address indexed sTokenAddress,
 		uint256 tokens,
 		uint256 timestamp
 	);
@@ -216,19 +182,86 @@ interface ISTokensV2 is IERC20Upgradeable {
 		uint256 timestamp
 	);
 
+	/*
+	 * @dev remove 'whitelisted address', performed by admin only
+	 * @param whitelistedAddress: contract address of the whitelisted party
+	 * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
+	 *
+	 * Emits a {RemoveWhitelistedAddress} event
+	 *
+	 */
+	function removeWhitelistedAddress(address whitelistedAddress)
+		external
+		returns (bool success);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	function setWhitelistedEmissionContract(address whitelistedEmission)
+		external;
+
+	/**
+	 * @dev get reward rate and value divisor
+	 */
+	function getRewardRate()
+		external
+		view
+		returns (
+			uint256[] memory rewardRate,
+			uint256[] memory lastMovingRewardTimestamp,
+			uint256 valueDivisor
+		);
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
+
+	/**
+	 * @dev Emitted when `rewards` tokens are moved to holder account
+	 *
+	 * Note that `value` may be zero.
+	 */
+	event CalculateHolderRewards(
+		address indexed accountAddress,
+		address indexed sTokenAddress,
+		uint256 tokens,
+		uint256 timestamp
+	);
+
 	/**
 	 * @dev Emitted when contract addresses are set
 	 */
 	event SetRewardRate(uint256 indexed rewardRate);
 
 	/**
-	 * @dev Emitted when `rewards` tokens are moved to account
+	 * @dev Emitted when a new whitelisted address is removed
 	 *
-	 * Note that `value` may be zero.
+	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
-	event TriggeredCalculateHolderRewards(
-		address indexed accountAddress,
-		uint256 tokens,
+	event RemoveWhitelistedAddress(
+		address indexed whitelistedAddress,
+		address holderContractAddress,
+		address lpContractAddress,
+		uint256 lastHolderRewardTimestamp,
 		uint256 timestamp
 	);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetWhitelistedEmissionContract(address indexed _contract);
 }

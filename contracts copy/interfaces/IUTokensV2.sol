@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 /**
  * @dev Interface of the IUTokens.
  */
-interface IUTokens is IERC20Upgradeable {
+interface IUTokensV2 is IERC20Upgradeable {
 	/**
 	 * @dev Mints `amount` tokens to the caller's address `to`.
 	 *
@@ -39,6 +39,24 @@ interface IUTokens is IERC20Upgradeable {
 	 * @dev Set PegTokens smart contract.
 	 */
 	function setWrapperContract(address wrapperTokensContract) external;
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when contract addresses are set

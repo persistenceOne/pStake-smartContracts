@@ -218,7 +218,7 @@ contract TokenWrapperV2 is
 		override
 		whenNotPaused
 	{
-		// require(amount >= _minDeposit, "TW9");
+		require(amount >= _minDeposit, "TW9");
 		require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
 		uint256 _finalTokens = _generateUTokens(to, amount);
 		emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
@@ -245,7 +245,7 @@ contract TokenWrapperV2 is
 		uint256[] memory _finalTokensArray = new uint256[](to.length);
 		uint256 _toLength = to.length;
 		for (i = 0; i < _toLength; i = i.add(1)) {
-			// require(amount[i] >= _minDeposit, "TW13");
+			require(amount[i] >= _minDeposit, "TW13");
 			_finalTokensArray[i] = _generateUTokens(to[i], amount[i]);
 		}
 		emit GenerateUTokensInBatch(
@@ -290,7 +290,6 @@ contract TokenWrapperV2 is
 		uint256 tokens,
 		string memory toChainAddress
 	) public virtual override whenNotPaused {
-		require(from == _msgSender(), "TW17");
 		require(tokens >= _minWithdraw, "TW14");
 		//check if toChainAddress is valid address
 		bool isAddressValid = toChainAddress.isBech32AddressValid(
@@ -304,6 +303,7 @@ contract TokenWrapperV2 is
 		uint256 _fee = (tokens.mulDiv(_withdrawFee, _valueDivisor)).div(100);
 		uint256 _finalTokens = tokens.add(_fee);
 		require(_currentUTokenBalance >= _finalTokens, "TW16");
+		require(from == _msgSender(), "TW17");
 
 		_uTokens.burn(from, _finalTokens);
 		emit WithdrawUTokens(

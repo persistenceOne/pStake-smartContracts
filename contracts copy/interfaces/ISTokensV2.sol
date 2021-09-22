@@ -6,7 +6,7 @@ import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 /**
  * @dev Interface of the ISTokens.
  */
-interface ISTokens is IERC20Upgradeable {
+interface ISTokensV2 is IERC20Upgradeable {
 	/**
 	 * @dev Mints `amount` tokens to the caller's address `to`.
 	 *
@@ -25,10 +25,10 @@ interface ISTokens is IERC20Upgradeable {
 	 */
 	function burn(address from, uint256 tokens) external returns (bool);
 
-	function isContractWhitelisted(address lpContractAddress)
+	function isContractWhitelisted(address whitelistedAddress)
 		external
 		view
-		returns (bool result, address holderAddress);
+		returns (bool result);
 
 	function getHolderData(address whitelistedAddress)
 		external
@@ -36,6 +36,7 @@ interface ISTokens is IERC20Upgradeable {
 		returns (
 			address holderAddress,
 			address lpAddress,
+			address uTokenAddress,
 			uint256 lastHolderRewardTimestamp
 		);
 
@@ -45,6 +46,23 @@ interface ISTokens is IERC20Upgradeable {
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	function setRewardRate(uint256 rewardRate) external returns (bool success);
+
+	/**
+	 * @dev get reward rate and value divisor
+	 */
+	function getRewardRate()
+		external
+		view
+		returns (uint256[] memory rewardRate, uint256 valueDivisor);
+
+	/**
+	 * @dev get rewards till timestamp
+	 * @param to: account address
+	 */
+	function getLastUserRewardTimestamp(address to)
+		external
+		view
+		returns (uint256 lastUserRewardTimestamp);
 
 	/**
 	 * @dev calculates the reward that is pending to be received.
@@ -63,7 +81,43 @@ interface ISTokens is IERC20Upgradeable {
 	 *
 	 * Emits a {TriggeredCalculateRewards} event.
 	 */
-	function calculateRewards(address to) external returns (bool success);
+	function calculateRewards(address to) external returns (uint256 rewards);
+
+	/**
+	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 *
+	 * Emits a {TriggeredCalculateRewards} event.
+	 */
+	function calculateHolderRewards(address to)
+		external
+		returns (uint256 rewards);
+
+	/**
+	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+	 *
+	 * Returns a boolean value indicating whether the operation succeeded.
+	 *
+	 * Emits a {TriggeredCalculateRewards} event.
+	 */
+	function setWhitelistedAddress(
+		address whitelistedAddress,
+		address holderContractAddress,
+		address lpContractAddress
+	) external returns (bool success);
+
+	/*
+	 * @dev remove 'whitelisted address', performed by admin only
+	 * @param whitelistedAddress: contract address of the whitelisted party
+	 * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
+	 *
+	 * Emits a {RemoveWhitelistedAddress} event
+	 *
+	 */
+	function removeWhitelistedAddress(address whitelistedAddress)
+		external
+		returns (bool success);
 
 	/**
 	 * @dev Set UTokens smart contract.
@@ -76,6 +130,24 @@ interface ISTokens is IERC20Upgradeable {
 	 * @dev Set LiquidStaking smart contract.
 	 */
 	function setLiquidStakingContract(address liquidStakingContract) external;
+
+	/**
+	 * @dev Triggers stopped state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must not be paused.
+	 */
+	function pause() external returns (bool success);
+
+	/**
+	 * @dev Returns to normal state.
+	 *
+	 * Requirements:
+	 *
+	 * - The contract must be paused.
+	 */
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when contract addresses are set
@@ -139,6 +211,22 @@ interface ISTokens is IERC20Upgradeable {
 	 * Note that `value` may be zero.
 	 */
 	event TriggeredCalculateRewards(
+		address indexed accountAddress,
+		uint256 tokens,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetRewardRate(uint256 indexed rewardRate);
+
+	/**
+	 * @dev Emitted when `rewards` tokens are moved to account
+	 *
+	 * Note that `value` may be zero.
+	 */
+	event TriggeredCalculateHolderRewards(
 		address indexed accountAddress,
 		uint256 tokens,
 		uint256 timestamp

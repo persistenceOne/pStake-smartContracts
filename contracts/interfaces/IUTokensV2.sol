@@ -41,6 +41,21 @@ interface IUTokensV2 is IERC20Upgradeable {
 	function setWrapperContract(address wrapperTokensContract) external;
 
 	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetSTokensContract(address indexed _contract);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetWrapperContract(address indexed _contract);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetLiquidStakingContract(address indexed _contract);
+
+	/**
 	 * @dev Triggers stopped state.
 	 *
 	 * Requirements:
@@ -57,19 +72,4 @@ interface IUTokensV2 is IERC20Upgradeable {
 	 * - The contract must be paused.
 	 */
 	function unpause() external returns (bool success);
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event SetSTokensContract(address indexed _contract);
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event SetWrapperContract(address indexed _contract);
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event SetLiquidStakingContract(address indexed _contract);
 }

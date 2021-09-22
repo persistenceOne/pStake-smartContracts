@@ -8,12 +8,12 @@ import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/ISTokensV2.sol";
 import "./interfaces/IUTokensV2.sol";
-import "./interfaces/IHolder.sol";
+import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
 contract STokensV2 is
 	ERC20Upgradeable,
-	ISTokensV5,
+	ISTokensV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -31,24 +31,24 @@ contract STokensV2 is
 	mapping(address => address) public _holderContractAddress;
 	// LP Token contract address which might be different from whitelisted contract
 	mapping(address => address) public _lpContractAddress;
+	// Index of whitelisted address in the Enumerable Set
+	// mapping(address => uint256) public _whitelistedAddressIndex;
 	// last timestamp when the holder reward calculation was performed for updating reward pool
 	mapping(address => uint256) public _lastHolderRewardTimestamp;
 
-	// _liquidStakingContract address does the mint and burn of STokens
+	// variables capturing data of other contracts in the product
 	address public _liquidStakingContract;
-	// _uTokens variable is used to do mint of UTokens
+	// address public _stakeLPCoreContract;
 	IUTokensV2 public _uTokens;
 
 	// variables pertaining to moving reward rate logic
 	uint256[] private _rewardRate;
 	uint256[] private _lastMovingRewardTimestamp;
 	uint256 public _valueDivisor;
-	mapping(address => uint256) public _lastUserRewardTimestamp;
+	mapping(address => uint256) private _lastUserRewardTimestamp;
 
 	// variable pertaining to contract upgrades versioning
 	uint256 public _version;
-	// required to store the whitelisting holder logic data initiated from WhitelistedEmission contract
-	address _whitelistedEmissionContract;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -95,7 +95,7 @@ contract STokensV2 is
 	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
 	 * @param whitelistedAddress: contract address
 	 */
-	function getWhitelistData(address whitelistedAddress)
+	function getHolderData(address whitelistedAddress)
 		public
 		view
 		virtual
@@ -113,21 +113,6 @@ contract STokensV2 is
 		lastHolderRewardTimestamp = _lastHolderRewardTimestamp[
 			whitelistedAddress
 		];
-		uTokenAddress = (holderAddress == address(0) || lpAddress == address(0))
-			? address(0)
-			: address(_uTokens);
-	}
-
-	/**
-	 * @dev get reward rate and value divisor
-	 */
-	function getUTokenAddress()
-		public
-		view
-		virtual
-		override
-		returns (address uTokenAddress)
-	{
 		uTokenAddress = address(_uTokens);
 	}
 
@@ -149,7 +134,7 @@ contract STokensV2 is
 	{
 		// range checks for rewardRate. Since rewardRate cannot be more than 100%, the max cap
 		// is _valueDivisor * 100, which then brings the fees to 100 (percentage)
-		require(rewardRate <= _valueDivisor.mul(100), "ST18");
+		require(rewardRate <= _valueDivisor.mul(100), "ST17");
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST2");
 		_rewardRate.push(rewardRate);
 		_lastMovingRewardTimestamp.push(block.timestamp);
@@ -166,15 +151,24 @@ contract STokensV2 is
 		view
 		virtual
 		override
-		returns (
-			uint256[] memory rewardRate,
-			uint256[] memory lastMovingRewardTimestamp,
-			uint256 valueDivisor
-		)
+		returns (uint256[] memory rewardRate, uint256 valueDivisor)
 	{
 		rewardRate = _rewardRate;
-		lastMovingRewardTimestamp = _lastMovingRewardTimestamp;
 		valueDivisor = _valueDivisor;
+	}
+
+	/**
+	 * @dev get rewards till timestamp
+	 * @param to: account address
+	 */
+	function getLastUserRewardTimestamp(address to)
+		public
+		view
+		virtual
+		override
+		returns (uint256 lastUserRewardTimestamp)
+	{
+		lastUserRewardTimestamp = _lastUserRewardTimestamp[to];
 	}
 
 	/**
@@ -332,24 +326,24 @@ contract STokensV2 is
 	 * @dev Calculate rewards for the provided 'address'
 	 * @param to: account address
 	 */
-	function _calculateRewards(address to) internal returns (uint256 _reward) {
-		// keep an if condition to check for address(0), instead of require condition, because address(0) is
-		// a valid condition when it is a mint/burn operation
-		if (to != address(0)) {
-			// Calculate the rewards pending
-			_reward = calculatePendingRewards(to);
+	function _calculateRewards(address to) internal returns (uint256) {
+		// Calculate the rewards pending
+		uint256 _reward = calculatePendingRewards(to);
 
-			// Set the new stakedBlock to the current,
-			// as per Checks-Effects-Interactions pattern
-			_lastUserRewardTimestamp[to] = block.timestamp;
+		// Set the new stakedBlock to the current,
+		// as per Checks-Effects-Interactions pattern
+		_lastUserRewardTimestamp[to] = block.timestamp;
 
-			// mint uTokens only if reward is greater than zero
-			if (_reward > 0) {
-				// Mint new uTokens and send to the callers account
-				_uTokens.mint(to, _reward);
-				emit CalculateRewards(to, _reward, block.timestamp);
-			}
-		}
+		// mint uTokens only if reward is greater than zero
+		/* if (_reward > 0) {
+			// Mint new uTokens and send to the callers account
+			_uTokens.mint(to, _reward);
+		} */
+
+		// mint uTokens even when _reward value is zero
+		_uTokens.mint(to, _reward);
+
+		emit CalculateRewards(to, _reward, block.timestamp);
 		return _reward;
 	}
 
@@ -367,8 +361,7 @@ contract STokensV2 is
 		whenNotPaused
 		returns (uint256 reward)
 	{
-		bool isContractWhitelistedLocal = _whitelistedAddresses.contains(to);
-		require(to == _msgSender() && !isContractWhitelistedLocal, "ST5");
+		require(to == _msgSender(), "ST5");
 		reward = _calculateRewards(to);
 		emit TriggeredCalculateRewards(to, reward, block.timestamp);
 		return reward;
@@ -382,73 +375,34 @@ contract STokensV2 is
 		internal
 		returns (uint256 rewards)
 	{
+		// holderContract and lpContract (lp token contract) need to be validated together because
+		// it might not be practical to setup holder to collect reward pool but not StakeLP to distribute reward
+		// since the reward distribution calculation starts the minute reward pool is created
 		require(
 			_whitelistedAddresses.contains(to) &&
 				_holderContractAddress[to] != address(0) &&
 				_lpContractAddress[to] != address(0),
 			"ST6"
 		);
-		(
-			uint256 pendingRewards,
-			address holderAddress,
+		uint256 _sTokenSupply = IHolderV2(_holderContractAddress[to])
+			.getSTokenSupply(to);
 
-		) = calculatePendingHolderRewards(to);
+		// calculate the reward applying the moving reward rate
+		rewards = _calculatePendingRewards(
+			_sTokenSupply,
+			_lastHolderRewardTimestamp[to]
+		);
 
 		// update the last timestamp of reward pool to the current time as per Checks-Effects-Interactions pattern
 		_lastHolderRewardTimestamp[to] = block.timestamp;
 
 		// Mint new uTokens and send to the holder contract account as updated reward pool
-		if (pendingRewards > 0) {
-			rewards = pendingRewards;
-			_uTokens.mint(holderAddress, rewards);
+		if (rewards > 0) {
+			_uTokens.mint(_holderContractAddress[to], rewards);
 		}
 
-		emit CalculateHolderRewards(
-			to,
-			address(this),
-			rewards,
-			block.timestamp
-		);
-
+		emit CalculateHolderRewards(to, rewards, block.timestamp);
 		return rewards;
-	}
-
-	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
-	 * @param to: account address
-	 */
-	function calculatePendingHolderRewards(address to)
-		public
-		view
-		virtual
-		override
-		returns (
-			uint256 pendingRewards,
-			address holderAddress,
-			address lpAddress
-		)
-	{
-		// holderContract and lpContract (lp token contract) need to be validated together because
-		// it might not be practical to setup holder to collect reward pool but not StakeLP to distribute reward
-		// since the reward distribution calculation starts the minute reward pool is created
-		if (
-			_whitelistedAddresses.contains(to) &&
-			_holderContractAddress[to] != address(0) &&
-			_lpContractAddress[to] != address(0)
-		) {
-			uint256 _sTokenSupply = IHolderV2(_holderContractAddress[to])
-				.getSTokenSupply(to, address(this));
-
-			// calculate the reward applying the moving reward rate
-			if (_sTokenSupply > 0) {
-				pendingRewards = _calculatePendingRewards(
-					_sTokenSupply,
-					_lastHolderRewardTimestamp[to]
-				);
-				holderAddress = _holderContractAddress[to];
-				lpAddress = _lpContractAddress[to];
-			}
-		}
 	}
 
 	/**
@@ -465,13 +419,9 @@ contract STokensV2 is
 		whenNotPaused
 		returns (uint256 rewards)
 	{
+		require(to != address(0) && to != address(0), "ST16");
 		rewards = _calculateHolderRewards(to);
-		emit TriggeredCalculateHolderRewards(
-			to,
-			address(this),
-			rewards,
-			block.timestamp
-		);
+		emit TriggeredCalculateHolderRewards(to, rewards, block.timestamp);
 		return rewards;
 	}
 
@@ -495,41 +445,57 @@ contract STokensV2 is
 	) internal virtual override {
 		require(!paused(), "ST7");
 		super._beforeTokenTransfer(from, to, amount);
-		bool isFromContractWhitelisted = isContractWhitelisted(from);
-		bool isToContractWhitelisted = isContractWhitelisted(to);
+		// uint256 _sTokenSupply;
+		// uint256 _timePeriod;
+		if (from == address(0)) {
+			// cannot have a scenario of transfer from address(0) to address(0)
+			// if(to == address(0)){}
 
-		if (!isFromContractWhitelisted) {
-			_calculateRewards(from);
-			if (!isToContractWhitelisted) {
+			if (!_whitelistedAddresses.contains(to)) {
 				_calculateRewards(to);
 			} else {
-				_calculateHolderRewards(to);
-			}
-		} else {
-			_calculateHolderRewards(from);
-			if (!isToContractWhitelisted) {
-				_calculateRewards(to);
-			} else {
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to);
 			}
 		}
-	}
 
-	/*
-	 * @dev Set 'contract address', called from constructor
-	 * @param uTokenContract: utoken contract address
-	 *
-	 * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
-	 *
-	 */
-	function setWhitelistedEmissionContract(address whitelistedEmission)
-		public
-		virtual
-		override
-	{
-		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST11");
-		_whitelistedEmissionContract = whitelistedEmission;
-		emit SetWhitelistedEmissionContract(whitelistedEmission);
+		if (from != address(0) && !_whitelistedAddresses.contains(from)) {
+			if (to == address(0)) {
+				_calculateRewards(from);
+			}
+
+			if (to != address(0) && !_whitelistedAddresses.contains(to)) {
+				_calculateRewards(from);
+				_calculateRewards(to);
+			}
+
+			if (to != address(0) && _whitelistedAddresses.contains(to)) {
+				_calculateRewards(from);
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
+				_calculateHolderRewards(to);
+			}
+		}
+
+		if (from != address(0) && _whitelistedAddresses.contains(from)) {
+			if (to == address(0)) {
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
+				_calculateHolderRewards(from);
+			}
+
+			if (to != address(0) && !_whitelistedAddresses.contains(to)) {
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
+				_calculateHolderRewards(from);
+				_calculateRewards(to);
+			}
+
+			if (to != address(0) && _whitelistedAddresses.contains(to)) {
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _lastMovingRewardTimestamp);
+				_calculateHolderRewards(from);
+
+				// IHolderV2(_holderContractAddress[to]).calculateHolderRewards(to, address(0), _rewardRate, _lastMovingRewardTimestamp);
+				_calculateHolderRewards(to);
+			}
+		}
 	}
 
 	/*
@@ -544,9 +510,9 @@ contract STokensV2 is
 		address holderContractAddress,
 		address lpContractAddress
 	) public virtual override returns (bool success) {
-		require(_msgSender() == _whitelistedEmissionContract, "ST12");
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST8");
 		// lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
-		require(whitelistedAddress != address(0), "ST13");
+		require(whitelistedAddress != address(0), "ST9");
 		// add the whitelistedAddress if it isn't already available
 		if (!_whitelistedAddresses.contains(whitelistedAddress))
 			_whitelistedAddresses.add(whitelistedAddress);
@@ -578,25 +544,27 @@ contract STokensV2 is
 		override
 		returns (bool success)
 	{
-		require(_msgSender() == _whitelistedEmissionContract, "ST14");
-		require(whitelistedAddress != address(0), "ST15");
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST10");
+		require(whitelistedAddress != address(0), "ST11");
 		// remove whitelistedAddress from the list
 		_whitelistedAddresses.remove(whitelistedAddress);
-
-		// emit an event
-		emit RemoveWhitelistedAddress(
-			whitelistedAddress,
-			_holderContractAddress[whitelistedAddress],
-			_lpContractAddress[whitelistedAddress],
-			_lastHolderRewardTimestamp[whitelistedAddress],
-			block.timestamp
-		);
+		address _holderContractAddressLocal = _holderContractAddress[
+			whitelistedAddress
+		];
+		address _lpContractAddressLocal = _lpContractAddress[
+			whitelistedAddress
+		];
 
 		// delete holder contract values
 		delete _holderContractAddress[whitelistedAddress];
 		delete _lpContractAddress[whitelistedAddress];
-		delete _lastHolderRewardTimestamp[whitelistedAddress];
 
+		emit RemoveWhitelistedAddress(
+			whitelistedAddress,
+			_holderContractAddressLocal,
+			_lpContractAddressLocal,
+			block.timestamp
+		);
 		success = true;
 		return success;
 	}
@@ -613,7 +581,7 @@ contract STokensV2 is
 		virtual
 		override
 	{
-		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST8");
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST12");
 		_uTokens = IUTokensV2(uTokenContract);
 		emit SetUTokensContract(uTokenContract);
 	}
@@ -630,7 +598,7 @@ contract STokensV2 is
 		virtual
 		override
 	{
-		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST9");
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST13");
 		_liquidStakingContract = liquidStakingContract;
 		emit SetLiquidStakingContract(liquidStakingContract);
 	}
@@ -643,7 +611,7 @@ contract STokensV2 is
 	 * - The contract must not be paused.
 	 */
 	function pause() public virtual override returns (bool success) {
-		require(hasRole(PAUSER_ROLE, _msgSender()), "ST16");
+		require(hasRole(PAUSER_ROLE, _msgSender()), "ST14");
 		_pause();
 		return true;
 	}
@@ -656,7 +624,7 @@ contract STokensV2 is
 	 * - The contract must be paused.
 	 */
 	function unpause() public virtual override returns (bool success) {
-		require(hasRole(PAUSER_ROLE, _msgSender()), "ST17");
+		require(hasRole(PAUSER_ROLE, _msgSender()), "ST15");
 		_unpause();
 		return true;
 	}

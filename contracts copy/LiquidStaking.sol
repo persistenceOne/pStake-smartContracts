@@ -4,13 +4,13 @@ pragma solidity >=0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "./interfaces/ISTokensV2.sol";
-import "./interfaces/IUTokensV2.sol";
-import "./interfaces/ILiquidStakingV2.sol";
+import "./interfaces/ISTokens.sol";
+import "./interfaces/IUTokens.sol";
+import "./interfaces/ILiquidStaking.sol";
 import "./libraries/FullMath.sol";
 
-contract LiquidStakingV2 is
-	ILiquidStakingV2,
+contract LiquidStaking is
+	ILiquidStaking,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -18,15 +18,15 @@ contract LiquidStakingV2 is
 	using FullMath for uint256;
 
 	//Private instances of contracts to handle Utokens and Stokens
-	IUTokensV2 public _uTokens;
-	ISTokensV2 public _sTokens;
+	IUTokens private _uTokens;
+	ISTokens private _sTokens;
 
 	// defining the fees and minimum values
 	uint256 private _minStake;
 	uint256 private _minUnstake;
 	uint256 private _stakeFee;
 	uint256 private _unstakeFee;
-	uint256 public _valueDivisor;
+	uint256 private _valueDivisor;
 
 	// constants defining access control ROLES
 	bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -38,18 +38,13 @@ contract LiquidStakingV2 is
 	uint256 private _unstakeEpochPrevious;
 
 	//Mapping to handle the Expiry period
-	mapping(address => uint256[]) public _unstakingExpiration;
+	mapping(address => uint256[]) private _unstakingExpiration;
 
 	//Mapping to handle the Expiry amount
-	mapping(address => uint256[]) public _unstakingAmount;
+	mapping(address => uint256[]) private _unstakingAmount;
 
 	//mappint to handle a counter variable indicating from what index to start the loop.
-	mapping(address => uint256) public _withdrawCounters;
-
-	// variable pertaining to contract upgrades versioning
-	uint256 public _version;
-
-	uint256 public _batchingLimit;
+	mapping(address => uint256) internal _withdrawCounters;
 
 	/**
 	 * @dev Constructor for initializing the LiquidStaking contract.
@@ -91,7 +86,6 @@ contract LiquidStakingV2 is
 	function setFees(uint256 stakeFee, uint256 unstakeFee)
 		public
 		virtual
-		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ1");
@@ -118,7 +112,6 @@ contract LiquidStakingV2 is
 	function setUnstakingLockTime(uint256 unstakingLockTime)
 		public
 		virtual
-		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ3");
@@ -135,7 +128,6 @@ contract LiquidStakingV2 is
 		public
 		view
 		virtual
-		override
 		returns (
 			uint256 stakeFee,
 			uint256 unstakeFee,
@@ -170,7 +162,6 @@ contract LiquidStakingV2 is
 	function setMinimumValues(uint256 minStake, uint256 minUnstake)
 		public
 		virtual
-		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
@@ -195,7 +186,7 @@ contract LiquidStakingV2 is
 		uint256 unstakeEpoch,
 		uint256 unstakeEpochPrevious,
 		uint256 epochInterval
-	) public virtual override returns (bool success) {
+	) public virtual returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
 		require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
 		// require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
@@ -216,7 +207,7 @@ contract LiquidStakingV2 is
 	 */
 	function setUTokensContract(address uAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ10");
-		_uTokens = IUTokensV2(uAddress);
+		_uTokens = IUTokens(uAddress);
 		emit SetUTokensContract(uAddress);
 	}
 
@@ -229,7 +220,7 @@ contract LiquidStakingV2 is
 	 */
 	function setSTokensContract(address sAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ11");
-		_sTokens = ISTokensV2(sAddress);
+		_sTokens = ISTokens(sAddress);
 		emit SetSTokensContract(sAddress);
 	}
 
@@ -383,13 +374,9 @@ contract LiquidStakingV2 is
 	{
 		require(staker == _msgSender(), "LQ20");
 		uint256 _withdrawBalance;
-		uint256 _counter = _withdrawCounters[staker];
-		uint256 _counter2 = _withdrawCounters[staker];
 		uint256 _unstakingExpirationLength = _unstakingExpiration[staker]
-			.length > _batchingLimit.add(_counter)
-			? _batchingLimit.add(_counter)
-			: _unstakingExpiration[staker].length;
-
+			.length;
+		uint256 _counter = _withdrawCounters[staker];
 		for (
 			uint256 i = _counter;
 			i < _unstakingExpirationLength;
@@ -404,15 +391,12 @@ contract LiquidStakingV2 is
 				_withdrawBalance = _withdrawBalance.add(
 					_unstakingAmount[staker][i]
 				);
-				delete _unstakingExpiration[staker][i];
-				delete _unstakingAmount[staker][i];
-				_counter2 = _counter2.add(1);
-				// _withdrawCounters[staker] = _withdrawCounters[staker].add(1);
+				_unstakingExpiration[staker][i] = 0;
+				_unstakingAmount[staker][i] = 0;
+				_withdrawCounters[staker] = _withdrawCounters[staker].add(1);
 			}
 		}
 
-		// update _withdrawCounters[staker] only once outside for loop to save gas
-		_withdrawCounters[staker] = _counter2;
 		require(_withdrawBalance > 0, "LQ21");
 		emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
 		_uTokens.mint(staker, _withdrawBalance);
@@ -487,45 +471,13 @@ contract LiquidStakingV2 is
 	}
 
 	/**
-	 * @dev Set 'fees', called from admin
-	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
-	 *
-	 */
-	function setBatchingLimit(uint256 batchingLimit)
-		public
-		virtual
-		override
-		returns (bool success)
-	{
-		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ24");
-		_batchingLimit = batchingLimit;
-		emit SetBatchingLimit(batchingLimit, block.timestamp);
-		success = true;
-		return success;
-	}
-
-	/**
-	 * @dev get fees, min values, value divisor and epoch props
-	 *
-	 */
-	function getBatchingLimit()
-		public
-		view
-		virtual
-		override
-		returns (uint256 batchingLimit)
-	{
-		batchingLimit = _batchingLimit;
-	}
-
-	/**
 	 * @dev Triggers stopped state.
 	 *
 	 * Requirements:
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual override returns (bool success) {
+	function pause() public virtual returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LQ22");
 		_pause();
 		return true;
@@ -538,7 +490,7 @@ contract LiquidStakingV2 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual override returns (bool success) {
+	function unpause() public virtual returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LQ23");
 		_unpause();
 		return true;

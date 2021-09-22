@@ -49,8 +49,6 @@ contract LiquidStakingV2 is
 	// variable pertaining to contract upgrades versioning
 	uint256 public _version;
 
-	uint256 public _batchingLimit;
-
 	/**
 	 * @dev Constructor for initializing the LiquidStaking contract.
 	 * @param uAddress - address of the UToken contract.
@@ -383,13 +381,9 @@ contract LiquidStakingV2 is
 	{
 		require(staker == _msgSender(), "LQ20");
 		uint256 _withdrawBalance;
-		uint256 _counter = _withdrawCounters[staker];
-		uint256 _counter2 = _withdrawCounters[staker];
 		uint256 _unstakingExpirationLength = _unstakingExpiration[staker]
-			.length > _batchingLimit.add(_counter)
-			? _batchingLimit.add(_counter)
-			: _unstakingExpiration[staker].length;
-
+			.length;
+		uint256 _counter = _withdrawCounters[staker];
 		for (
 			uint256 i = _counter;
 			i < _unstakingExpirationLength;
@@ -404,15 +398,12 @@ contract LiquidStakingV2 is
 				_withdrawBalance = _withdrawBalance.add(
 					_unstakingAmount[staker][i]
 				);
-				delete _unstakingExpiration[staker][i];
-				delete _unstakingAmount[staker][i];
-				_counter2 = _counter2.add(1);
-				// _withdrawCounters[staker] = _withdrawCounters[staker].add(1);
+				_unstakingExpiration[staker][i] = 0;
+				_unstakingAmount[staker][i] = 0;
+				_withdrawCounters[staker] = _withdrawCounters[staker].add(1);
 			}
 		}
 
-		// update _withdrawCounters[staker] only once outside for loop to save gas
-		_withdrawCounters[staker] = _counter2;
 		require(_withdrawBalance > 0, "LQ21");
 		emit WithdrawUnstakeTokens(staker, _withdrawBalance, block.timestamp);
 		_uTokens.mint(staker, _withdrawBalance);
@@ -484,38 +475,6 @@ contract LiquidStakingV2 is
 			}
 		}
 		return unbondingTokens;
-	}
-
-	/**
-	 * @dev Set 'fees', called from admin
-	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
-	 *
-	 */
-	function setBatchingLimit(uint256 batchingLimit)
-		public
-		virtual
-		override
-		returns (bool success)
-	{
-		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ24");
-		_batchingLimit = batchingLimit;
-		emit SetBatchingLimit(batchingLimit, block.timestamp);
-		success = true;
-		return success;
-	}
-
-	/**
-	 * @dev get fees, min values, value divisor and epoch props
-	 *
-	 */
-	function getBatchingLimit()
-		public
-		view
-		virtual
-		override
-		returns (uint256 batchingLimit)
-	{
-		batchingLimit = _batchingLimit;
 	}
 
 	/**

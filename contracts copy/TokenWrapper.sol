@@ -4,13 +4,14 @@ pragma solidity >=0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
-import "./interfaces/IUTokensV2.sol";
-import "./interfaces/ITokenWrapperV2.sol";
+import "./interfaces/IUTokens.sol";
+import "./interfaces/ITokenWrapper.sol";
+import "./libraries/Bech32Validation.sol";
 import "./libraries/Bech32.sol";
 import "./libraries/FullMath.sol";
 
-contract TokenWrapperV2 is
-	ITokenWrapperV2,
+contract TokenWrapper is
+	ITokenWrapper,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -19,26 +20,23 @@ contract TokenWrapperV2 is
 	using Bech32 for string;
 
 	//Private instances of contracts to handle Utokens and Stokens
-	IUTokensV2 public _uTokens;
+	IUTokens private _uTokens;
 
 	// defining the fees and minimum values
 	uint256 private _minDeposit;
 	uint256 private _minWithdraw;
 	uint256 private _depositFee;
 	uint256 private _withdrawFee;
-	uint256 public _valueDivisor;
+	uint256 private _valueDivisor;
 
 	// constants defining access control ROLES
 	bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
 	bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
 
 	//variables defining bech32 validation attributes
-	bytes public hrpBytes;
-	bytes public controlDigitBytes;
-	uint256 public dataBytesSize;
-
-	// variable pertaining to contract upgrades versioning
-	uint256 public _version;
+	bytes hrpBytes;
+	bytes controlDigitBytes;
+	uint256 dataBytesSize;
 
 	/*
 	 * @dev Constructor for initializing the TokenWrapper contract.
@@ -78,15 +76,15 @@ contract TokenWrapperV2 is
 	function setFees(uint256 depositFee, uint256 withdrawFee)
 		public
 		virtual
-		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW1");
 		// range checks for fees. Since fee cannot be more than 100%, the max cap
 		// is _valueDivisor * 100, which then brings the fees to 100 (percentage)
 		require(
-			(depositFee <= _valueDivisor.mul(100) || depositFee == 0) &&
-				(withdrawFee <= _valueDivisor.mul(100) || withdrawFee == 0),
+			depositFee <= _valueDivisor.mul(100) ||
+				(depositFee == 0 && withdrawFee <= _valueDivisor.mul(100)) ||
+				withdrawFee == 0,
 			"TW2"
 		);
 		_depositFee = depositFee;
@@ -103,7 +101,6 @@ contract TokenWrapperV2 is
 		public
 		view
 		virtual
-		override
 		returns (
 			uint256 depositFee,
 			uint256 withdrawFee,
@@ -130,7 +127,6 @@ contract TokenWrapperV2 is
 	function setMinimumValues(uint256 minDeposit, uint256 minWithdraw)
 		public
 		virtual
-		override
 		returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW3");
@@ -151,7 +147,7 @@ contract TokenWrapperV2 is
 	 */
 	function setUTokensContract(address uAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "TW6");
-		_uTokens = IUTokensV2(uAddress);
+		_uTokens = IUTokens(uAddress);
 		emit SetUTokensContract(uAddress);
 	}
 
@@ -162,7 +158,7 @@ contract TokenWrapperV2 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual override returns (bool success) {
+	function pause() public virtual returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "TW7");
 		_pause();
 		return true;
@@ -175,7 +171,7 @@ contract TokenWrapperV2 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual override returns (bool success) {
+	function unpause() public virtual returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "TW8");
 		_unpause();
 		return true;
@@ -218,7 +214,7 @@ contract TokenWrapperV2 is
 		override
 		whenNotPaused
 	{
-		// require(amount >= _minDeposit, "TW9");
+		require(amount >= _minDeposit, "TW9");
 		require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW10");
 		uint256 _finalTokens = _generateUTokens(to, amount);
 		emit GenerateUTokens(to, amount, _finalTokens, block.timestamp);
@@ -242,16 +238,16 @@ contract TokenWrapperV2 is
 		require(to.length == amount.length, "TW11");
 		require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "TW12");
 		uint256 i;
-		uint256[] memory _finalTokensArray = new uint256[](to.length);
+		uint256 _finalTokens;
 		uint256 _toLength = to.length;
 		for (i = 0; i < _toLength; i = i.add(1)) {
-			// require(amount[i] >= _minDeposit, "TW13");
-			_finalTokensArray[i] = _generateUTokens(to[i], amount[i]);
+			require(amount[i] >= _minDeposit, "TW13");
+			_finalTokens = _generateUTokens(to[i], amount[i]);
 		}
-		emit GenerateUTokensInBatch(
-			to,
-			amount,
-			_finalTokensArray,
+		emit GenerateUTokens(
+			to[i.sub(1)],
+			amount[i.sub(1)],
+			_finalTokens,
 			block.timestamp
 		);
 	}
@@ -267,7 +263,7 @@ contract TokenWrapperV2 is
 		override
 		returns (bool isAddressValid)
 	{
-		isAddressValid = toChainAddress.isBech32AddressValid(
+		bool isAddressValid = toChainAddress.isBech32AddressValid(
 			hrpBytes,
 			controlDigitBytes,
 			dataBytesSize
@@ -290,7 +286,6 @@ contract TokenWrapperV2 is
 		uint256 tokens,
 		string memory toChainAddress
 	) public virtual override whenNotPaused {
-		require(from == _msgSender(), "TW17");
 		require(tokens >= _minWithdraw, "TW14");
 		//check if toChainAddress is valid address
 		bool isAddressValid = toChainAddress.isBech32AddressValid(
@@ -304,6 +299,7 @@ contract TokenWrapperV2 is
 		uint256 _fee = (tokens.mulDiv(_withdrawFee, _valueDivisor)).div(100);
 		uint256 _finalTokens = tokens.add(_fee);
 		require(_currentUTokenBalance >= _finalTokens, "TW16");
+		require(from == _msgSender(), "TW17");
 
 		_uTokens.burn(from, _finalTokens);
 		emit WithdrawUTokens(
