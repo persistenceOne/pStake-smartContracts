@@ -4,14 +4,19 @@ pragma solidity >=0.7.0;
 import "../interfaces/IHolderV2.sol";
 import "../interfaces/ISTokensV2.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol";
 import "../libraries/TransferHelper.sol";
 
-contract HolderUniswapV2StkATOMEth is
+contract HolderSushiswapStkATOMEth is
 	IHolderV2,
 	Initializable,
-	AccessControlUpgradeable
+	AccessControlUpgradeable,
+	PausableUpgradeable
 {
+	// constant pertaining to access roles
+	bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+
 	// safeTransfer & safeTransferFrom will be called by stakeLPCore contract
 	address private _stakeLPContract;
 
@@ -25,12 +30,13 @@ contract HolderUniswapV2StkATOMEth is
 	 * @dev Constructor for initializing the Holder Uniswap contract.
 	 * @param stakeLPContract - address of the StakeLPCore contract.
 	 */
-	function initialize(address stakeLPContract, uint256 valueDivisor)
-		public
-		virtual
-		initializer
-	{
+	function initialize(
+		address pauserAdmin,
+		address stakeLPContract,
+		uint256 valueDivisor
+	) public virtual initializer {
 		__AccessControl_init();
+		_setupRole(PAUSER_ROLE, pauserAdmin);
 		_setupRole(DEFAULT_ADMIN_ROLE, _msgSender());
 		_stakeLPContract = stakeLPContract;
 		_valueDivisor = valueDivisor;
