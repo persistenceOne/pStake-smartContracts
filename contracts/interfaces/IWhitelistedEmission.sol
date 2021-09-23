@@ -17,6 +17,15 @@ interface IWhitelistedEmission {
 
 	/**
 	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @param whitelistedAddress: contract address
+	 */
+	function getWhitelistedSTokens(address whitelistedAddress)
+		external
+		view
+		returns (address[] memory sTokenAddresses);
+
+	/**
+	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
 	 */
 	function setWhitelistedAddress(
 		address whitelistedAddress,
@@ -51,17 +60,17 @@ interface IWhitelistedEmission {
 	function unpause() external returns (bool success);
 
 	event SetWhitelistedAddress(
-		address whitelistedAddress,
+		address indexed whitelistedAddress,
 		address[] sTokenAddressesLocal,
-		address holderContractAddress,
-		address lpContractAddress,
+		address indexed holderContractAddress,
+		address indexed lpContractAddress,
 		uint256 timestamp
 	);
 
 	event RemoveWhitelistedAddress(
-		address whitelistedAddress,
+		address indexed whitelistedAddress,
 		address[] sTokenAddressesLocal,
-		address holderAddressLocal,
-		uint256 timestamp
+		address indexed holderAddressLocal,
+		uint256 indexed timestamp
 	);
 }

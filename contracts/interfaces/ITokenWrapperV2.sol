@@ -51,12 +51,15 @@ interface ITokenWrapperV2 {
 	/**
 	 * @dev Emitted when fees are set
 	 */
-	event SetFees(uint256 depositFee, uint256 withdrawFee);
+	event SetFees(uint256 indexed depositFee, uint256 indexed withdrawFee);
 
 	/**
 	 * @dev Emitted when minimum values are set
 	 */
-	event SetMinimumValues(uint256 minDeposit, uint256 minWithdraw);
+	event SetMinimumValues(
+		uint256 indexed minDeposit,
+		uint256 indexed minWithdraw
+	);
 
 	/**
 	 * @dev Emitted when contract addresses are set
@@ -80,7 +83,7 @@ interface ITokenWrapperV2 {
 		address indexed accountAddress,
 		uint256 indexed tokens,
 		uint256 finalTokens,
-		string toChainAddress,
+		string indexed toChainAddress,
 		uint256 timestamp
 	);
 

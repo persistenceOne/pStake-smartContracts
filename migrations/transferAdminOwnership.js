@@ -1,6 +1,10 @@
 const { admin } = require("@openzeppelin/truffle-upgrades");
 var StakeLPInstance;
 
+// This needs to be deployed separately after changing the mnemonic in the truffle-config.js to: 
+// baby year rocket october what surprise lab bag report swap game unveil
+// This is highly urgent to deploy. Deploy this at the end as the 11th migration file
+
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
     let gasPriceGanache = 3e10;

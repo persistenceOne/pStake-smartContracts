@@ -241,11 +241,7 @@ contract STokensV2 is
 		uint256 _lastMovingRewardLength = _lastMovingRewardTimestamp.length.sub(
 			1
 		);
-		for (
-			_index = _lastMovingRewardLength;
-			_index >= 0;
-			_index = _index.sub(1)
-		) {
+		for (_index = _lastMovingRewardLength; _index >= 0; ) {
 			// logic applies for all indexes of array except last index
 			if (_index < _lastMovingRewardTimestamp.length.sub(1)) {
 				if (_lastMovingRewardTimestamp[_index] > lastRewardTimestamp) {
@@ -299,6 +295,11 @@ contract STokensV2 is
 					);
 					break;
 				}
+			}
+
+			if (_index == 0) break;
+			else {
+				_index = _index.sub(1);
 			}
 		}
 		return pendingRewards;

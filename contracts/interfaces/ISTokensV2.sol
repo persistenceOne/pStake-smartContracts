@@ -113,8 +113,8 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	event SetWhitelistedAddress(
 		address indexed whitelistedAddress,
-		address holderContractAddress,
-		address lpContractAddress,
+		address indexed holderContractAddress,
+		address indexed lpContractAddress,
 		uint256 timestamp
 	);
 
@@ -155,7 +155,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	event CalculateRewards(
 		address indexed accountAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -167,7 +167,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	event TriggeredCalculateHolderRewards(
 		address indexed accountAddress,
 		address indexed sTokenAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -178,7 +178,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	event TriggeredCalculateRewards(
 		address indexed accountAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -238,7 +238,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	event CalculateHolderRewards(
 		address indexed accountAddress,
 		address indexed sTokenAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -254,8 +254,8 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	event RemoveWhitelistedAddress(
 		address indexed whitelistedAddress,
-		address holderContractAddress,
-		address lpContractAddress,
+		address indexed holderContractAddress,
+		address indexed lpContractAddress,
 		uint256 lastHolderRewardTimestamp,
 		uint256 timestamp
 	);

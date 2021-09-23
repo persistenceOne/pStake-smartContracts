@@ -28,6 +28,50 @@ interface IStakeLPCore {
 		uint256 rewardTokenEmission
 	) external returns (bool success);
 
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 */
+	function getEmissionData(
+		address holderContractAddress,
+		address rewardTokenContractAddress
+	)
+		external
+		view
+		returns (
+			uint256[] memory cummulativeRewardAmount,
+			uint256[] memory rewardTokenEmission,
+			uint256[] memory rewardEmissionTimestamp
+		);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 */
+	function calculatePendingRewards(
+		address holderAddress,
+		address accountAddress
+	)
+		external
+		view
+		returns (
+			uint256[] memory rewardAmounts,
+			address[] memory rewardTokens,
+			address[] memory uTokenAddresses,
+			address lpTokenAddress,
+			uint256 updatedSupplyLPTimeshare
+		);
+
+	/*
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 */
+	function calculateSyncedRewards(address holderAddress)
+		external
+		returns (
+			uint256[] memory RewardAmounts,
+			address[] memory RewardTokens,
+			address[] memory uTokenAddresses,
+			address lpTokenAddress
+		);
+
 	/**
 	 * @dev adds liquidity
 	 *
@@ -47,11 +91,10 @@ interface IStakeLPCore {
 		returns (bool success);
 
 	/**
-	 * @dev Set UTokens smart contract.
-	 *
-	 *
-	 * Emits a {SetContract} event.
+	 * @dev Set LiquidStaking smart contract.
 	 */
+	function setWhitelistedEmissionContract(address whitelistedEmission)
+		external;
 
 	/**
 	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
@@ -110,133 +153,6 @@ interface IStakeLPCore {
 	function unpause() external returns (bool success);
 
 	/**
-	 * @dev Set LiquidStaking smart contract.
-	 */
-	// function setLiquidStakingContract(address liquidStakingContract) external;
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event CalculateRewardsAndLiquidity(
-		address holderAddress,
-		address lpToken,
-		uint256 amount,
-		address to,
-		uint256 liquidity,
-		uint256 reward
-	);
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event SetUTokensContract(address indexed _contract);
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event SetSTokensContract(address indexed _contract);
-
-	/**
-	 * @dev Emitted when contract addresses are set
-	 */
-	event SetPSTAKEContract(address indexed _contract);
-
-	/**
-	 * @dev Emitted when a new whitelisted address is added
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
-	 */
-	event TriggeredCalculateRewardsStakeLP(
-		address indexed holderAddress,
-		address indexed lpToken,
-		address uTokenAddress,
-		address indexed to,
-		uint256 tokens,
-		uint256[] otherRewardAmounts,
-		address[] otherRewardTokens,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted when a new whitelisted address is added
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
-	 */
-	event TriggeredCalculateSyncedRewards(
-		address indexed holderAddress,
-		address indexed lpToken,
-		address uTokenAddress,
-		address indexed to,
-		uint256 tokens,
-		uint256 holderReward,
-		uint256[] otherRewardAmounts,
-		address[] otherRewardTokens,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event AddLiquidity(address lpToken, uint256 tokens, uint256 timestamp);
-
-	/**
-	 * @dev Emitted
-	 */
-	event RemoveLiquidity(address lpToken, uint256 tokens, uint256 timestamp);
-
-	/**
-	 * @dev Emitted
-	 */
-	event SetHolderAddressForRewards(
-		address holderContractAddress,
-		address[] rewardTokenContractAddress,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event RemoveHolderAddressForRewards(
-		address holderContractAddress,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event SetHolderAddressesForRewards(
-		address[] holderContractAddresses,
-		address[] rewardTokenContractAddress,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event RemoveHolderAddressesForRewards(
-		address[] holderContractAddresses,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event RemoveTokenContractForRewards(
-		address holderContractAddress,
-		address[] rewardTokenContractAddress,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event RemoveTokenContractsForRewards(
-		address[] holderContractAddresses,
-		address[] rewardTokenContractAddress,
-		uint256 timestamp
-	);
-
-	/**
 	 * @dev Emitted
 	 */
 	event AddRewards(
@@ -259,62 +175,8 @@ interface IStakeLPCore {
 	);
 
 	/**
-	 * @dev Emitted
-	 */
-	event AddLiquidityV2(
-		address indexed whitelistedAddress,
-		address indexed sTokenAddress,
-		address indexed accountAddress,
-		uint256 tokens,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event RemoveLiquidityV2(
-		address indexed whitelistedAddress,
-		address indexed sTokenAddress,
-		address indexed accountAddress,
-		uint256 tokens,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted when a new whitelisted address is added
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
-	 */
-	event TriggeredCalculateSyncedRewardsV2(
-		address holderAddress,
-		address lpTokenAddress,
-		address[] uTokenAddresses,
-		address accountAddress,
-		uint256[] RewardAmounts,
-		address[] RewardTokens,
-		uint256 holderReward,
-		uint256 timestamp
-	);
-
-	/**
-	 * @dev Emitted
-	 */
-	event AddRewardsV2(
-		address holderContractAddress,
-		address rewardTokenContractAddress,
-		address rewardSender,
-		uint256 tokens,
-		uint256 timestamp
-	);
-
-	function setWhitelistedEmissionContract(address whitelistedEmission)
-		external;
-
-	/**
 	 * @dev Emitted when contract addresses are set
 	 */
-	event SetWhitelistedEmissionContract(address indexed _contract);
-
 	event CalculateRewardsStakeLP(
 		address holderAddress,
 		address lpToken,
@@ -325,52 +187,58 @@ interface IStakeLPCore {
 		uint256 timestamp
 	);
 
-	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param to: user address
-	 * @param liquidityWeightFactor: coming as an argument for further calculations
-	 * @param rewardWeightFactor: coming as an argument for further calculations
-	 * @param valueDivisor: coming as an argument for further calculations
-	 */
-	function calculatePendingRewards(
+	event TriggeredCalculateSyncedRewards(
 		address holderAddress,
-		address lpToken,
-		address accountAddress
-	)
-		external
-		view
-		returns (
-			uint256[] memory rewardAmounts,
-			address[] memory rewardTokens,
-			address[] memory uTokenAddresses,
-			uint256 updatedSupplyLPTimeshare
-		);
+		address accountAddress,
+		uint256[] RewardAmounts,
+		address[] RewardTokens,
+		address[] uTokenAddresses,
+		uint256 holderReward,
+		uint256 timestamp
+	);
 
-	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
-	 */
-	function calculateSyncedRewards(address holderAddress)
-		external
-		returns (
-			uint256[] memory RewardAmounts,
-			address[] memory RewardTokens,
-			address[] memory uTokenAddresses
-		);
-
-	event AddLiquidityV3(
+	event AddLiquidity(
 		address holderAddress,
 		address accountAddress,
 		uint256 tokens,
 		uint256 timestamp
 	);
 
-	event RemoveLiquidityV3(
+	event RemoveLiquidity(
 		address holderAddress,
 		address accountAddress,
 		uint256 tokens,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetWhitelistedEmissionContract(address indexed _contract);
+
+	/**
+	 * @dev Emitted
+	 */
+	event SetHolderAddressesForRewards(
+		address[] holderContractAddresses,
+		address[] rewardTokenContractAddress,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted
+	 */
+	event RemoveHolderAddressesForRewards(
+		address[] holderContractAddresses,
+		uint256 timestamp
+	);
+
+	/**
+	 * @dev Emitted
+	 */
+	event RemoveTokenContractsForRewards(
+		address[] holderContractAddresses,
+		address[] rewardTokenContractAddress,
 		uint256 timestamp
 	);
 }

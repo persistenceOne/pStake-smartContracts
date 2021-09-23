@@ -87,25 +87,25 @@ interface ILiquidStakingV2 {
 	/**
 	 * @dev Emitted when fees are set
 	 */
-	event SetFees(uint256 stakeFee, uint256 unstakeFee);
+	event SetFees(uint256 indexed stakeFee, uint256 indexed unstakeFee);
 
 	/**
 	 * @dev Emitted when unstaking lock time is set
 	 */
-	event SetUnstakingLockTime(uint256 unstakingLockTime);
+	event SetUnstakingLockTime(uint256 indexed unstakingLockTime);
 
 	/**
 	 * @dev Emitted when minimum values are set
 	 */
-	event SetMinimumValues(uint256 minStake, uint256 minUnstake);
+	event SetMinimumValues(uint256 indexed minStake, uint256 indexed minUnstake);
 
 	/**
 	 * @dev Emitted when unstakeEpoch is set
 	 */
 	event SetUnstakeEpoch(
-		uint256 unstakeEpoch,
-		uint256 unstakeEpochPrevious,
-		uint256 epochInterval
+		uint256 indexed unstakeEpoch,
+		uint256 indexed unstakeEpochPrevious,
+		uint256 indexed epochInterval
 	);
 
 	/**
@@ -123,8 +123,8 @@ interface ILiquidStakingV2 {
 	 */
 	event StakeTokens(
 		address indexed accountAddress,
-		uint256 tokens,
-		uint256 finalTokens,
+		uint256 indexed tokens,
+		uint256 indexed finalTokens,
 		uint256 timestamp
 	);
 
@@ -133,8 +133,8 @@ interface ILiquidStakingV2 {
 	 */
 	event UnstakeTokens(
 		address indexed accountAddress,
-		uint256 tokens,
-		uint256 finalTokens,
+		uint256 indexed tokens,
+		uint256 indexed finalTokens,
 		uint256 timestamp
 	);
 
@@ -143,7 +143,7 @@ interface ILiquidStakingV2 {
 	 */
 	event WithdrawUnstakeTokens(
 		address indexed accountAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -249,5 +249,5 @@ interface ILiquidStakingV2 {
 		external
 		returns (bool success);
 
-	event SetBatchingLimit(uint256 batchingLimit, uint256 timestamp);
+	event SetBatchingLimit(uint256 indexed batchingLimit, uint256 timestamp);
 }
