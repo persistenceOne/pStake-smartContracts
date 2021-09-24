@@ -124,6 +124,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	function calculatePendingHolderRewards(address to)
 		external
+		view
 		returns (
 			uint256 pendingRewards,
 			address holderAddress,
