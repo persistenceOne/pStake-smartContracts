@@ -30,7 +30,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 *
 	 */
 	function isContractWhitelisted(address whitelistedAddress)
-		external view
+		external
 		returns (bool result);
 
 	/**
@@ -39,7 +39,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	function getWhitelistData(address whitelistedAddress)
-		external view
+		external
 		returns (
 			address holderAddress,
 			address lpAddress,
@@ -82,11 +82,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	function calculateHolderRewards(address to)
 		external
-		returns (
-			uint256 rewards,
-			address holderAddress,
-			address lpTokenAddress
-		);
+		returns (uint256 rewards);
 
 	/**
 	 * @dev Set UTokens smart contract.
@@ -160,7 +156,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	event CalculateRewards(
 		address indexed accountAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -183,7 +179,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 	 */
 	event TriggeredCalculateRewards(
 		address indexed accountAddress,
-		uint256 tokens,
+		uint256 indexed tokens,
 		uint256 timestamp
 	);
 
@@ -202,9 +198,8 @@ interface ISTokensV2 is IERC20Upgradeable {
 	/**
 	 * @dev Emitted when contract addresses are set
 	 */
-	function setWhitelistedPTokenEmissionContract(
-		address whitelistedPTokenEmissionContract
-	) external;
+	function setWhitelistedEmissionContract(address whitelistedEmission)
+		external;
 
 	/**
 	 * @dev get reward rate and value divisor
@@ -269,5 +264,5 @@ interface ISTokensV2 is IERC20Upgradeable {
 	/**
 	 * @dev Emitted when contract addresses are set
 	 */
-	event SetWhitelistedPTokenEmissionContract(address indexed _contract);
+	event SetWhitelistedEmissionContract(address indexed _contract);
 }

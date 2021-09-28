@@ -48,7 +48,7 @@ contract STokensV2 is
 	// variable pertaining to contract upgrades versioning
 	uint256 public _version;
 	// required to store the whitelisting holder logic data initiated from WhitelistedEmission contract
-	address public _whitelistedPTokenEmissionContract;
+	address _whitelistedEmissionContract;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -381,11 +381,7 @@ contract STokensV2 is
 	 */
 	function _calculateHolderRewards(address to)
 		internal
-		returns (
-			uint256 rewards,
-			address holderAddress,
-			address lpTokenAddress
-		)
+		returns (uint256 rewards)
 	{
 		require(
 			_whitelistedAddresses.contains(to) &&
@@ -393,18 +389,18 @@ contract STokensV2 is
 				_lpContractAddress[to] != address(0),
 			"ST6"
 		);
-
 		(
-			rewards,
-			holderAddress,
-			lpTokenAddress
+			uint256 pendingRewards,
+			address holderAddress,
+
 		) = calculatePendingHolderRewards(to);
 
 		// update the last timestamp of reward pool to the current time as per Checks-Effects-Interactions pattern
 		_lastHolderRewardTimestamp[to] = block.timestamp;
 
 		// Mint new uTokens and send to the holder contract account as updated reward pool
-		if (rewards > 0) {
+		if (pendingRewards > 0) {
+			rewards = pendingRewards;
 			_uTokens.mint(holderAddress, rewards);
 		}
 
@@ -414,6 +410,8 @@ contract STokensV2 is
 			rewards,
 			block.timestamp
 		);
+
+		return rewards;
 	}
 
 	/**
@@ -466,19 +464,16 @@ contract STokensV2 is
 		virtual
 		override
 		whenNotPaused
-		returns (
-			uint256 rewards,
-			address holderAddress,
-			address lpTokenAddress
-		)
+		returns (uint256 rewards)
 	{
-		(rewards, holderAddress, lpTokenAddress) = _calculateHolderRewards(to);
+		rewards = _calculateHolderRewards(to);
 		emit TriggeredCalculateHolderRewards(
 			to,
 			address(this),
 			rewards,
 			block.timestamp
 		);
+		return rewards;
 	}
 
 	/**
@@ -528,14 +523,14 @@ contract STokensV2 is
 	 * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
 	 *
 	 */
-	function setWhitelistedPTokenEmissionContract(
-		address whitelistedPTokenEmissionContract
-	) public virtual override {
+	function setWhitelistedEmissionContract(address whitelistedEmission)
+		public
+		virtual
+		override
+	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "ST11");
-		_whitelistedPTokenEmissionContract = whitelistedPTokenEmissionContract;
-		emit SetWhitelistedPTokenEmissionContract(
-			whitelistedPTokenEmissionContract
-		);
+		_whitelistedEmissionContract = whitelistedEmission;
+		emit SetWhitelistedEmissionContract(whitelistedEmission);
 	}
 
 	/*
@@ -550,7 +545,7 @@ contract STokensV2 is
 		address holderContractAddress,
 		address lpContractAddress
 	) public virtual override returns (bool success) {
-		require(_msgSender() == _whitelistedPTokenEmissionContract, "ST12");
+		require(_msgSender() == _whitelistedEmissionContract, "ST12");
 		// lpTokenERC20ContractAddress or sTokenReserveContractAddress can be address(0) but not whitelistedAddress
 		require(whitelistedAddress != address(0), "ST13");
 		// add the whitelistedAddress if it isn't already available
@@ -584,7 +579,7 @@ contract STokensV2 is
 		override
 		returns (bool success)
 	{
-		require(_msgSender() == _whitelistedPTokenEmissionContract, "ST14");
+		require(_msgSender() == _whitelistedEmissionContract, "ST14");
 		require(whitelistedAddress != address(0), "ST15");
 		// remove whitelistedAddress from the list
 		_whitelistedAddresses.remove(whitelistedAddress);
