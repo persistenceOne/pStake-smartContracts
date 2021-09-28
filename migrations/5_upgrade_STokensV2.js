@@ -1,4 +1,4 @@
-const WhitelistedEmissionArtifact = artifacts.require("WhitelistedEmission");
+const WhitelistedPTokenEmissionArtifact = artifacts.require("WhitelistedPTokenEmission");
 
 const STokensArtifactV2 = artifacts.require("STokensV2");
 const STokensArtifact = artifacts.require("STokens");
@@ -56,15 +56,15 @@ async function upgradeSTokens(gasPrice, gasLimit, deployer, accounts) {
   console.log("STokens upgraded: ", STokensInstance.address);
 
   // set contract addresses in STokens Contract
-  const txReceipt = await STokensInstance.setWhitelistedEmissionContract(
-    WhitelistedEmissionArtifact.address,
+  const txReceipt = await STokensInstance.setWhitelistedPTokenEmissionContract(
+    WhitelistedPTokenEmissionArtifact.address,
     {
       from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     }
   );
-  console.log("setWhitelistedEmissionContract() done");
+  console.log("setWhitelistedPTokenEmissionContract() done");
 
   console.log("ALL DONE.");
 }

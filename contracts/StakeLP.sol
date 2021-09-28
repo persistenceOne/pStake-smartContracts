@@ -268,7 +268,6 @@ contract StakeLP is
 		uint256 updatedSupplyLPTimeshare;
 		uint256 newSupplyLPTimeShare;
 		uint256 i;
-		address uTokenAddress;
 
 		(
 			RewardAmounts,
