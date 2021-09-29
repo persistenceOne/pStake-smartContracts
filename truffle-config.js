@@ -100,7 +100,7 @@ module.exports = {
           `https://eth-mainnet.alchemyapi.io/v2/vD3x9QX71JVFQhFTYPZa_3eP-RfkODNi`
         ),
       network_id: 1, // Mainnet's id
-      gas: 6000000, // Ropsten has a lower block limit than mainnet
+      gas: 6000000,
       gasPrice: 150000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
