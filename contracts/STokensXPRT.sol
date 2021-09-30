@@ -8,7 +8,7 @@ import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/ISTokensXPRT.sol";
 import "./interfaces/IUTokensXPRT.sol";
-import "./interfaces/IHolderXPRT.sol";
+import "./interfaces/IHolder.sol";
 import "./libraries/FullMath.sol";
 
 contract STokensXPRT is
@@ -441,7 +441,7 @@ contract STokensXPRT is
 			_holderContractAddress[to] != address(0) &&
 			_lpContractAddress[to] != address(0)
 		) {
-			uint256 _sTokenSupply = IHolderXPRT(_holderContractAddress[to])
+			uint256 _sTokenSupply = IHolder(_holderContractAddress[to])
 				.getSTokenSupply(to, address(this));
 
 			// calculate the reward applying the moving reward rate

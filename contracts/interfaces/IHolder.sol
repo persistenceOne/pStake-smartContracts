@@ -4,7 +4,7 @@ pragma solidity >=0.7.0;
 /**
  * @dev Interface of the IHolder.
  */
-interface IHolderXPRT {
+interface IHolder {
 	/**
 	 * @dev get SToken reserve supply of the whitelisted contract
 	 * argument names commented to suppress warnings
