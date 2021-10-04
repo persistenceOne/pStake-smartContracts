@@ -12,8 +12,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "ropsten") {
-    let gasPriceRopsten = 1e11;
-    let gasLimitRopsten = 5000000;
+    let gasPriceRopsten = 15e10;
+    let gasLimitRopsten = 7000000;
     networkID = 3;
     await deployUTokenXPRT(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
   }
