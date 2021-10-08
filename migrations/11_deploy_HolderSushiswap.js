@@ -1,10 +1,16 @@
-const WhitelistedPTokenEmissionArtifact = artifacts.require("WhitelistedPTokenEmission");
-const STokensV2Artifact = artifacts.require("STokensV2");
+
+const WhitelistedRewardEmissionArtifact = artifacts.require("WhitelistedRewardEmission");
+const StakeLPCoreArtifact = artifacts.require("StakeLP");
+
+const HolderSushiswapStkATOMEthArtifact = artifacts.require(
+  "HolderSushiswap_STKATOM_ETH"
+);
 var networkID;
 
 // const { BN } = web3.utils.BN;
 const { deployProxy } = require("@openzeppelin/truffle-upgrades");
-var WhitelistedPTokenEmissionInstance;
+const { BN } = web3.utils.BN;
+var HolderSushiswapStkATOMEthInstance;
 
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
@@ -29,7 +35,7 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 5e10;
+    let gasPriceMainnet = 15e10;
     let gasLimitMainnet = 7000000;
     networkID = 1;
     await deployContract(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
@@ -51,39 +57,48 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
   // init parameters
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0];
+  let valueDivisor = new BN("1000000000");
+
   // let WhitelistedDivisor = new BN("1000000000");
 
-  WhitelistedPTokenEmissionInstance = await deployProxy(
-    WhitelistedPTokenEmissionArtifact,
-    [pauseAdmin],
+  HolderSushiswapStkATOMEthInstance = await deployProxy(
+    HolderSushiswapStkATOMEthArtifact,
+    [pauseAdmin, from_defaultAdmin, valueDivisor],
     { deployer, initializer: "initialize" }
   );
   console.log(
-    "WhitelistedPTokenEmission deployed: ",
-    WhitelistedPTokenEmissionInstance.address
+    "HolderSushiswapStkATOMEth deployed: ",
+    HolderSushiswapStkATOMEthInstance.address
   );
 
-  let STokensInstance =  await STokensV2Artifact.deployed();
-
-  // set contract addresses in STokens Contract
-  const txReceipt = await STokensInstance.setWhitelistedPTokenEmissionContract(
-    WhitelistedPTokenEmissionArtifact.address,
-    {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-  console.log("setWhitelistedPTokenEmissionContract() set for STokensV2 contract");
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
+  const txReceiptGrantRole1 =
+    await HolderSushiswapStkATOMEthInstance.grantRole(
+      "0x369da55721ba2b3acddd63aac7d6512c3e5762a78fa01c44f423f97868330c34", StakeLPCoreArtifact.address,
+      {
       from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
+  console.log("grantRole() set for StakeLP contract in HolderSushiswapStkATOMEth contract.");
+
+  const txReceiptGrantRole2 =
+    await HolderSushiswapStkATOMEthInstance.grantRole(
+      "0x369da55721ba2b3acddd63aac7d6512c3e5762a78fa01c44f423f97868330c34", WhitelistedRewardEmissionArtifact.address,
+      {
+        from: from_defaultAdmin,
+        gasPrice: gasPrice,
+        gas: gasLimit,
+      });
+  console.log("grantRole() set for WhitelistedRewardEmission contract in HolderSushiswapStkATOMEth contract");
+
+  // set contract addresses in UTokens Contract
+  /* const txReceiptSetHolderSushiswapStkATOMEthContract =
+    await PstakeInstance.setHolderSushiswapStkATOMEthContract(StakeLPInstance.address, {
+      from: from_defaultAdmin,
+      gasPrice: gasPrice,
+      gas: gasLimit,
+    });
+  console.log("setHolderSushiswapStkATOMEthContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

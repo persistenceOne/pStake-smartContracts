@@ -64,7 +64,7 @@ async function upgradeSTokens(gasPrice, gasLimit, deployer, accounts) {
       gas: gasLimit,
     }
   );
-  console.log("setWhitelistedPTokenEmissionContract() done");
+  console.log("setWhitelistedPTokenEmissionContract() set for StokensV2 contract");
 
   console.log("ALL DONE.");
 }

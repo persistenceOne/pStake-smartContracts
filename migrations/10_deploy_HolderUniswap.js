@@ -67,7 +67,7 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
     { deployer, initializer: "initialize" }
   );
   console.log(
-    "HolderSushiswapStkATOMEth deployed: ",
+    "HolderUniswapStkATOMEth deployed: ",
     HolderUniswapStkATOMEthInstance.address
   );
 
@@ -79,7 +79,7 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
         gasPrice: gasPrice,
         gas: gasLimit,
       });
-  console.log("grantRole() set for HolderSushiswapStkATOMEth contract.");
+  console.log("grantRole() set for StakeLP contract in HolderUniswapStkATOMEth contract.");
 
   const txReceiptGrantRole2 =
     await HolderUniswapStkATOMEthInstance.grantRole(
@@ -89,16 +89,16 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
         gasPrice: gasPrice,
         gas: gasLimit,
       });
-  console.log("grantRole() set for HolderSushiswapStkATOMEth contract");
+  console.log("grantRole() set for WhitelistedRewardEmission contract in HolderUniswapStkATOMEth contract");
 
   // set contract addresses in UTokens Contract
-  /* const txReceiptSetHolderSushiswapStkATOMEthContract =
-    await PstakeInstance.setHolderSushiswapStkATOMEthContract(StakeLPInstance.address, {
+  /* const txReceiptSetHolderUniswapStkATOMEthContract =
+    await PstakeInstance.setHolderUniswapStkATOMEthContract(StakeLPInstance.address, {
       from: from_defaultAdmin,
       gasPrice: gasPrice,
       gas: gasLimit,
     });
-  console.log("setHolderSushiswapStkATOMEthContract() set for StakeLP contract."); */
+  console.log("setHolderUniswapStkATOMEthContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

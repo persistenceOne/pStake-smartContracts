@@ -1,7 +1,7 @@
-const LiquidStakingArtifact = artifacts.require("LiquidStakingV2");
-const TokenWrapperArtifact = artifacts.require("TokenWrapperV2");
-const STokensArtifact = artifacts.require("STokensV2");
-const UTokensArtifact = artifacts.require("UTokensV2");
+const LiquidStakingArtifact = artifacts.require("LiquidStaking");
+const TokenWrapperArtifact = artifacts.require("TokenWrapper");
+const STokensArtifact = artifacts.require("STokens");
+const UTokensArtifact = artifacts.require("UTokens");
 
 const { BN } = web3.utils.BN;
 const { deployProxy, upgradeProxy } = require("@openzeppelin/truffle-upgrades");
@@ -159,19 +159,6 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
         }
     );
     console.log("setMinimumValues() set for Token WrapperV2 contract.");
-
-  let batchingLimit = 20;
-
-  // set contract addresses in LiquidStaking Contract
-  const txReceipt = await LiquidStakingInstance.setBatchingLimit(
-    batchingLimit,
-    {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-  console.log("setBatchingLimit() set for LiquidStakingV2 contract");
 
     /* //set fees for wrap
      const txReceiptSetFees = await TokenWrapperInstance.setFees(
