@@ -78,21 +78,21 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     [bridgeAdmin, pauseAdmin],
     { deployer, initializer: "initialize" }
   );
-  console.log("UTokensV2 deployed: ", UTokensInstance.address);
+  console.log("UTokens deployed: ", UTokensInstance.address);
 
   STokensInstance = await deployProxy(
     STokensArtifact,
     [UTokensInstance.address, pauseAdmin, rewardRate, rewardDivisor],
     { deployer, initializer: "initialize" }
   );
-  console.log("STokensV2 deployed: ", STokensInstance.address);
+  console.log("STokens deployed: ", STokensInstance.address);
 
     TokenWrapperInstance = await deployProxy(
     TokenWrapperArtifact,
     [UTokensInstance.address, bridgeAdmin, pauseAdmin, rewardDivisor],
     { deployer, initializer: "initialize" }
   );
-  console.log("TokenWrapperV2 deployed: ", TokenWrapperInstance.address);
+  console.log("TokenWrapper deployed: ", TokenWrapperInstance.address);
 
   LiquidStakingInstance = await deployProxy(
     LiquidStakingArtifact,
@@ -106,7 +106,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     ],
     { deployer, initializer: "initialize" }
   );
-  console.log("LiquidStakingV2 deployed: ", LiquidStakingInstance.address);
+  console.log("LiquidStaking deployed: ", LiquidStakingInstance.address);
 
   // set contract addresses in UTokens Contract
   const txReceiptSetSTokenContract = await UTokensInstance.setSTokenContract(
@@ -117,7 +117,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       gas: gasLimit,
     }
   );
-  console.log("setSTokenContract() set for UTokensV2 contract.");
+  console.log("setSTokenContract() set for UTokens contract.");
 
   const txReceiptSetWrapperContract = await UTokensInstance.setWrapperContract(
     TokenWrapperInstance.address,
@@ -127,7 +127,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       gas: gasLimit,
     }
   );
-  console.log("setWrapperContract() set for UTokensV2 contract. ");
+  console.log("setWrapperContract() set for UTokens contract. ");
 
   const txReceiptSetLiquidStakingContract = await UTokensInstance.setLiquidStakingContract(
     LiquidStakingInstance.address,
@@ -137,7 +137,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       gas: gasLimit,
     }
   );
-  console.log("setLiquidStakingContract() set for UTokensV2 contract.");
+  console.log("setLiquidStakingContract() set for UTokens contract.");
 
   const txReceiptSetLiquidStakingContract2 = await STokensInstance.setLiquidStakingContract(
     LiquidStakingInstance.address,
@@ -147,7 +147,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
       gas: gasLimit,
     }
   );
-    console.log("setLiquidStakingContract() set for STokensV2 contract.");
+    console.log("setLiquidStakingContract() set for STokens contract.");
 
     //set min value for wrap
     const txReceiptSetMinval = await TokenWrapperInstance.setMinimumValues(
@@ -158,7 +158,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
             gas: gasLimit,
         }
     );
-    console.log("setMinimumValues() set for Token WrapperV2 contract.");
+    console.log("setMinimumValues() set for Token Wrapper contract.");
 
     /* //set fees for wrap
      const txReceiptSetFees = await TokenWrapperInstance.setFees(
