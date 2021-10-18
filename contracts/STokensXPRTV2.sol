@@ -47,8 +47,12 @@ contract STokensXPRTV2 is
 
 	// variable pertaining to contract upgrades versioning
 	uint256 public _version;
+
 	// required to store the whitelisting holder logic data initiated from WhitelistedEmission contract
 	address public _whitelistedPTokenEmissionContract;
+
+	// updated name variable
+	string private _name;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.

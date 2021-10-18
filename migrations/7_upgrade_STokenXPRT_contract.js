@@ -71,7 +71,7 @@ async function upgradeSTokensXPRT(gasPrice, gasLimit, deployer, accounts) {
     { deployer }
   );
 
-  let pTokenName = "pSTAKE Pegged XPRT";
+  let pTokenName = "pSTAKE Staked XPRT";
 
   console.log("STokensXPRT upgraded: ", STokensXPRTInstance.address);
 
