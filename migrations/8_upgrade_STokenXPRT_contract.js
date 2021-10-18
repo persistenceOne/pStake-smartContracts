@@ -39,8 +39,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 5e10;
-    let gasLimitMainnet = 7000000;
+    let gasPriceMainnet = 7e10;
+    let gasLimitMainnet = 4000000;
     await upgradeSTokensXPRT(
       gasPriceMainnet,
       gasLimitMainnet,
