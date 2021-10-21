@@ -39,7 +39,7 @@ interface IStakeLP {
 	/**
 	 * @dev adds liquidity
 	 *
-	 * Returns a uint256
+	 * Returns bool
 	 */
 	function addLiquidity(address holderAddress, uint256 amount)
 		external
@@ -48,21 +48,21 @@ interface IStakeLP {
 	/**
 	 * @dev remove liquidity
 	 *
-	 * Returns a uint256
+	 * Returns bool
 	 */
 	function removeLiquidity(address holderAddress, uint256 amount)
 		external
 		returns (bool success);
 
 	/**
-	 * @dev Set LiquidStaking smart contract.
+	 * @dev Set whitelistedPTokenEmissio smart contract.
 	 */
 	function setWhitelistedPTokenEmissionContract(
 		address whitelistedPTokenEmissionContract
 	) external;
 
 	/**
-	 * @dev Set LiquidStaking smart contract.
+	 * @dev Set whitelistedRewardEmission smart contract.
 	 */
 	function setWhitelistedRewardEmissionContract(
 		address whitelistedRewardEmissionContract
@@ -86,6 +86,9 @@ interface IStakeLP {
 	 */
 	function unpause() external returns (bool success);
 
+	/**
+	 * @dev Emitted when add liquidity is called
+	 */
 	event AddLiquidity(
 		address holderAddress,
 		address accountAddress,
@@ -93,6 +96,9 @@ interface IStakeLP {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Emitted when remove liquidity is called
+	 */
 	event RemoveLiquidity(
 		address holderAddress,
 		address accountAddress,
@@ -101,7 +107,7 @@ interface IStakeLP {
 	);
 
 	/**
-	 * @dev Emitted when contract addresses are set
+	 * @dev Emitted when calculate rewards is called
 	 */
 	event CalculateRewardsStakeLP(
 		address holderAddress,
@@ -113,6 +119,9 @@ interface IStakeLP {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Emitted when calculate rewards is called
+	 */
 	event TriggeredCalculateSyncedRewards(
 		address holderAddress,
 		address accountAddress,

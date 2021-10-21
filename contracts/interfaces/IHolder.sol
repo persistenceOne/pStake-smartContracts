@@ -13,9 +13,9 @@ interface IHolder {
 	function setSTokensContract(address utokenContract) external;
 
 	/**
-	 * @dev Set UTokens smart contract.
+	 * @dev Set stakeLP smart contract.
 	 *
-	 * Emits a {SetSTokensContract} event.
+	 * Emits a {SetStakeLPContract} event.
 	 */
 	function setStakeLPContract(address stakeLPContract) external;
 
@@ -28,6 +28,9 @@ interface IHolder {
 		uint256 amount
 	) external view returns (uint256);
 
+	/**
+	 * @dev transfers token amount
+	*/
 	function safeTransfer(
 		address token,
 		address to,

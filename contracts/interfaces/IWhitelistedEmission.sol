@@ -2,8 +2,9 @@
 pragma solidity >=0.7.0;
 
 interface IWhitelistedEmission {
+
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev get holder data
 	 */
 	function getHolderData(address holderAddress)
 		external
@@ -16,7 +17,7 @@ interface IWhitelistedEmission {
 		);
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev get whitelisted address
 	 * @param whitelistedAddress: contract address
 	 */
 	function getWhitelistedSTokens(address whitelistedAddress)
@@ -25,7 +26,7 @@ interface IWhitelistedEmission {
 		returns (address[] memory sTokenAddresses);
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev set whitelisted addresses
 	 */
 	function setWhitelistedAddress(
 		address whitelistedAddress,
@@ -35,7 +36,7 @@ interface IWhitelistedEmission {
 	) external returns (bool success);
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev remove whitelsited address
 	 */
 	function removeWhitelistedAddress(address whitelistedAddress)
 		external
@@ -59,6 +60,9 @@ interface IWhitelistedEmission {
 	 */
 	function unpause() external returns (bool success);
 
+	/**
+	 * @dev Emitted when address is whitelisted
+	 */
 	event SetWhitelistedAddress(
 		address indexed whitelistedAddress,
 		address[] sTokenAddressesLocal,
@@ -67,6 +71,9 @@ interface IWhitelistedEmission {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Emitted when whitelisted address is removed
+	 */
 	event RemoveWhitelistedAddress(
 		address indexed whitelistedAddress,
 		address[] sTokenAddressesLocal,

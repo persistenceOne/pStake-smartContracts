@@ -2,11 +2,14 @@
 pragma solidity >=0.7.0;
 
 interface IWhitelistedRewardEmissionV2 {
+
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     */
+	 * @dev add the rewards to the sender
+	 * @param holderContractAddress: contract address
+	 * @param rewardTokenContractAddress: contract address
+	 * @param rewardSender: sender address
+	 * @param rewardAmount: token amount
+	 */
     function addRewards(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -15,10 +18,11 @@ interface IWhitelistedRewardEmissionV2 {
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     */
+	 * @dev set reward emission
+	 * @param holderContractAddress: contract address
+	 * @param rewardTokenContractAddress: contract address
+	 * @param rewardTokenEmission: token amount
+	 */
     function setRewardEmission(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -26,8 +30,8 @@ interface IWhitelistedRewardEmissionV2 {
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev get emission data
+	 */
     function getEmissionData(
         address holderContractAddress,
         address rewardTokenContractAddress
@@ -43,14 +47,18 @@ interface IWhitelistedRewardEmissionV2 {
     /**
      * @dev Set 'contract address', called from constructor
      *
-     * Emits a {} event with '_contract' set to the stoken contract address.
+     * Emits a {} event with '_contract' set to the stakeLP contract address.
      *
      */
     function setStakeLPContract(address stakeLPContract) external;
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev set reward pool for user
+	 * @param holderContractAddress: contract address
+	 * @param rewardTokenContractAddress: contract address
+	 * @param accountAddress: account address
+	 * @param timestampValue: timestamp value
+	 */
     function setRewardPoolUserTimestamp(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -59,8 +67,11 @@ interface IWhitelistedRewardEmissionV2 {
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+      * @dev get reward pool for user
+      * @param holderContractAddress: contract address
+      * @param rewardTokenContractAddress: contract address
+      * @param accountAddress: account address
+      */
     function getRewardPoolUserTimestamp(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -68,32 +79,42 @@ interface IWhitelistedRewardEmissionV2 {
     ) external view returns (uint256 rewardPoolUserTimestamp);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev set last LP time share
+	 * @param lpTokenAddress: contract address
+	 * @param timestampValue: timestamp value
+	 */
     function setLastLPTimeShareTimestamp(
         address lpTokenAddress,
         uint256 timestampValue
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev get last LP time share
+	 * @param lpTokenAddress: contract address
+	 */
     function getLastLPTimeShareTimestamp(address lpTokenAddress)
     external
     view
     returns (uint256 lastLPTimeShareTimestamp);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+      * @dev set last cummulative supply time share
+      * @param lpTokenAddress: contract address
+      * @param newSupplyLPTimeShare: timestamp value
+      */
     function setLastCummulativeSupplyLPTimeShare(
         address lpTokenAddress,
         uint256 newSupplyLPTimeShare
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev calculate updated supply time share
+	 * @param holderAddress: contract address
+	 * @param lpTokenAddress: contract address
+	 * @param rewardTokenAddress: contract address
+	 * @param accountAddress: account address
+	 * @param newSupplyLPTimeShare: timestamp value
+	 */
     function calculateUpdatedSupplyLPTimeShare(
         address holderAddress,
         address lpTokenAddress,
@@ -110,8 +131,11 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev calculate updated reward pool
+	 * @param holderAddress: contract address
+	 * @param rewardTokenAddress: contract address
+	 * @param accountAddress: account address
+	 */
     function calculateUpdatedRewardPool(
         address holderAddress,
         address rewardTokenAddress,
@@ -119,8 +143,13 @@ interface IWhitelistedRewardEmissionV2 {
     ) external view returns (uint256 updatedRewardPool);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev calculate pending reward
+	 * @param holderAddress: contract address
+	 * @param lpTokenAddress: contract address
+	 * @param accountAddress: account address
+	  * @param userLPBalance: value
+	   * @param lpSupplyBalance: value
+	 */
     function calculateOtherPendingRewards(
         address holderAddress,
         address lpTokenAddress,
@@ -136,8 +165,8 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+      * @dev get reward
+      */
     function getCumulativeRewardValue(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -145,8 +174,8 @@ interface IWhitelistedRewardEmissionV2 {
     ) external view returns (uint256 cumulativeRewardValue);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev get supply
+	 */
     function getCumulativeSupplyValue(
         address lpTokenAddress,
         uint256 lpSupplyTimestamp
@@ -159,38 +188,37 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
-     * @param holderAddress: holder contract address
-     */
+      * @dev Check if holder contract is whitelisted
+      * @param holderAddress: holder contract address
+      */
     function isHolderContractWhitelisted(address holderAddress)
     external
     view
     returns (bool result);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     */
+	 * @dev set holder addresses for rewards
+	 * @param holderContractAddresses:  contract address in array
+	 * @param rewardTokenContractAddresses: token amount in array
+	 */
     function setHolderAddressesForRewards(
         address[] memory holderContractAddresses,
         address[] memory rewardTokenContractAddresses
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     */
+      * @dev remove holder addresses for rewards
+      * @param holderContractAddresses:  contract address in array
+      */
     function removeHolderAddressesForRewards(
         address[] memory holderContractAddresses
     ) external returns (bool success);
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     */
+	 * @dev remove token contract for rewards
+	 * @param holderContractAddresses:  contract address in array
+	 * @param rewardTokenContractAddresses: token amount in array
+	 */
     function removeTokenContractsForRewards(
         address[] memory holderContractAddresses,
         address[] memory rewardTokenContractAddresses
@@ -215,8 +243,8 @@ interface IWhitelistedRewardEmissionV2 {
     function unpause() external returns (bool success);
 
     /**
-     * @dev Emitted
-     */
+	 * @dev Emitted when rewards are added
+	 */
     event AddRewards(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -226,8 +254,8 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted
-     */
+	 * @dev Emitted when reward emission is set
+	 */
     event SetRewardEmission(
         address holderContractAddress,
         address rewardTokenContractAddress,
@@ -237,8 +265,8 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted when contract addresses are set
-     */
+	 * @dev Emitted when reward pool is set
+	 */
     event SetRewardPoolUserTimestamp(
         address indexed holderContractAddress,
         address indexed rewardTokenContractAddress,
@@ -248,8 +276,8 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted when contract addresses are set
-     */
+	 * @dev Emitted when LP timeshare is set
+	 */
     event SetLastLPTimeShareTimestamp(
         address indexed lpTokenAddress,
         uint256 indexed timestampValue,
@@ -257,7 +285,7 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted when contract addresses are set
+     * @dev Emitted cummulative supply timeshare is set
      */
     event SetLastCummulativeSupplyLPTimeShare(
         address indexed lpTokenAddress,
@@ -266,8 +294,8 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted
-     */
+	 * @dev Emitted when holder addresses are set for rewards
+	 */
     event SetHolderAddressesForRewards(
         address[] holderContractAddresses,
         address[] rewardTokenContractAddress,
@@ -275,16 +303,16 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted
-     */
+      * @dev Emitted when holder addresses are removed for rewards
+      */
     event RemoveHolderAddressesForRewards(
         address[] holderContractAddresses,
         uint256 timestamp
     );
 
     /**
-     * @dev Emitted
-     */
+      * @dev Emitted when token contract are removed for rewards
+      */
     event RemoveTokenContractsForRewards(
         address[] holderContractAddresses,
         address[] rewardTokenContractAddress,
@@ -292,7 +320,7 @@ interface IWhitelistedRewardEmissionV2 {
     );
 
     /**
-     * @dev Emitted when contract addresses are set
-     */
+	 * @dev Emitted when contract addresses are set
+	 */
     event SetStakeLPContract(address indexed stakeLPContract);
 }

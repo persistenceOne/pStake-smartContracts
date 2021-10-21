@@ -7,8 +7,10 @@ pragma solidity >=0.7.0;
 interface IStakeLPCore {
 	/*
 	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @param holderContractAddress:  contract address
+	 * @param rewardTokenContractAddress: contract address
+	 * @param rewardSender: contract address
+	 * @param rewardAmount: token amount
 	 */
 	function addRewards(
 		address holderContractAddress,
@@ -18,9 +20,10 @@ interface IStakeLPCore {
 	) external returns (bool success);
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev set reward emission
+	 * @param holderContractAddress: contract address
+	 * @param rewardTokenContractAddress: contract address
+	 * @param rewardTokenEmission: token amount
 	 */
 	function setRewardEmission(
 		address holderContractAddress,
@@ -29,7 +32,7 @@ interface IStakeLPCore {
 	) external returns (bool success);
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev get emission data
 	 */
 	function getEmissionData(
 		address holderContractAddress,
@@ -75,7 +78,7 @@ interface IStakeLPCore {
 	/**
 	 * @dev adds liquidity
 	 *
-	 * Returns a uint256
+	 * Returns bool
 	 */
 	function addLiquidity(address holderAddress, uint256 amount)
 		external
@@ -84,14 +87,14 @@ interface IStakeLPCore {
 	/**
 	 * @dev remove liquidity
 	 *
-	 * Returns a uint256
+	 * Returns bool
 	 */
 	function removeLiquidity(address holderAddress, uint256 amount)
 		external
 		returns (bool success);
 
 	/**
-	 * @dev Set LiquidStaking smart contract.
+	 * @dev Set WhitelistedEmission smart contract.
 	 */
 	function setWhitelistedEmissionContract(address whitelistedEmission)
 		external;
@@ -106,9 +109,9 @@ interface IStakeLPCore {
 		returns (bool result);
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev set holder addresses for rewards
+	 * @param holderContractAddresses: addresses in array
+	 * @param rewardTokenContractAddresses: reward token addresses in array
 	 */
 	function setHolderAddressesForRewards(
 		address[] memory holderContractAddresses,
@@ -116,18 +119,17 @@ interface IStakeLPCore {
 	) external returns (bool success);
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev remove holder addresses for rewards
+	 * @param holderContractAddresses: addresses in array
 	 */
 	function removeHolderAddressesForRewards(
 		address[] memory holderContractAddresses
 	) external returns (bool success);
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev remove token addresses for rewards
+	 * @param holderContractAddresses: addresses in array
+	 * @param rewardTokenContractAddresses: reward token addresses in array
 	 */
 	function removeTokenContractsForRewards(
 		address[] memory holderContractAddresses,
@@ -153,7 +155,7 @@ interface IStakeLPCore {
 	function unpause() external returns (bool success);
 
 	/**
-	 * @dev Emitted
+	 * @dev Emitted when add rewards is called
 	 */
 	event AddRewards(
 		address holderContractAddress,
@@ -164,7 +166,7 @@ interface IStakeLPCore {
 	);
 
 	/**
-	 * @dev Emitted
+	 * @dev Emitted when reward emission is set
 	 */
 	event SetRewardEmission(
 		address holderContractAddress,
@@ -175,7 +177,7 @@ interface IStakeLPCore {
 	);
 
 	/**
-	 * @dev Emitted when contract addresses are set
+	 * @dev Emitted when rewards are calculated
 	 */
 	event CalculateRewardsStakeLP(
 		address holderAddress,
@@ -187,6 +189,9 @@ interface IStakeLPCore {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Emitted when rewards are calculated
+	 */
 	event TriggeredCalculateSyncedRewards(
 		address holderAddress,
 		address accountAddress,
@@ -197,6 +202,9 @@ interface IStakeLPCore {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Emitted when add liquidity is called
+	 */
 	event AddLiquidity(
 		address holderAddress,
 		address accountAddress,
@@ -204,6 +212,9 @@ interface IStakeLPCore {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Emitted when remove liquidity is called
+	 */
 	event RemoveLiquidity(
 		address holderAddress,
 		address accountAddress,
@@ -217,7 +228,7 @@ interface IStakeLPCore {
 	event SetWhitelistedEmissionContract(address indexed _contract);
 
 	/**
-	 * @dev Emitted
+	 * @dev Emitted when holder addresses are set
 	 */
 	event SetHolderAddressesForRewards(
 		address[] holderContractAddresses,
@@ -226,7 +237,7 @@ interface IStakeLPCore {
 	);
 
 	/**
-	 * @dev Emitted
+	 * @dev Emitted holder addresses are removed
 	 */
 	event RemoveHolderAddressesForRewards(
 		address[] holderContractAddresses,
@@ -234,7 +245,7 @@ interface IStakeLPCore {
 	);
 
 	/**
-	 * @dev Emitted
+	 * @dev Emitted token contracts are removed
 	 */
 	event RemoveTokenContractsForRewards(
 		address[] holderContractAddresses,

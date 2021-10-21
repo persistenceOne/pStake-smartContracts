@@ -15,10 +15,8 @@ interface IHolderV2 {
 		returns (uint256 sTokenSupply);
 
 	/**
-	 * @dev Set UTokens smart contract.
-	 *
-	 * Emits a {SetContract} event.
-	 */
+	 * @dev transfers token amount
+	*/
 	function safeTransfer(
 		address token,
 		address to,
@@ -26,10 +24,8 @@ interface IHolderV2 {
 	) external;
 
 	/**
-	 * @dev Set UTokens smart contract.
-	 *
-	 * Emits a {SetContract} event.
-	 */
+	 * @dev transfers token amount
+	*/
 	function safeTransferFrom(
 		address token,
 		address from,

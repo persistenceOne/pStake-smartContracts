@@ -148,7 +148,7 @@ interface ILiquidStakingV2 {
 	);
 
 	/**
-	 * @dev get fees, min values, value divisor and epoch props
+	 * @dev get batching limit
 	 *
 	 */
 	function getBatchingLimit() external view returns (uint256 batchingLimit);
@@ -241,13 +241,16 @@ interface ILiquidStakingV2 {
 	function unpause() external returns (bool success);
 
 	/**
-	 * @dev Set 'fees', called from admin
-	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
+	 * @dev Set 'batchingLimit', called from admin
+	 * Emits a {SetBatchingLimit} event
 	 *
 	 */
 	function setBatchingLimit(uint256 batchingLimit)
 		external
 		returns (bool success);
 
+	/**
+	 * @dev Emitted when batching limit is set
+	 */
 	event SetBatchingLimit(uint256 indexed batchingLimit, uint256 timestamp);
 }

@@ -34,9 +34,7 @@ interface ISTokensV2 is IERC20Upgradeable {
 		returns (bool result);
 
 	/**
-	 * @dev Emitted when a new whitelisted address is removed
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
+	 * @dev get whitelisted data
 	 */
 	function getWhitelistData(address whitelistedAddress)
 		external view
@@ -112,8 +110,6 @@ interface ISTokensV2 is IERC20Upgradeable {
 
 	/**
 	 * @dev Emitted when a new whitelisted address is added
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	event SetWhitelistedAddress(
 		address indexed whitelistedAddress,
@@ -136,12 +132,12 @@ interface ISTokensV2 is IERC20Upgradeable {
 		);
 
 	/**
-	 * @dev get reward rate and value divisor
+	 * @dev get uToken contract address
 	 */
 	function getUTokenAddress() external view returns (address uTokenAddress);
 
 	/**
-	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
+	 * @dev set whitelisted address
 	 *
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 *

@@ -25,11 +25,20 @@ interface ISTokens is IERC20Upgradeable {
 	 */
 	function burn(address from, uint256 tokens) external returns (bool);
 
+	/**
+	 * @dev checks if given contract address is whitelisted
+	 *
+	 */
 	function isContractWhitelisted(address lpContractAddress)
 		external
 		view
 		returns (bool result, address holderAddress);
 
+	/**
+	 * @dev get holder data
+	 *
+	 * Returns holderAddress, lpAddress and lastHolderRewardTimestamp
+	 */
 	function getHolderData(address whitelistedAddress)
 		external
 		view
@@ -89,8 +98,6 @@ interface ISTokens is IERC20Upgradeable {
 
 	/**
 	 * @dev Emitted when a new whitelisted address is added
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	event SetWhitelistedAddress(
 		address indexed whitelistedAddress,
@@ -101,8 +108,6 @@ interface ISTokens is IERC20Upgradeable {
 
 	/**
 	 * @dev Emitted when a new whitelisted address is removed
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	event RemoveWhitelistedAddress(
 		address indexed whitelistedAddress,
