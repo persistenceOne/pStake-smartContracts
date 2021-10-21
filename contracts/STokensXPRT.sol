@@ -52,7 +52,9 @@ contract STokensXPRT is
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
-	 * @param uaddress - address of the UToken contract.
+	 * @param tokenName - token name for SToken contract.
+	 * @param tokenSymbol - token symbol for SToken contract.
+	 * @param uaddress - address of the SToken contract.
 	 * @param pauserAddress - address of the pauser admin.
 	 * @param rewardRate - set to rewardRate * 10^-5
 	 * @param valueDivisor - valueDivisor set to 10^9.
@@ -79,7 +81,7 @@ contract STokensXPRT is
 	}
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev returns true if the contract is whitelisted
 	 * @param whitelistedAddress: whitelisted contract address
 	 */
 	function isContractWhitelisted(address whitelistedAddress)
@@ -94,7 +96,7 @@ contract STokensXPRT is
 	}
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev get whitelist data
 	 * @param whitelistedAddress: contract address
 	 */
 	function getWhitelistData(address whitelistedAddress)
@@ -121,7 +123,7 @@ contract STokensXPRT is
 	}
 
 	/**
-	 * @dev get reward rate and value divisor
+	 * @dev get utoken address
 	 */
 	function getUTokenAddress()
 		public
@@ -525,9 +527,9 @@ contract STokensXPRT is
 
 	/*
 	 * @dev Set 'contract address', called from constructor
-	 * @param uTokenContract: utoken contract address
+	 * @param whitelistedPTokenEmissionContract: whitelistedPTokenEmission contract address
 	 *
-	 * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
+	 * Emits a {SetWhitelistedPTokenEmissionContract} event
 	 *
 	 */
 	function setWhitelistedPTokenEmissionContract(

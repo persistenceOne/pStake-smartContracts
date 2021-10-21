@@ -241,13 +241,16 @@ interface ILiquidStakingXPRT {
 	function unpause() external returns (bool success);
 
 	/**
-	 * @dev Set 'fees', called from admin
-	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
+	 * @dev Set batching limit
+	 * Emits a {SetBatchingLimit} event with 'batchingLimit' and 'timestamp'
 	 *
 	 */
 	function setBatchingLimit(uint256 batchingLimit)
 		external
 		returns (bool success);
 
+	/**
+	 * @dev Emitted when batching limit is called
+	 */
 	event SetBatchingLimit(uint256 indexed batchingLimit, uint256 timestamp);
 }

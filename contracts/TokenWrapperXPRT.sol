@@ -46,6 +46,9 @@ contract TokenWrapperXPRT is
 	 * @param bridgeAdminAddress - address of the bridge admin.
 	 * @param pauserAddress - address of the pauser admin.
 	 * @param valueDivisor - valueDivisor set to 10^9.
+	 * @param hrpString - hrpString.
+	 * @param controlDigitString - controlDigitString.
+	 * @param dataSize - dataSize.
 	 */
 	function initialize(
 		address uAddress,

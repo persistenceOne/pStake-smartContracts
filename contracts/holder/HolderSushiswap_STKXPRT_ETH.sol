@@ -27,7 +27,10 @@ PausableUpgradeable
 	uint256 public _version;
 
 	/**
-	 * @dev Constructor for initializing the Holder Uniswap contract.
+	 * @dev Constructor for initializing the Holder Sushiswap contract.
+	 * @param pauserAdmin - address of the pauser admin.
+	 * @param accountantAdmin - address of the accountant admin.
+	 * @param valueDivisor - valueDivisor set to 10^9.
 	 */
 	function initialize(
 		address pauserAdmin,
@@ -57,6 +60,12 @@ PausableUpgradeable
 		return sTokenSupply;
 	}
 
+	/*
+	 * @dev transfers token amount
+	 * @param token: address
+	 * @param to: account address
+	 * @param value: amount
+	 */
 	function safeTransfer(
 		address token,
 		address to,
@@ -66,7 +75,13 @@ PausableUpgradeable
 		// finally transfer the new LP Tokens to the user address
 		TransferHelper.safeTransfer(token, to, value);
 	}
-
+	/*
+	 * @dev transfers token amount
+	 * @param token: address
+	 * @param from: account address
+	 * @param to: account address
+	 * @param value: amount
+	 */
 	function safeTransferFrom(
 		address token,
 		address from,

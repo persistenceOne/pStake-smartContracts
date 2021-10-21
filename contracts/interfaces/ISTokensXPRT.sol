@@ -136,14 +136,15 @@ interface ISTokensXPRT is IERC20Upgradeable {
 		);
 
 	/**
-	 * @dev get reward rate and value divisor
+	 * @dev get uToken smart contract address
 	 */
 	function getUTokenAddress() external view returns (address uTokenAddress);
 
 	/**
-	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
-	 *
-	 * Returns a boolean value indicating whether the operation succeeded.
+	 * @dev set's the whitelsited address
+	  * @param whitelistedAddress: whitelisted address
+	  * @param holderContractAddress: holder contract address
+	  * @param lpContractAddress: lp contract address
 	 *
 	 * Emits a {TriggeredCalculateRewards} event.
 	 */
@@ -249,7 +250,7 @@ interface ISTokensXPRT is IERC20Upgradeable {
 	);
 
 	/**
-	 * @dev Emitted when contract addresses are set
+	 * @dev Emitted when reward rate is set
 	 */
 	event SetRewardRate(uint256 indexed rewardRate);
 

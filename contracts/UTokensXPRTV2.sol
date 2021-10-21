@@ -29,6 +29,8 @@ AccessControlUpgradeable
 
 	/**
 	 * @dev Constructor for initializing the UToken contract.
+	 * @param tokenName - token name for UToken contract.
+	 * @param tokenSymbol - token symbol for UToken contract.
 	 * @param bridgeAdminAddress - address of the bridge admin.
 	 * @param pauserAddress - address of the pauser admin.
 	 */
@@ -48,7 +50,7 @@ AccessControlUpgradeable
 	}
 
 	/**
-	 * @dev Mint new utokens for the provided 'address' and 'amount'
+	 * @dev Upgrading version and token name
 	 *
 	 */
 	function upgradeVersionInitV2(string calldata tokenName)

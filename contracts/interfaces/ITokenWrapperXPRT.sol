@@ -87,12 +87,17 @@ interface ITokenWrapperXPRT {
 		uint256 timestamp
 	);
 
+	/**
+	 * @dev Set fees for deposit and withdraw txs
+	 *
+	 * Emits a {SetFees} event.
+	 */
 	function setFees(uint256 depositFee, uint256 withdrawFee)
 		external
 		returns (bool success);
 
 	/**
-	 * @dev get fees, minimum set values and value divisor
+	 * @dev get token wrapper contract props
 	 *
 	 */
 	function getProps()

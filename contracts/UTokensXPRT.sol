@@ -26,6 +26,8 @@ contract UTokensXPRT is
 
 	/**
 	 * @dev Constructor for initializing the UToken contract.
+	 * @param tokenName - token name for UToken contract.
+	 * @param tokenSymbol - token symbol for UToken contract.
 	 * @param bridgeAdminAddress - address of the bridge admin.
 	 * @param pauserAddress - address of the pauser admin.
 	 */
