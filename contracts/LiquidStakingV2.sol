@@ -487,8 +487,8 @@ contract LiquidStakingV2 is
 	}
 
 	/**
-	 * @dev Set 'fees', called from admin
-	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
+	 * @dev Set 'batching limit', called from admin
+	 * Emits a {SetBatchingLimit} event.
 	 *
 	 */
 	function setBatchingLimit(uint256 batchingLimit)
@@ -505,7 +505,7 @@ contract LiquidStakingV2 is
 	}
 
 	/**
-	 * @dev get fees, min values, value divisor and epoch props
+	 * @dev get batching limit
 	 *
 	 */
 	function getBatchingLimit()

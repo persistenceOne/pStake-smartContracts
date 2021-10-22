@@ -119,7 +119,7 @@ contract STokensV2 is
 	}
 
 	/**
-	 * @dev get reward rate and value divisor
+	 * @dev get uToken address
 	 */
 	function getUTokenAddress()
 		public
@@ -159,7 +159,7 @@ contract STokensV2 is
 	}
 
 	/**
-	 * @dev get reward rate and value divisor
+	 * @dev get reward rate, last moving reward timestamp and value divisor
 	 */
 	function getRewardRate()
 		public
@@ -523,9 +523,9 @@ contract STokensV2 is
 
 	/*
 	 * @dev Set 'contract address', called from constructor
-	 * @param uTokenContract: utoken contract address
+	 * @param whitelistedPTokenEmissionContract: whitelistedPTokenEmission contract address
 	 *
-	 * Emits a {SetUTokensContract} event with '_contract' set to the utoken contract address.
+	 * Emits a {SetWhitelistedPTokenEmissionContract} event with '_contract' set to the WhitelistedPTokenEmission contract address.
 	 *
 	 */
 	function setWhitelistedPTokenEmissionContract(
@@ -539,12 +539,14 @@ contract STokensV2 is
 	}
 
 	/*
-	 * @dev Set 'whitelisted address', performed by admin only
-	 * @param whitelistedAddress: contract address of the whitelisted party
-	 *
-	 * Emits a {setWhitelistedAddress} event
-	 *
-	 */
+    * @dev Set 'whitelisted address', performed by admin only
+    * @param whitelistedAddress: contract address of the whitelisted party
+    * @param holderContractAddress: holder contract address
+    * @param lpContractAddress: LP token contract address
+    *
+    * Emits a {setWhitelistedAddress} event
+    *
+    */
 	function setWhitelistedAddress(
 		address whitelistedAddress,
 		address holderContractAddress,
@@ -573,7 +575,6 @@ contract STokensV2 is
 	/*
 	 * @dev remove 'whitelisted address', performed by admin only
 	 * @param whitelistedAddress: contract address of the whitelisted party
-	 * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
 	 *
 	 * Emits a {RemoveWhitelistedAddress} event
 	 *

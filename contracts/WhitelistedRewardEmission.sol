@@ -68,6 +68,7 @@ contract WhitelistedRewardEmission is
 	/**
 	 * @dev Constructor for initializing the SToken contract.
 	 * @param pauserAddress - address of the pauser admin.
+	 * @param valueDivisor - valueDivisor set to 10^9.
 	 */
 	function initialize(address pauserAddress, uint256 valueDivisor)
 		public
@@ -83,9 +84,11 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev add liquidity and reward tokens and disburse to user
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddress: reward token contract address
+	 * @param rewardSender: sender address
+	 * @param rewardAmount: token amount
 	 */
 	function addRewards(
 		address holderContractAddress,
@@ -206,9 +209,10 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev set reward emission
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddress: reward token contract address
+	 * @param rewardTokenEmission: token amount
 	 */
 	function setRewardEmission(
 		address holderContractAddress,
@@ -532,12 +536,9 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param to: user address
-	 * @param liquidityWeightFactor: coming as an argument for further calculations
-	 * @param rewardWeightFactor: coming as an argument for further calculations
-	 * @param valueDivisor: coming as an argument for further calculations
+	 * @dev get emission data
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddress: reward token contract address
 	 */
 	function getEmissionData(
 		address holderContractAddress,
@@ -566,12 +567,11 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param to: user address
-	 * @param liquidityWeightFactor: coming as an argument for further calculations
-	 * @param rewardWeightFactor: coming as an argument for further calculations
-	 * @param valueDivisor: coming as an argument for further calculations
+	 * @dev get timestamp data
+	 * @param holderAddress: holder contract address
+	 * @param lpTokenAddress: LP token contract address
+	 * @param accountAddress: user address
+	 * @param rewardTokenContractAddress: reward token contract address
 	 */
 	function getTimestampData(
 		address holderAddress,
@@ -601,7 +601,7 @@ contract WhitelistedRewardEmission is
 	/**
 	 * @dev Set 'contract address', called from constructor
 	 *
-	 * Emits a {} event with '_contract' set to the stoken contract address.
+	 * Emits a {SetStakeLPContract} event with '_contract' set to the stakeLP contract address.
 	 *
 	 */
 	function setStakeLPContract(address stakeLPContract)
@@ -615,9 +615,13 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev set pool user timestamp
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddress: reward token contract address
+	 * @param accountAddress:user address
+	 * @param timestampValue: timestamp value
+	 *
+	 * Emits a {SetRewardPoolUserTimestamp} event
 	 */
 	function setRewardPoolUserTimestamp(
 		address holderContractAddress,
@@ -652,7 +656,11 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev get reward pool user timestamp
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddress: reward token contract address
+	 * @param accountAddress: user address
+	 *
 	 */
 	function getRewardPoolUserTimestamp(
 		address holderContractAddress,
@@ -671,9 +679,11 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev set last LP timeshare timestamp
 	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @param timestampValue: timestamp value
+	 *
+	 * Emits a {SetLastLPTimeShareTimestamp} event
 	 */
 	function setLastLPTimeShareTimestamp(
 		address lpTokenAddress,
@@ -709,7 +719,8 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev get last LP timeshare timestamp
+	 * @param lpToken: lp token contract address
 	 */
 	function getLastLPTimeShareTimestamp(address lpTokenAddress)
 		public
@@ -727,9 +738,12 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev set last cummulative supply LP timeshare
 	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @param newSupplyLPTimeShare: new supply timeshare
+	 *
+	 * Emits a {SetLastCummulativeSupplyLPTimeShare} event
+	 *
 	 */
 	function setLastCummulativeSupplyLPTimeShare(
 		address lpTokenAddress,
@@ -780,7 +794,12 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev calculate updated supply LP timeshare
+	  * @param holderAddress: holder contract address
+	  * @param lpTokenAddress: LP token contract address
+	  * @param rewardTokenAddress: reward token contract address
+	  * @param accountAddress: user address
+	  * @param newSupplyLPTimeShare: new supply LP timeshare
 	 */
 	function calculateUpdatedSupplyLPTimeShare(
 		address holderAddress,
@@ -861,7 +880,10 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev calculate updated reward pool
+	 * @param holderAddress: holder contract address
+	 * @param rewardTokenAddress: reward token contract address
+	 * @param accountAddress: user address
 	 */
 	function calculateUpdatedRewardPool(
 		address holderAddress,
@@ -908,7 +930,12 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev calculate other pending rewards
+	 * @param holderAddress: holder contract address
+	 * @param lpTokenAddress: LP token contract address
+	 * @param accountAddress: user address
+	 * @param userLPTimeShare: user LP timeshare
+	 * @param newSupplyLPTimeShare: new supply LP timeshare
 	 */
 	function calculateOtherPendingRewards(
 		address holderAddress,
@@ -984,6 +1011,12 @@ contract WhitelistedRewardEmission is
 		}
 	}
 
+	/*
+	 * @dev get cummulative reward value
+	 * @param holderAddress: holder contract address
+	 * @param rewardTokenContractAddress: reward token contract address
+	 * @param rewardTimestamp: reward timestamp
+	 */
 	function getCumulativeRewardValue(
 		address holderContractAddress,
 		address rewardTokenContractAddress,
@@ -1062,7 +1095,9 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @dev get cummulative supply value
+	 * @param lpTokenAddress: LP token contract address
+	 * @param lpSupplyTimestamp: LP supply timestamp
 	 */
 	function getCumulativeSupplyValue(
 		address lpTokenAddress,
@@ -1148,8 +1183,8 @@ contract WhitelistedRewardEmission is
 		return cumulativeSupplyValue;
 	}
 
-	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	/*
+	 * @dev check if holder contract address is whitelisted
 	 * @param holderAddress: holder contract address
 	 */
 	function isHolderContractWhitelisted(address holderAddress)
@@ -1164,9 +1199,9 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev set holder addresses for rewards
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddresses: reward token contract address in array
 	 */
 	function _setHolderAddressForRewards(
 		address holderContractAddress,
@@ -1203,9 +1238,12 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev set holder addresses for rewards
+	 * @param holderContractAddresses: holder contract address in array
+	 * @param rewardTokenContractAddresses: reward token contract address in array
+	 *
+	 * Emits a {SetHolderAddressesForRewards} event
+	 *
 	 */
 	function setHolderAddressesForRewards(
 		address[] memory holderContractAddresses,
@@ -1234,9 +1272,8 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev remove holder address for rewards
+	 * @param holderContractAddress: holder contract address
 	 */
 	function _removeHolderAddressForRewards(address holderContractAddress)
 		internal
@@ -1263,9 +1300,10 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev remove holder addresses for rewards
+	 * @param holderContractAddresses: holder contract address in array
+	 *
+	 * Emits a {RemoveHolderAddressesForRewards} event
 	 */
 	function removeHolderAddressesForRewards(
 		address[] memory holderContractAddresses
@@ -1289,9 +1327,9 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev remove token contract address for rewards
+	 * @param holderContractAddress: holder contract address
+	 * @param rewardTokenContractAddresses: reward token contract address in array
 	 */
 	function _removeTokenContractForRewards(
 		address holderContractAddress,
@@ -1336,9 +1374,12 @@ contract WhitelistedRewardEmission is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev remove token contract address for rewards
+	 * @param holderContractAddresses: holder contract address in array
+	 * @param rewardTokenContractAddresses: reward token contract address in array
+	 *
+	 * Emits a {RemoveTokenContractsForRewards} event
+	 *
 	 */
 	function removeTokenContractsForRewards(
 		address[] memory holderContractAddresses,

@@ -82,7 +82,9 @@ contract WhitelistedPTokenEmissionV2 is
 	}
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev Check if contracts are whitelisted
+	 * @param sTokenAddress: sToken contract address
+	 * @param whitelistedAddresses: whitelisted contract address in array
 	 */
 	function areContractsWhitelisted(
 		address sTokenAddress,
@@ -114,7 +116,8 @@ contract WhitelistedPTokenEmissionV2 is
 	}
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev Calculate rewards for the holder 'address'.
+	  * @param holderAddress: holder contract address
 	 */
 	function calculateAllHolderRewards(address holderAddress)
 		public
@@ -180,7 +183,8 @@ contract WhitelistedPTokenEmissionV2 is
 	}
 
 	/**
-	 * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.
+	 * @dev Calculate pending rewards for the holder 'address'
+	  * @param holderAddress: holder contract address
 	 */
 	function calculateAllPendingHolderRewards(address holderAddress)
 		public
@@ -242,6 +246,9 @@ contract WhitelistedPTokenEmissionV2 is
 	/*
 	 * @dev Set 'whitelisted address', performed by admin only
 	 * @param whitelistedAddress: contract address of the whitelisted party
+	 * @param sTokenAddresses: sToken contract address in array
+	 * @param holderContractAddress: holder contract address
+	 * @param lpContractAddress: LP token contract address
 	 *
 	 * Emits a {setWhitelistedAddress} event
 	 *
@@ -348,7 +355,6 @@ contract WhitelistedPTokenEmissionV2 is
 	/*
 	 * @dev remove 'whitelisted address', performed by admin only
 	 * @param whitelistedAddress: contract address of the whitelisted party
-	 * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
 	 *
 	 * Emits a {RemoveWhitelistedAddress} event
 	 *

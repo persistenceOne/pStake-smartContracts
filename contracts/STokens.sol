@@ -271,7 +271,9 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
 	/**
      * @dev Calculate rewards for the provided 'holder address'
-     * @param to: holder address
+     * @param to: address
+     * @param from: address
+     * @param amount: token amount
      */
 	function _calculateHolderRewards(address to, address from, uint256 amount) internal returns (uint256){
 		// holderContract and lpContract (lp token contract) need to be validated together because
@@ -372,6 +374,8 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 	/*
     * @dev Set 'whitelisted address', performed by admin only
     * @param whitelistedAddress: contract address of the whitelisted party
+    * @param holderContractAddress: holder contract address
+    * @param lpContractAddress: LP token contract address
     *
     * Emits a {setWhitelistedAddress} event
     *
@@ -394,7 +398,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 	/*
   * @dev remove 'whitelisted address', performed by admin only
   * @param whitelistedAddress: contract address of the whitelisted party
-  * @param holderContractAddress: holder contract address of the corresponding whitelistedAddress
   *
   * Emits a {RemoveWhitelistedAddress} event
   *

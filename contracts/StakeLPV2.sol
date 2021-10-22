@@ -59,8 +59,12 @@ ReentrancyGuardUpgradeable
     address public _whitelistedRewardEmissionContract;
 
     /**
-     * @dev Constructor for initializing the LiquidStaking contract.
-     */
+	 * @dev Constructor for initializing the stakeLP contract.
+	 * @param pauserAddress - address of the pauser admin.
+	 * @param whitelistedPTokenEmissionContract - address of whitelistedPTokenEmission Contract.
+	 * @param whitelistedRewardEmissionContract - address of whitelistedPTokenEmission Contract.
+	 * @param valueDivisor - valueDivisor set to 10^9.
+	 */
     function initialize(
         address pauserAddress,
         address whitelistedPTokenEmissionContract,
@@ -77,13 +81,10 @@ ReentrancyGuardUpgradeable
     }
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param to: user address
-     * @param liquidityWeightFactor: coming as an argument for further calculations
-     * @param rewardWeightFactor: coming as an argument for further calculations
-     * @param valueDivisor: coming as an argument for further calculations
-     */
+      * @dev calculate liquidity and reward tokens and disburse to user
+      * @param holderAddress: holder contract address
+      * @param accountAddress: user address
+      */
     function calculatePendingRewards(
         address holderAddress,
         address accountAddress
@@ -194,8 +195,15 @@ ReentrancyGuardUpgradeable
     }
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     */
+	 * @dev get liquidity and reward tokens and disburse to user
+	 * @param holderAddress: holder contract address
+	 * @param sTokenAddresses: sToken contract address in array
+	 * @param holderRewards: holder contract address in array
+	 * @param userLPTimeShare: user LP timeshare
+	 * @param totalSupplyLPTimeShare: total supply LP timeshare
+	 * @param otherRewardAmounts: reward amount in array
+	 * @param otherRewardTokens: reward tokens in array
+	 */
     function _getRewardData(
         address holderAddress,
         address[] memory sTokenAddresses,
@@ -252,13 +260,10 @@ ReentrancyGuardUpgradeable
     }
 
     /*
-     * @dev calculate reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param to: user address
-     * @param liquidityWeightFactor: coming as an argument for further calculations
-     * @param rewardWeightFactor: coming as an argument for further calculations
-     * @param valueDivisor: coming as an argument for further calculations
-     */
+	 * @dev calculate reward tokens and disburse to user
+	 * @param holderAddress: holder contract address
+	 * @param accountAddress: user address
+	 */
     function _calculateRewards(address holderAddress, address accountAddress)
     internal
     returns (
@@ -350,10 +355,9 @@ ReentrancyGuardUpgradeable
     }
 
     /*
-     * @dev calculate liquidity and reward tokens and disburse to user
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     */
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param holderAddress: holder contract address
+	 */
     function calculateSyncedRewards(address holderAddress)
     public
     virtual
@@ -396,13 +400,13 @@ ReentrancyGuardUpgradeable
     }
 
     /*
-     * @dev adding the liquidity
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     *
-     * Emits a {AddLiquidity} event with 'lpToken, amount, rewards and liquidity'
-     *
-     */
+      * @dev adding the liquidity
+      * @param holderAddress: holder contract address
+      * @param amount: token amount
+      *
+      * Emits a {AddLiquidity} event with 'lpToken, amount, rewards and liquidity'
+      *
+      */
     function addLiquidity(address holderAddress, uint256 amount)
     public
     virtual
@@ -443,13 +447,13 @@ ReentrancyGuardUpgradeable
     }
 
     /*
-     * @dev removing the liquidity
-     * @param lpToken: lp token contract address
-     * @param amount: token amount
-     *
-     * Emits a {RemoveLiquidity} event with 'lpToken, amount, rewards and liquidity'
-     *
-     */
+	 * @dev removing the liquidity
+	 * @param holderAddress: holder contract address
+	 * @param amount: token amount
+	 *
+	 * Emits a {RemoveLiquidity} event with 'lpToken, amount, rewards and liquidity'
+	 *
+	 */
     function removeLiquidity(address holderAddress, uint256 amount)
     public
     virtual
@@ -488,11 +492,11 @@ ReentrancyGuardUpgradeable
     }
 
     /**
-     * @dev Set 'contract address', called from constructor
-     *
-     * Emits a {} event with '_contract' set to the stoken contract address.
-     *
-     */
+	 * @dev Set 'WhitelistedPTokenEmissionContract', called from constructor
+	 *
+	 * Emits a {SetWhitelistedPTokenEmissionContract} event with '_contract' set to the whitelistedPTokenEmission contract address.
+	 *
+	 */
     function setWhitelistedPTokenEmissionContract(
         address whitelistedPTokenEmissionContract
     ) public virtual override {
@@ -504,11 +508,11 @@ ReentrancyGuardUpgradeable
     }
 
     /**
-     * @dev Set 'contract address', called from constructor
-     *
-     * Emits a {} event with '_contract' set to the stoken contract address.
-     *
-     */
+	 * @dev Set 'whitelistedRewardEmissionContract', called from constructor
+	 *
+	 * Emits a {SetWhitelistedRewardEmissionContract} event with '_contract' set to the whitelistedRewardEmission contract address.
+	 *
+	 */
     function setWhitelistedRewardEmissionContract(
         address whitelistedRewardEmissionContract
     ) public virtual override {
