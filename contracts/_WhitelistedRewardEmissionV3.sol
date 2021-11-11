@@ -1397,35 +1397,40 @@ contract WhitelistedRewardEmissionV2 is
 		uint256 i;
 		uint256 _rewardTokenContractAddressesLength = rewardTokenContractAddresses
 				.length;
+		uint256 rewardTokenListIndexLocal;
+		address lastRewardToken = _rewardTokenList[holderContractAddress][
+			_rewardTokenList[holderContractAddress].length.sub(1)
+		];
+		// iterate through the array of provided token addresses and remove them one by one
 		for (i = 0; i < _rewardTokenContractAddressesLength; i = i.add(1)) {
+			// check if the provided token address is not zero
 			if (rewardTokenContractAddresses[i] != address(0)) {
 				// remove the token address from the list
-				uint256 rewardTokenListIndexLocal = _rewardTokenListIndex[
+				rewardTokenListIndexLocal = _rewardTokenListIndex[
 					holderContractAddress
 				][rewardTokenContractAddresses[i]];
-				if (rewardTokenListIndexLocal > 0) {
-					if (
-						rewardTokenListIndexLocal ==
-						_rewardTokenList[holderContractAddress].length
-					) {
-                        // if the value to be removed is the last index, directly delete it
-						_rewardTokenList[holderContractAddress].pop();
-					} else {
-						_rewardTokenList[holderContractAddress][
-							rewardTokenListIndexLocal.sub(1)
-						] = _rewardTokenList[holderContractAddress][
-							_rewardTokenList[holderContractAddress].length.sub(
-								1
-							)
-						];
-						_rewardTokenList[holderContractAddress].pop();
-					}
-
-					// delete the index value
-					delete _rewardTokenListIndex[holderContractAddress][
-						rewardTokenContractAddresses[i]
-					];
+				// if the token list index is zero then abort and iterate to the next value
+				if (rewardTokenListIndexLocal = 0) continue;
+				// if the token list index is the last one, simply pop the value
+				if (
+					rewardTokenListIndexLocal ==
+					_rewardTokenList[holderContractAddress].length
+				) {
+					_rewardTokenList[holderContractAddress].pop();
+				} else {
+					// if the value to be removed is not the last index, switch it with last index value,
+					_rewardTokenList[holderContractAddress][
+						rewardTokenListIndexLocal.sub(1)
+					] = lastRewardToken;
+					// update the index of the newly switched token contract
+					_rewardTokenListIndex[holderContractAddress][
+						lastRewardToken
+					] = rewardTokenListIndexLocal;
 				}
+				// reset the reward tokenList index to zero
+				delete _rewardTokenListIndex[holderContractAddress][
+					rewardTokenContractAddresses[i]
+				];
 			}
 		}
 
