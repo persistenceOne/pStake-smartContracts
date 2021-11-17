@@ -1102,7 +1102,7 @@ contract WhitelistedRewardEmissionV2 is
 			return cumulativeRewardValue;
 		}
 
-		// if the timestamp marker value is zero then allocate timestamp at lowest index
+		// if the timestamp marker value is less than the zero index of array, allocate timestamp at zero index
 		if (rewardTimestamp <= _rewardEmissionTimestampArray[lowerIndex]) {
 			cumulativeRewardValue = _cumulativeRewardAmountArray[lowerIndex];
 			return cumulativeRewardValue;
@@ -1286,6 +1286,8 @@ contract WhitelistedRewardEmissionV2 is
 					_rewardTokenList[holderContractAddress].push(
 						rewardTokenContractAddresses[i]
 					);
+					// if possible check the unbounded array for a bounded value upper limit
+
 					_rewardTokenListIndex[holderContractAddress][
 						rewardTokenContractAddresses[i]
 					] = _rewardTokenList[holderContractAddress].length;

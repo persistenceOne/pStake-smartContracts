@@ -292,6 +292,7 @@ contract WhitelistedPTokenEmissionV2 is
 
 		// if whitelisted contract doesnt already exist then include it in the array else revert
 		if (!whitelistedAddressExists) {
+			// implementing an upper bound to the number of whitelisted values the holder can have
 			// add the whitelistedAddress to the _holderWhitelists array
 			_holderWhitelists[holderContractAddress].push(whitelistedAddress);
 		} else {

@@ -81,10 +81,10 @@ contract StakeLPV3 is
 	}
 
 	/*
-      * @dev calculate liquidity and reward tokens and disburse to user
-      * @param holderAddress: holder contract address
-      * @param accountAddress: user address
-      */
+	 * @dev calculate liquidity and reward tokens and disburse to user
+	 * @param holderAddress: holder contract address
+	 * @param accountAddress: user address
+	 */
 	function calculatePendingRewards(
 		address holderAddress,
 		address accountAddress
@@ -401,13 +401,13 @@ contract StakeLPV3 is
 	}
 
 	/*
-     * @dev adding the liquidity
-     * @param holderAddress: holder contract address
-     * @param amount: token amount
-     *
-     * Emits a {AddLiquidity} event with 'lpToken, amount, rewards and liquidity'
-     *
-     */
+	 * @dev adding the liquidity
+	 * @param holderAddress: holder contract address
+	 * @param amount: token amount
+	 *
+	 * Emits a {AddLiquidity} event with 'lpToken, amount, rewards and liquidity'
+	 *
+	 */
 	function addLiquidity(address holderAddress, uint256 amount)
 		public
 		virtual
@@ -503,6 +503,7 @@ contract StakeLPV3 is
 		address whitelistedPTokenEmissionContract
 	) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP4");
+		require(whitelistedPTokenEmissionContract != address(0), "LP10");
 		_whitelistedPTokenEmissionContract = whitelistedPTokenEmissionContract;
 		emit SetWhitelistedPTokenEmissionContract(
 			whitelistedPTokenEmissionContract
@@ -519,6 +520,7 @@ contract StakeLPV3 is
 		address whitelistedRewardEmissionContract
 	) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LP5");
+		require(whitelistedRewardEmissionContract != address(0), "LP8");
 		_whitelistedRewardEmissionContract = whitelistedRewardEmissionContract;
 		emit SetWhitelistedRewardEmissionContract(
 			whitelistedRewardEmissionContract
