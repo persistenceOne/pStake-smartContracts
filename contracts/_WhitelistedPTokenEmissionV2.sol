@@ -6,10 +6,10 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "./interfaces/ISTokensV2.sol";
-import "./interfaces/IWhitelistedPTokenEmission.sol";
+import "./interfaces/_IWhitelistedPTokenEmissionV2.sol";
 
 contract WhitelistedPTokenEmissionV2 is
-	IWhitelistedPTokenEmission,
+	_IWhitelistedPTokenEmissionV2,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -39,6 +39,8 @@ contract WhitelistedPTokenEmissionV2 is
 
 	// -------------------------------------------------------------------------
 	// -------------------------------------------------------------------------
+	// execute setBatchingLimit once the contract is upgraded
+	uint256 public override _batchingLimit;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -117,7 +119,7 @@ contract WhitelistedPTokenEmissionV2 is
 
 	/**
 	 * @dev Calculate rewards for the holder 'address'.
-	  * @param holderAddress: holder contract address
+	 * @param holderAddress: holder contract address
 	 */
 	function calculateAllHolderRewards(address holderAddress)
 		public
@@ -184,7 +186,7 @@ contract WhitelistedPTokenEmissionV2 is
 
 	/**
 	 * @dev Calculate pending rewards for the holder 'address'
-	  * @param holderAddress: holder contract address
+	 * @param holderAddress: holder contract address
 	 */
 	function calculateAllPendingHolderRewards(address holderAddress)
 		public
@@ -218,7 +220,12 @@ contract WhitelistedPTokenEmissionV2 is
 			uTokenAddresses.length == 0 ||
 			sTokenAddresses.length == 0
 		) {
-			return (holderRewards, sTokenAddresses, uTokenAddresses, lpTokenAddress);
+			return (
+				holderRewards,
+				sTokenAddresses,
+				uTokenAddresses,
+				lpTokenAddress
+			);
 		}
 
 		holderRewards = new uint256[](sTokenAddresses.length);
@@ -294,7 +301,10 @@ contract WhitelistedPTokenEmissionV2 is
 		if (!whitelistedAddressExists) {
 			// implementing an upper bound to the number of whitelisted values the holder can have
 			// add the whitelistedAddress to the _holderWhitelists array
-			_holderWhitelists[holderContractAddress].push(whitelistedAddress);
+			if (
+				_batchingLimit >=
+				_holderWhitelists[holderContractAddress].length
+			) _holderWhitelists[holderContractAddress].push(whitelistedAddress);
 		} else {
 			revert("WP4");
 		}
@@ -349,6 +359,24 @@ contract WhitelistedPTokenEmissionV2 is
 			block.timestamp
 		);
 
+		success = true;
+		return success;
+	}
+
+	/**
+	 * @dev Set 'batching limit', called from admin
+	 * Emits a {SetBatchingLimit} event.
+	 *
+	 */
+	function setBatchingLimit(uint256 batchingLimit)
+		public
+		virtual
+		override
+		returns (bool success)
+	{
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WP10");
+		_batchingLimit = batchingLimit;
+		emit SetBatchingLimit(batchingLimit, block.timestamp);
 		success = true;
 		return success;
 	}

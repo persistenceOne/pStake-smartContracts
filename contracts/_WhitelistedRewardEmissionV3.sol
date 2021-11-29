@@ -6,12 +6,12 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "./interfaces/IWhitelistedRewardEmissionV2.sol";
+import "./interfaces/_IWhitelistedRewardEmissionV3.sol";
 import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
-contract WhitelistedRewardEmissionV2 is
-	IWhitelistedRewardEmissionV2,
+contract WhitelistedRewardEmissionV3 is
+	_IWhitelistedRewardEmissionV3,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -64,6 +64,11 @@ contract WhitelistedRewardEmissionV2 is
 	// for a user, for the reward token, for the holder contract
 	mapping(address => mapping(address => mapping(address => uint256)))
 		public _rewardPoolUserTimestamp;
+
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+
+	uint256 public override _batchingLimit;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
@@ -1412,7 +1417,7 @@ contract WhitelistedRewardEmissionV2 is
 					holderContractAddress
 				][rewardTokenContractAddresses[i]];
 				// if the token list index is zero then abort and iterate to the next value
-				if (rewardTokenListIndexLocal = 0) continue;
+				if (rewardTokenListIndexLocal == 0) continue;
 				// if the token list index is the last one, simply pop the value
 				if (
 					rewardTokenListIndexLocal ==
@@ -1470,6 +1475,24 @@ contract WhitelistedRewardEmissionV2 is
 			block.timestamp
 		);
 
+		success = true;
+		return success;
+	}
+
+	/**
+	 * @dev Set 'batching limit', called from admin
+	 * Emits a {SetBatchingLimit} event.
+	 *
+	 */
+	function setBatchingLimit(uint256 batchingLimit)
+		public
+		virtual
+		override
+		returns (bool success)
+	{
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WP10");
+		_batchingLimit = batchingLimit;
+		emit SetBatchingLimit(batchingLimit, block.timestamp);
 		success = true;
 		return success;
 	}
