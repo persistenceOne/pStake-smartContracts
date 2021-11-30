@@ -17,7 +17,7 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "ropsten") {
-    let gasPriceRopsten = 1e11;
+    let gasPriceRopsten = 3e10;
     let gasLimitRopsten = 7000000;
     await upgradeTokenWrapper(
       gasPriceRopsten,

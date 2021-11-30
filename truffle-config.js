@@ -81,7 +81,7 @@ module.exports = {
           providerOrUrl: `http://13.232.138.144:8545`,
         }),
       network_id: 3, // Ropsten's id
-      gas: 7900000, // Ropsten has a lower block limit than mainnet
+      gas: 7000000, // Ropsten has a lower block limit than mainnet
       gasPrice: 30000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)

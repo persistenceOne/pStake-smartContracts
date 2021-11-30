@@ -13,7 +13,7 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "ropsten") {
-    let gasPriceRopsten = 1e11;
+    let gasPriceRopsten = 3e10;
     let gasLimitRopsten = 7000000;
     await LiquidStaking(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
   }
@@ -45,6 +45,7 @@ async function LiquidStaking(gasPrice, gasLimit, deployer, accounts) {
   );
 
   let from_defaultAdmin = accounts[0];
+  let bridgeAdmin = "0x8AAD3Ce382A5793D6B97E72b87598823ea7940CB"
 
   LiquidStakingInstance = await upgradeProxy(
     LiquidStakingArtifactV2.address,
@@ -64,6 +65,16 @@ async function LiquidStaking(gasPrice, gasLimit, deployer, accounts) {
     }
   );
   console.log("setTokenWrapperContract() done");
+
+  const txReceiptGrantRole1 =
+    await LiquidStakingInstance.grantRole(
+      "0x751b795d24b92e3d92d1d0d8f2885f4e9c9c269da350af36ae6b49069babf4bf", bridgeAdmin,
+      {
+        from: from_defaultAdmin,
+        gasPrice: gasPrice,
+        gas: gasLimit,
+      });
+  console.log("grantRole() set for bridge admin in Liquid Staking contract.");
 
   console.log("ALL DONE.");
 }
