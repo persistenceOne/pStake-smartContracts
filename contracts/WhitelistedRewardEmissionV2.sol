@@ -89,6 +89,9 @@ AccessControlUpgradeable
 	 * @param rewardTokenContractAddress: reward token contract address
 	 * @param rewardSender: sender address
 	 * @param rewardAmount: token amount
+	 *
+	 * Emits a {AddRewards} event.
+	 *
 	 */
     function addRewards(
         address holderContractAddress,
@@ -213,6 +216,9 @@ AccessControlUpgradeable
 	 * @param holderContractAddress: holder contract address
 	 * @param rewardTokenContractAddress: reward token contract address
 	 * @param rewardTokenEmission: token amount
+	 *
+	 * Emits a {SetRewardEmission} event.
+	 *
 	 */
     function setRewardEmission(
         address holderContractAddress,

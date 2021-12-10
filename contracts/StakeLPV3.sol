@@ -263,6 +263,9 @@ contract StakeLPV3 is
 	 * @dev calculate reward tokens and disburse to user
 	 * @param holderAddress: holder contract address
 	 * @param accountAddress: user address
+	 *
+	 * Emits a {CalculateRewardsStakeLP} event
+	 *
 	 */
 	function _calculateRewards(address holderAddress, address accountAddress)
 		internal
@@ -495,6 +498,7 @@ contract StakeLPV3 is
 
 	/**
 	 * @dev Set 'WhitelistedPTokenEmissionContract', called from constructor
+	 * @param whitelistedPTokenEmissionContract: whitelisted PToken Emission Contract address
 	 *
 	 * Emits a {SetWhitelistedPTokenEmissionContract} event with '_contract' set to the whitelistedPTokenEmission contract address.
 	 *
@@ -511,6 +515,7 @@ contract StakeLPV3 is
 
 	/**
 	 * @dev Set 'whitelistedRewardEmissionContract', called from constructor
+	 * @param whitelistedRewardEmissionContract: whitelisted Reward Emission Contract address
 	 *
 	 * Emits a {SetWhitelistedRewardEmissionContract} event with '_contract' set to the whitelistedRewardEmission contract address.
 	 *

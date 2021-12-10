@@ -243,6 +243,9 @@ contract LiquidStakingV2 is
 	 * - `amount` cannot be less than zero.
 	 * - 'amount' cannot be more than balance
 	 * - 'amount' plus new balance should be equal to the old balance
+	 *
+	 * Emits a {StakeTokens} event
+	 *
 	 */
 	function stake(address to, uint256 amount)
 		public
@@ -281,6 +284,9 @@ contract LiquidStakingV2 is
 	 * - `amount` cannot be less than zero.
 	 * - 'amount' cannot be more than balance
 	 * - 'amount' plus new balance should be equal to the old balance
+	 *
+	 * Emits a {UnstakeTokens} event
+	 *
 	 */
 	function unStake(address to, uint256 amount)
 		public
@@ -374,6 +380,9 @@ contract LiquidStakingV2 is
 	 * Requirements:
 	 *
 	 * - `current block timestamp` should be after 21 days from the period where unstaked function is called.
+	 *
+	 * Emits a {WithdrawUnstakeTokens} event
+	 *
 	 */
 	function withdrawUnstakedTokens(address staker)
 		public
@@ -488,6 +497,8 @@ contract LiquidStakingV2 is
 
 	/**
 	 * @dev Set 'batching limit', called from admin
+	 * @param batchingLimit: batching limit
+	 *
 	 * Emits a {SetBatchingLimit} event.
 	 *
 	 */
