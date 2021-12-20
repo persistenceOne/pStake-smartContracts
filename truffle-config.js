@@ -23,8 +23,9 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-const mnemonic =
-  "baby year rocket october what surprise lab bag report swap game unveil";
+// 0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7
+// 0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7
+const mnemonic = "";
 
 module.exports = {
   /**
@@ -62,16 +63,23 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-     /* provider: () =>
+      /* provider: () =>
         new HDWalletProvider(
-          "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
+          mnemonic,
           `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-        ),*/
+        ), */
+
+      // ROPSTEN GETH RPC URL
+      /* HTTPS: https://ropsten.eth.audit.one/rpc
+        WS: https://ropsten.eth.audit.one/ws */
+
       provider: () =>
-          new HDWalletProvider(
-              mnemonic,
-              `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-          ),
+        new HDWalletProvider({
+          mnemonic: {
+            phrase: mnemonic,
+          },
+          providerOrUrl: `http://13.232.138.144:8545`,
+        }),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
       gasPrice: 30000000000,
@@ -87,13 +95,13 @@ module.exports = {
            `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
          ),*/
       provider: () =>
-          new HDWalletProvider(
-              mnemonic,
-              `https://eth-mainnet.alchemyapi.io/v2/vD3x9QX71JVFQhFTYPZa_3eP-RfkODNi`
-          ),
+        new HDWalletProvider(
+          mnemonic,
+          `https://eth-mainnet.alchemyapi.io/v2/vD3x9QX71JVFQhFTYPZa_3eP-RfkODNi`
+        ),
       network_id: 1, // Mainnet's id
-      gas: 10000000, // Ropsten has a lower block limit than mainnet
-      gasPrice: 50000000000,
+      gas: 6000000,
+      gasPrice: 100000000000,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )
@@ -145,7 +153,7 @@ module.exports = {
   // Configure your compilers
   compilers: {
     solc: {
-      version: " ^0.7.0", // Fetch exact version from solc-bin (default: truffle's version)
+      version: "^0.7.6", // Fetch exact version from solc-bin (default: truffle's version)
       docker: false, // Use "0.5.1" you've installed locally with docker (default: false)
       settings: {
         // See the solidity docs for advice about optimization and evmVersion

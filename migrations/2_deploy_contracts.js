@@ -32,7 +32,7 @@ module.exports = async function (deployer, network, accounts) {
 
   if (network === "ropsten") {
     let gasPriceRopsten = 1e11;
-    let gasLimitRopsten = 5000000;
+    let gasLimitRopsten = 4000000;
     await deployAll(gasPriceRopsten, gasLimitRopsten, deployer, accounts);
   }
 

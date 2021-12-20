@@ -1,0 +1,3613 @@
+{
+  "contractName": "IWhitelistedPTokenEmission",
+  "abi": [
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "address",
+          "name": "holderAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256[]",
+          "name": "holderRewards",
+          "type": "uint256[]"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "CalculateAllHolderRewards",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "whitelistedAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "sTokenAddressesLocal",
+          "type": "address[]"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "holderAddressLocal",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "RemoveWhitelistedAddress",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "whitelistedAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "address[]",
+          "name": "sTokenAddressesLocal",
+          "type": "address[]"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "holderContractAddress",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "lpContractAddress",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timestamp",
+          "type": "uint256"
+        }
+      ],
+      "name": "SetWhitelistedAddress",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "holderAddress",
+          "type": "address"
+        }
+      ],
+      "name": "getHolderData",
+      "outputs": [
+        {
+          "internalType": "address[]",
+          "name": "whitelistedAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "sTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "uTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "lpTokenAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "sTokenAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "whitelistedAddresses",
+          "type": "address[]"
+        }
+      ],
+      "name": "areContractsWhitelisted",
+      "outputs": [
+        {
+          "internalType": "bool[]",
+          "name": "areWhitelisted",
+          "type": "bool[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "holderAddress",
+          "type": "address"
+        }
+      ],
+      "name": "calculateAllHolderRewards",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "holderRewards",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "sTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "uTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "lpTokenAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "holderAddress",
+          "type": "address"
+        }
+      ],
+      "name": "calculateAllPendingHolderRewards",
+      "outputs": [
+        {
+          "internalType": "uint256[]",
+          "name": "holderRewards",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "sTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address[]",
+          "name": "uTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "lpTokenAddress",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "whitelistedAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "sTokenAddresses",
+          "type": "address[]"
+        },
+        {
+          "internalType": "address",
+          "name": "holderContractAddress",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "lpContractAddress",
+          "type": "address"
+        }
+      ],
+      "name": "setWhitelistedAddress",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "whitelistedAddress",
+          "type": "address"
+        }
+      ],
+      "name": "removeWhitelistedAddress",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "pause",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "unpause",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "success",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+  ],
+  "metadata": "{\"compiler\":{\"version\":\"0.7.6+commit.7338295f\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"address\",\"name\":\"holderAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256[]\",\"name\":\"holderRewards\",\"type\":\"uint256[]\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"CalculateAllHolderRewards\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"whitelistedAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"sTokenAddressesLocal\",\"type\":\"address[]\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"holderAddressLocal\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"RemoveWhitelistedAddress\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"whitelistedAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"address[]\",\"name\":\"sTokenAddressesLocal\",\"type\":\"address[]\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"holderContractAddress\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"lpContractAddress\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timestamp\",\"type\":\"uint256\"}],\"name\":\"SetWhitelistedAddress\",\"type\":\"event\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"sTokenAddress\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"whitelistedAddresses\",\"type\":\"address[]\"}],\"name\":\"areContractsWhitelisted\",\"outputs\":[{\"internalType\":\"bool[]\",\"name\":\"areWhitelisted\",\"type\":\"bool[]\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"holderAddress\",\"type\":\"address\"}],\"name\":\"calculateAllHolderRewards\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"holderRewards\",\"type\":\"uint256[]\"},{\"internalType\":\"address[]\",\"name\":\"sTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"uTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"lpTokenAddress\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"holderAddress\",\"type\":\"address\"}],\"name\":\"calculateAllPendingHolderRewards\",\"outputs\":[{\"internalType\":\"uint256[]\",\"name\":\"holderRewards\",\"type\":\"uint256[]\"},{\"internalType\":\"address[]\",\"name\":\"sTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"uTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"lpTokenAddress\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"holderAddress\",\"type\":\"address\"}],\"name\":\"getHolderData\",\"outputs\":[{\"internalType\":\"address[]\",\"name\":\"whitelistedAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"sTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address[]\",\"name\":\"uTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"lpTokenAddress\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"pause\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"whitelistedAddress\",\"type\":\"address\"}],\"name\":\"removeWhitelistedAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"whitelistedAddress\",\"type\":\"address\"},{\"internalType\":\"address[]\",\"name\":\"sTokenAddresses\",\"type\":\"address[]\"},{\"internalType\":\"address\",\"name\":\"holderContractAddress\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"lpContractAddress\",\"type\":\"address\"}],\"name\":\"setWhitelistedAddress\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"unpause\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"success\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"}],\"devdoc\":{\"events\":{\"CalculateAllHolderRewards(address,uint256[],uint256)\":{\"details\":\"Emitted when holder rewards are calculated\"},\"RemoveWhitelistedAddress(address,address[],address,uint256)\":{\"details\":\"Emitted when whitelisted address is removed\"},\"SetWhitelistedAddress(address,address[],address,address,uint256)\":{\"details\":\"Emitted when address is whitelisted\"}},\"kind\":\"dev\",\"methods\":{\"areContractsWhitelisted(address,address[])\":{\"details\":\"check if contract is whitelsited\"},\"calculateAllHolderRewards(address)\":{\"details\":\"Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.\"},\"calculateAllPendingHolderRewards(address)\":{\"details\":\"Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.\"},\"getHolderData(address)\":{\"details\":\"get holder data\"},\"pause()\":{\"details\":\"Triggers stopped state. Requirements: - The contract must not be paused.\"},\"removeWhitelistedAddress(address)\":{\"details\":\"remove whitelisted address\"},\"setWhitelistedAddress(address,address[],address,address)\":{\"details\":\"set whitelisted address\"},\"unpause()\":{\"details\":\"Returns to normal state. Requirements: - The contract must be paused.\"}},\"version\":1},\"userdoc\":{\"kind\":\"user\",\"methods\":{},\"version\":1}},\"settings\":{\"compilationTarget\":{\"project:/contracts/interfaces/IWhitelistedPTokenEmission.sol\":\"IWhitelistedPTokenEmission\"},\"evmVersion\":\"istanbul\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\"},\"optimizer\":{\"enabled\":true,\"runs\":200},\"remappings\":[]},\"sources\":{\"project:/contracts/interfaces/IWhitelistedPTokenEmission.sol\":{\"keccak256\":\"0xd7d93db1fb65af8bb5ae1fde6ad8c1cfd907657540dbc6e1b338eacd513620a1\",\"license\":\"UNLICENSED\",\"urls\":[\"bzz-raw://bb112c76e4d5302285d72a4fc85bc186a03744530ae0f95d0657397e4ad600a7\",\"dweb:/ipfs/QmbdNV6PVLPe8GiWi2StfP8t4Mncd14KD46bcHoTh4gyFG\"]}},\"version\":1}",
+  "bytecode": "0x",
+  "deployedBytecode": "0x",
+  "immutableReferences": {},
+  "generatedSources": [],
+  "deployedGeneratedSources": [],
+  "sourceMap": "",
+  "deployedSourceMap": "",
+  "source": "// SPDX-License-Identifier: UNLICENSED\npragma solidity >=0.7.0;\n\ninterface IWhitelistedPTokenEmission {\n\n\t/**\n\t * @dev get holder data\n\t */\n\tfunction getHolderData(address holderAddress)\n\t\texternal\n\t\tview\n\t\treturns (\n\t\t\taddress[] memory whitelistedAddresses,\n\t\t\taddress[] memory sTokenAddresses,\n\t\t\taddress[] memory uTokenAddresses,\n\t\t\taddress lpTokenAddress\n\t\t);\n\n\t/**\n\t * @dev check if contract is whitelsited\n\t */\n\tfunction areContractsWhitelisted(\n\t\taddress sTokenAddress,\n\t\taddress[] memory whitelistedAddresses\n\t) external view returns (bool[] memory areWhitelisted);\n\n\t/**\n\t * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.\n\t */\n\tfunction calculateAllHolderRewards(address holderAddress)\n\t\texternal\n\t\treturns (\n\t\t\tuint256[] memory holderRewards,\n\t\t\taddress[] memory sTokenAddresses,\n\t\t\taddress[] memory uTokenAddresses,\n\t\t\taddress lpTokenAddress\n\t\t);\n\n\t/**\n\t * @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate.\n\t */\n\tfunction calculateAllPendingHolderRewards(address holderAddress)\n\t\texternal\n\t\tview\n\t\treturns (\n\t\t\tuint256[] memory holderRewards,\n\t\t\taddress[] memory sTokenAddresses,\n\t\t\taddress[] memory uTokenAddresses,\n\t\t\taddress lpTokenAddress\n\t\t);\n\n\t/**\n\t * @dev set whitelisted address\n\t */\n\tfunction setWhitelistedAddress(\n\t\taddress whitelistedAddress,\n\t\taddress[] memory sTokenAddresses,\n\t\taddress holderContractAddress,\n\t\taddress lpContractAddress\n\t) external returns (bool success);\n\n\t/**\n\t * @dev remove whitelisted address\n\t */\n\tfunction removeWhitelistedAddress(address whitelistedAddress)\n\t\texternal\n\t\treturns (bool success);\n\n\t/**\n\t * @dev Triggers stopped state.\n\t *\n\t * Requirements:\n\t *\n\t * - The contract must not be paused.\n\t */\n\tfunction pause() external returns (bool success);\n\n\t/**\n\t * @dev Returns to normal state.\n\t *\n\t * Requirements:\n\t *\n\t * - The contract must be paused.\n\t */\n\tfunction unpause() external returns (bool success);\n\n\t/**\n\t * @dev Emitted when address is whitelisted\n\t */\n\tevent SetWhitelistedAddress(\n\t\taddress indexed whitelistedAddress,\n\t\taddress[] sTokenAddressesLocal,\n\t\taddress indexed holderContractAddress,\n\t\taddress indexed lpContractAddress,\n\t\tuint256 timestamp\n\t);\n\n\t/**\n\t * @dev Emitted when whitelisted address is removed\n\t */\n\tevent RemoveWhitelistedAddress(\n\t\taddress indexed whitelistedAddress,\n\t\taddress[] sTokenAddressesLocal,\n\t\taddress indexed holderAddressLocal,\n\t\tuint256 indexed timestamp\n\t);\n\n\t/**\n\t * @dev Emitted when holder rewards are calculated\n\t */\n\tevent CalculateAllHolderRewards(\n\t\taddress holderAddress,\n\t\tuint256[] holderRewards,\n\t\tuint256 timestamp\n\t);\n}\n",
+  "sourcePath": "C:\\Users\\Kamlesh\\Persistence\\pStake\\codebase\\pStake-smartContracts\\contracts\\interfaces\\IWhitelistedPTokenEmission.sol",
+  "ast": {
+    "absolutePath": "project:/contracts/interfaces/IWhitelistedPTokenEmission.sol",
+    "exportedSymbols": {
+      "IWhitelistedPTokenEmission": [
+        27321
+      ]
+    },
+    "id": 27322,
+    "license": "UNLICENSED",
+    "nodeType": "SourceUnit",
+    "nodes": [
+      {
+        "id": 27186,
+        "literals": [
+          "solidity",
+          ">=",
+          "0.7",
+          ".0"
+        ],
+        "nodeType": "PragmaDirective",
+        "src": "39:24:43"
+      },
+      {
+        "abstract": false,
+        "baseContracts": [],
+        "contractDependencies": [],
+        "contractKind": "interface",
+        "fullyImplemented": false,
+        "id": 27321,
+        "linearizedBaseContracts": [
+          27321
+        ],
+        "name": "IWhitelistedPTokenEmission",
+        "nodeType": "ContractDefinition",
+        "nodes": [
+          {
+            "documentation": {
+              "id": 27187,
+              "nodeType": "StructuredDocumentation",
+              "src": "106:33:43",
+              "text": " @dev get holder data"
+            },
+            "functionSelector": "36bbacad",
+            "id": 27203,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "getHolderData",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27190,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27189,
+                  "mutability": "mutable",
+                  "name": "holderAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27203,
+                  "src": "164:21:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27188,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "164:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "163:23:43"
+            },
+            "returnParameters": {
+              "id": 27202,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27193,
+                  "mutability": "mutable",
+                  "name": "whitelistedAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27203,
+                  "src": "220:37:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27191,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "220:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27192,
+                    "nodeType": "ArrayTypeName",
+                    "src": "220:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27196,
+                  "mutability": "mutable",
+                  "name": "sTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27203,
+                  "src": "262:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27194,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "262:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27195,
+                    "nodeType": "ArrayTypeName",
+                    "src": "262:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27199,
+                  "mutability": "mutable",
+                  "name": "uTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27203,
+                  "src": "299:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27197,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "299:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27198,
+                    "nodeType": "ArrayTypeName",
+                    "src": "299:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27201,
+                  "mutability": "mutable",
+                  "name": "lpTokenAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27203,
+                  "src": "336:22:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27200,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "336:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "215:147:43"
+            },
+            "scope": 27321,
+            "src": "141:222:43",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27204,
+              "nodeType": "StructuredDocumentation",
+              "src": "366:50:43",
+              "text": " @dev check if contract is whitelsited"
+            },
+            "functionSelector": "8575f9c7",
+            "id": 27215,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "areContractsWhitelisted",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27210,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27206,
+                  "mutability": "mutable",
+                  "name": "sTokenAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27215,
+                  "src": "454:21:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27205,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "454:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27209,
+                  "mutability": "mutable",
+                  "name": "whitelistedAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27215,
+                  "src": "479:37:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27207,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "479:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27208,
+                    "nodeType": "ArrayTypeName",
+                    "src": "479:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "450:69:43"
+            },
+            "returnParameters": {
+              "id": 27214,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27213,
+                  "mutability": "mutable",
+                  "name": "areWhitelisted",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27215,
+                  "src": "543:28:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_bool_$dyn_memory_ptr",
+                    "typeString": "bool[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27211,
+                      "name": "bool",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "543:4:43",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_bool",
+                        "typeString": "bool"
+                      }
+                    },
+                    "id": 27212,
+                    "nodeType": "ArrayTypeName",
+                    "src": "543:6:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_bool_$dyn_storage_ptr",
+                      "typeString": "bool[]"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "542:30:43"
+            },
+            "scope": 27321,
+            "src": "418:155:43",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27216,
+              "nodeType": "StructuredDocumentation",
+              "src": "576:107:43",
+              "text": " @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate."
+            },
+            "functionSelector": "fdaaf2b8",
+            "id": 27232,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "calculateAllHolderRewards",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27219,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27218,
+                  "mutability": "mutable",
+                  "name": "holderAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27232,
+                  "src": "720:21:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27217,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "720:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "719:23:43"
+            },
+            "returnParameters": {
+              "id": 27231,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27222,
+                  "mutability": "mutable",
+                  "name": "holderRewards",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27232,
+                  "src": "769:30:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27220,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "769:7:43",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 27221,
+                    "nodeType": "ArrayTypeName",
+                    "src": "769:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27225,
+                  "mutability": "mutable",
+                  "name": "sTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27232,
+                  "src": "804:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27223,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "804:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27224,
+                    "nodeType": "ArrayTypeName",
+                    "src": "804:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27228,
+                  "mutability": "mutable",
+                  "name": "uTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27232,
+                  "src": "841:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27226,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "841:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27227,
+                    "nodeType": "ArrayTypeName",
+                    "src": "841:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27230,
+                  "mutability": "mutable",
+                  "name": "lpTokenAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27232,
+                  "src": "878:22:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27229,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "878:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "764:140:43"
+            },
+            "scope": 27321,
+            "src": "685:220:43",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27233,
+              "nodeType": "StructuredDocumentation",
+              "src": "908:107:43",
+              "text": " @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate."
+            },
+            "functionSelector": "cad08655",
+            "id": 27249,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "calculateAllPendingHolderRewards",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27236,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27235,
+                  "mutability": "mutable",
+                  "name": "holderAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27249,
+                  "src": "1059:21:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27234,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1059:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1058:23:43"
+            },
+            "returnParameters": {
+              "id": 27248,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27239,
+                  "mutability": "mutable",
+                  "name": "holderRewards",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27249,
+                  "src": "1115:30:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27237,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1115:7:43",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 27238,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1115:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27242,
+                  "mutability": "mutable",
+                  "name": "sTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27249,
+                  "src": "1150:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27240,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1150:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27241,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1150:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27245,
+                  "mutability": "mutable",
+                  "name": "uTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27249,
+                  "src": "1187:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27243,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1187:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27244,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1187:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27247,
+                  "mutability": "mutable",
+                  "name": "lpTokenAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27249,
+                  "src": "1224:22:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27246,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1224:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1110:140:43"
+            },
+            "scope": 27321,
+            "src": "1017:234:43",
+            "stateMutability": "view",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27250,
+              "nodeType": "StructuredDocumentation",
+              "src": "1254:41:43",
+              "text": " @dev set whitelisted address"
+            },
+            "functionSelector": "eab573dc",
+            "id": 27264,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "setWhitelistedAddress",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27260,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27252,
+                  "mutability": "mutable",
+                  "name": "whitelistedAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27264,
+                  "src": "1331:26:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27251,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1331:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27255,
+                  "mutability": "mutable",
+                  "name": "sTokenAddresses",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27264,
+                  "src": "1361:32:43",
+                  "stateVariable": false,
+                  "storageLocation": "memory",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27253,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "1361:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27254,
+                    "nodeType": "ArrayTypeName",
+                    "src": "1361:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27257,
+                  "mutability": "mutable",
+                  "name": "holderContractAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27264,
+                  "src": "1397:29:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27256,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1397:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27259,
+                  "mutability": "mutable",
+                  "name": "lpContractAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27264,
+                  "src": "1430:25:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27258,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1430:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1327:131:43"
+            },
+            "returnParameters": {
+              "id": 27263,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27262,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27264,
+                  "src": "1477:12:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 27261,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1477:4:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1476:14:43"
+            },
+            "scope": 27321,
+            "src": "1297:194:43",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27265,
+              "nodeType": "StructuredDocumentation",
+              "src": "1494:44:43",
+              "text": " @dev remove whitelisted address"
+            },
+            "functionSelector": "530cd5ab",
+            "id": 27272,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "removeWhitelistedAddress",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27268,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27267,
+                  "mutability": "mutable",
+                  "name": "whitelistedAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27272,
+                  "src": "1574:26:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27266,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1574:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1573:28:43"
+            },
+            "returnParameters": {
+              "id": 27271,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27270,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27272,
+                  "src": "1624:12:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 27269,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1624:4:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1623:14:43"
+            },
+            "scope": 27321,
+            "src": "1540:98:43",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27273,
+              "nodeType": "StructuredDocumentation",
+              "src": "1641:106:43",
+              "text": " @dev Triggers stopped state.\n Requirements:\n - The contract must not be paused."
+            },
+            "functionSelector": "8456cb59",
+            "id": 27278,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "pause",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27274,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1763:2:43"
+            },
+            "returnParameters": {
+              "id": 27277,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27276,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27278,
+                  "src": "1784:12:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 27275,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1784:4:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1783:14:43"
+            },
+            "scope": 27321,
+            "src": "1749:49:43",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "documentation": {
+              "id": 27279,
+              "nodeType": "StructuredDocumentation",
+              "src": "1801:103:43",
+              "text": " @dev Returns to normal state.\n Requirements:\n - The contract must be paused."
+            },
+            "functionSelector": "3f4ba83a",
+            "id": 27284,
+            "implemented": false,
+            "kind": "function",
+            "modifiers": [],
+            "name": "unpause",
+            "nodeType": "FunctionDefinition",
+            "parameters": {
+              "id": 27280,
+              "nodeType": "ParameterList",
+              "parameters": [],
+              "src": "1922:2:43"
+            },
+            "returnParameters": {
+              "id": 27283,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27282,
+                  "mutability": "mutable",
+                  "name": "success",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27284,
+                  "src": "1943:12:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_bool",
+                    "typeString": "bool"
+                  },
+                  "typeName": {
+                    "id": 27281,
+                    "name": "bool",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "1943:4:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_bool",
+                      "typeString": "bool"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "1942:14:43"
+            },
+            "scope": 27321,
+            "src": "1906:51:43",
+            "stateMutability": "nonpayable",
+            "virtual": false,
+            "visibility": "external"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 27285,
+              "nodeType": "StructuredDocumentation",
+              "src": "1960:53:43",
+              "text": " @dev Emitted when address is whitelisted"
+            },
+            "id": 27298,
+            "name": "SetWhitelistedAddress",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 27297,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27287,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "whitelistedAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27298,
+                  "src": "2046:34:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27286,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2046:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27290,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "sTokenAddressesLocal",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27298,
+                  "src": "2084:30:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27288,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "2084:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27289,
+                    "nodeType": "ArrayTypeName",
+                    "src": "2084:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27292,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "holderContractAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27298,
+                  "src": "2118:37:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27291,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2118:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27294,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "lpContractAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27298,
+                  "src": "2159:33:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27293,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2159:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27296,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27298,
+                  "src": "2196:17:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 27295,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2196:7:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2042:174:43"
+            },
+            "src": "2015:202:43"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 27299,
+              "nodeType": "StructuredDocumentation",
+              "src": "2220:61:43",
+              "text": " @dev Emitted when whitelisted address is removed"
+            },
+            "id": 27310,
+            "name": "RemoveWhitelistedAddress",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 27309,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27301,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "whitelistedAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27310,
+                  "src": "2317:34:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27300,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2317:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27304,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "sTokenAddressesLocal",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27310,
+                  "src": "2355:30:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_address_$dyn_memory_ptr",
+                    "typeString": "address[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27302,
+                      "name": "address",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "2355:7:43",
+                      "stateMutability": "nonpayable",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_address",
+                        "typeString": "address"
+                      }
+                    },
+                    "id": 27303,
+                    "nodeType": "ArrayTypeName",
+                    "src": "2355:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_address_$dyn_storage_ptr",
+                      "typeString": "address[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27306,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "holderAddressLocal",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27310,
+                  "src": "2389:34:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27305,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2389:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27308,
+                  "indexed": true,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27310,
+                  "src": "2427:25:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 27307,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2427:7:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2313:142:43"
+            },
+            "src": "2283:173:43"
+          },
+          {
+            "anonymous": false,
+            "documentation": {
+              "id": 27311,
+              "nodeType": "StructuredDocumentation",
+              "src": "2459:60:43",
+              "text": " @dev Emitted when holder rewards are calculated"
+            },
+            "id": 27320,
+            "name": "CalculateAllHolderRewards",
+            "nodeType": "EventDefinition",
+            "parameters": {
+              "id": 27319,
+              "nodeType": "ParameterList",
+              "parameters": [
+                {
+                  "constant": false,
+                  "id": 27313,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "holderAddress",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27320,
+                  "src": "2556:21:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_address",
+                    "typeString": "address"
+                  },
+                  "typeName": {
+                    "id": 27312,
+                    "name": "address",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2556:7:43",
+                    "stateMutability": "nonpayable",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_address",
+                      "typeString": "address"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27316,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "holderRewards",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27320,
+                  "src": "2581:23:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_array$_t_uint256_$dyn_memory_ptr",
+                    "typeString": "uint256[]"
+                  },
+                  "typeName": {
+                    "baseType": {
+                      "id": 27314,
+                      "name": "uint256",
+                      "nodeType": "ElementaryTypeName",
+                      "src": "2581:7:43",
+                      "typeDescriptions": {
+                        "typeIdentifier": "t_uint256",
+                        "typeString": "uint256"
+                      }
+                    },
+                    "id": 27315,
+                    "nodeType": "ArrayTypeName",
+                    "src": "2581:9:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_array$_t_uint256_$dyn_storage_ptr",
+                      "typeString": "uint256[]"
+                    }
+                  },
+                  "visibility": "internal"
+                },
+                {
+                  "constant": false,
+                  "id": 27318,
+                  "indexed": false,
+                  "mutability": "mutable",
+                  "name": "timestamp",
+                  "nodeType": "VariableDeclaration",
+                  "scope": 27320,
+                  "src": "2608:17:43",
+                  "stateVariable": false,
+                  "storageLocation": "default",
+                  "typeDescriptions": {
+                    "typeIdentifier": "t_uint256",
+                    "typeString": "uint256"
+                  },
+                  "typeName": {
+                    "id": 27317,
+                    "name": "uint256",
+                    "nodeType": "ElementaryTypeName",
+                    "src": "2608:7:43",
+                    "typeDescriptions": {
+                      "typeIdentifier": "t_uint256",
+                      "typeString": "uint256"
+                    }
+                  },
+                  "visibility": "internal"
+                }
+              ],
+              "src": "2552:76:43"
+            },
+            "src": "2521:108:43"
+          }
+        ],
+        "scope": 27322,
+        "src": "65:2566:43"
+      }
+    ],
+    "src": "39:2593:43"
+  },
+  "legacyAST": {
+    "attributes": {
+      "absolutePath": "project:/contracts/interfaces/IWhitelistedPTokenEmission.sol",
+      "exportedSymbols": {
+        "IWhitelistedPTokenEmission": [
+          27321
+        ]
+      },
+      "license": "UNLICENSED"
+    },
+    "children": [
+      {
+        "attributes": {
+          "literals": [
+            "solidity",
+            ">=",
+            "0.7",
+            ".0"
+          ]
+        },
+        "id": 27186,
+        "name": "PragmaDirective",
+        "src": "39:24:43"
+      },
+      {
+        "attributes": {
+          "abstract": false,
+          "baseContracts": [
+            null
+          ],
+          "contractDependencies": [
+            null
+          ],
+          "contractKind": "interface",
+          "fullyImplemented": false,
+          "linearizedBaseContracts": [
+            27321
+          ],
+          "name": "IWhitelistedPTokenEmission",
+          "scope": 27322
+        },
+        "children": [
+          {
+            "attributes": {
+              "functionSelector": "36bbacad",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "getHolderData",
+              "scope": 27321,
+              "stateMutability": "view",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev get holder data"
+                },
+                "id": 27187,
+                "name": "StructuredDocumentation",
+                "src": "106:33:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "holderAddress",
+                      "scope": 27203,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27188,
+                        "name": "ElementaryTypeName",
+                        "src": "164:7:43"
+                      }
+                    ],
+                    "id": 27189,
+                    "name": "VariableDeclaration",
+                    "src": "164:21:43"
+                  }
+                ],
+                "id": 27190,
+                "name": "ParameterList",
+                "src": "163:23:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "whitelistedAddresses",
+                      "scope": 27203,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27191,
+                            "name": "ElementaryTypeName",
+                            "src": "220:7:43"
+                          }
+                        ],
+                        "id": 27192,
+                        "name": "ArrayTypeName",
+                        "src": "220:9:43"
+                      }
+                    ],
+                    "id": 27193,
+                    "name": "VariableDeclaration",
+                    "src": "220:37:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddresses",
+                      "scope": 27203,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27194,
+                            "name": "ElementaryTypeName",
+                            "src": "262:7:43"
+                          }
+                        ],
+                        "id": 27195,
+                        "name": "ArrayTypeName",
+                        "src": "262:9:43"
+                      }
+                    ],
+                    "id": 27196,
+                    "name": "VariableDeclaration",
+                    "src": "262:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "uTokenAddresses",
+                      "scope": 27203,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27197,
+                            "name": "ElementaryTypeName",
+                            "src": "299:7:43"
+                          }
+                        ],
+                        "id": 27198,
+                        "name": "ArrayTypeName",
+                        "src": "299:9:43"
+                      }
+                    ],
+                    "id": 27199,
+                    "name": "VariableDeclaration",
+                    "src": "299:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "lpTokenAddress",
+                      "scope": 27203,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27200,
+                        "name": "ElementaryTypeName",
+                        "src": "336:7:43"
+                      }
+                    ],
+                    "id": 27201,
+                    "name": "VariableDeclaration",
+                    "src": "336:22:43"
+                  }
+                ],
+                "id": 27202,
+                "name": "ParameterList",
+                "src": "215:147:43"
+              }
+            ],
+            "id": 27203,
+            "name": "FunctionDefinition",
+            "src": "141:222:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "8575f9c7",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "areContractsWhitelisted",
+              "scope": 27321,
+              "stateMutability": "view",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev check if contract is whitelsited"
+                },
+                "id": 27204,
+                "name": "StructuredDocumentation",
+                "src": "366:50:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddress",
+                      "scope": 27215,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27205,
+                        "name": "ElementaryTypeName",
+                        "src": "454:7:43"
+                      }
+                    ],
+                    "id": 27206,
+                    "name": "VariableDeclaration",
+                    "src": "454:21:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "whitelistedAddresses",
+                      "scope": 27215,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27207,
+                            "name": "ElementaryTypeName",
+                            "src": "479:7:43"
+                          }
+                        ],
+                        "id": 27208,
+                        "name": "ArrayTypeName",
+                        "src": "479:9:43"
+                      }
+                    ],
+                    "id": 27209,
+                    "name": "VariableDeclaration",
+                    "src": "479:37:43"
+                  }
+                ],
+                "id": 27210,
+                "name": "ParameterList",
+                "src": "450:69:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "areWhitelisted",
+                      "scope": 27215,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "bool[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "bool[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "bool",
+                              "type": "bool"
+                            },
+                            "id": 27211,
+                            "name": "ElementaryTypeName",
+                            "src": "543:4:43"
+                          }
+                        ],
+                        "id": 27212,
+                        "name": "ArrayTypeName",
+                        "src": "543:6:43"
+                      }
+                    ],
+                    "id": 27213,
+                    "name": "VariableDeclaration",
+                    "src": "543:28:43"
+                  }
+                ],
+                "id": 27214,
+                "name": "ParameterList",
+                "src": "542:30:43"
+              }
+            ],
+            "id": 27215,
+            "name": "FunctionDefinition",
+            "src": "418:155:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "fdaaf2b8",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "calculateAllHolderRewards",
+              "scope": 27321,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate."
+                },
+                "id": 27216,
+                "name": "StructuredDocumentation",
+                "src": "576:107:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "holderAddress",
+                      "scope": 27232,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27217,
+                        "name": "ElementaryTypeName",
+                        "src": "720:7:43"
+                      }
+                    ],
+                    "id": 27218,
+                    "name": "VariableDeclaration",
+                    "src": "720:21:43"
+                  }
+                ],
+                "id": 27219,
+                "name": "ParameterList",
+                "src": "719:23:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "holderRewards",
+                      "scope": 27232,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "uint256[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "uint256[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint256",
+                              "type": "uint256"
+                            },
+                            "id": 27220,
+                            "name": "ElementaryTypeName",
+                            "src": "769:7:43"
+                          }
+                        ],
+                        "id": 27221,
+                        "name": "ArrayTypeName",
+                        "src": "769:9:43"
+                      }
+                    ],
+                    "id": 27222,
+                    "name": "VariableDeclaration",
+                    "src": "769:30:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddresses",
+                      "scope": 27232,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27223,
+                            "name": "ElementaryTypeName",
+                            "src": "804:7:43"
+                          }
+                        ],
+                        "id": 27224,
+                        "name": "ArrayTypeName",
+                        "src": "804:9:43"
+                      }
+                    ],
+                    "id": 27225,
+                    "name": "VariableDeclaration",
+                    "src": "804:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "uTokenAddresses",
+                      "scope": 27232,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27226,
+                            "name": "ElementaryTypeName",
+                            "src": "841:7:43"
+                          }
+                        ],
+                        "id": 27227,
+                        "name": "ArrayTypeName",
+                        "src": "841:9:43"
+                      }
+                    ],
+                    "id": 27228,
+                    "name": "VariableDeclaration",
+                    "src": "841:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "lpTokenAddress",
+                      "scope": 27232,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27229,
+                        "name": "ElementaryTypeName",
+                        "src": "878:7:43"
+                      }
+                    ],
+                    "id": 27230,
+                    "name": "VariableDeclaration",
+                    "src": "878:22:43"
+                  }
+                ],
+                "id": 27231,
+                "name": "ParameterList",
+                "src": "764:140:43"
+              }
+            ],
+            "id": 27232,
+            "name": "FunctionDefinition",
+            "src": "685:220:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "cad08655",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "calculateAllPendingHolderRewards",
+              "scope": 27321,
+              "stateMutability": "view",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Calculate pending rewards for the provided 'address'. The rate is the moving reward rate."
+                },
+                "id": 27233,
+                "name": "StructuredDocumentation",
+                "src": "908:107:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "holderAddress",
+                      "scope": 27249,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27234,
+                        "name": "ElementaryTypeName",
+                        "src": "1059:7:43"
+                      }
+                    ],
+                    "id": 27235,
+                    "name": "VariableDeclaration",
+                    "src": "1059:21:43"
+                  }
+                ],
+                "id": 27236,
+                "name": "ParameterList",
+                "src": "1058:23:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "holderRewards",
+                      "scope": 27249,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "uint256[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "uint256[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint256",
+                              "type": "uint256"
+                            },
+                            "id": 27237,
+                            "name": "ElementaryTypeName",
+                            "src": "1115:7:43"
+                          }
+                        ],
+                        "id": 27238,
+                        "name": "ArrayTypeName",
+                        "src": "1115:9:43"
+                      }
+                    ],
+                    "id": 27239,
+                    "name": "VariableDeclaration",
+                    "src": "1115:30:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddresses",
+                      "scope": 27249,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27240,
+                            "name": "ElementaryTypeName",
+                            "src": "1150:7:43"
+                          }
+                        ],
+                        "id": 27241,
+                        "name": "ArrayTypeName",
+                        "src": "1150:9:43"
+                      }
+                    ],
+                    "id": 27242,
+                    "name": "VariableDeclaration",
+                    "src": "1150:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "uTokenAddresses",
+                      "scope": 27249,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27243,
+                            "name": "ElementaryTypeName",
+                            "src": "1187:7:43"
+                          }
+                        ],
+                        "id": 27244,
+                        "name": "ArrayTypeName",
+                        "src": "1187:9:43"
+                      }
+                    ],
+                    "id": 27245,
+                    "name": "VariableDeclaration",
+                    "src": "1187:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "lpTokenAddress",
+                      "scope": 27249,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27246,
+                        "name": "ElementaryTypeName",
+                        "src": "1224:7:43"
+                      }
+                    ],
+                    "id": 27247,
+                    "name": "VariableDeclaration",
+                    "src": "1224:22:43"
+                  }
+                ],
+                "id": 27248,
+                "name": "ParameterList",
+                "src": "1110:140:43"
+              }
+            ],
+            "id": 27249,
+            "name": "FunctionDefinition",
+            "src": "1017:234:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "eab573dc",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "setWhitelistedAddress",
+              "scope": 27321,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev set whitelisted address"
+                },
+                "id": 27250,
+                "name": "StructuredDocumentation",
+                "src": "1254:41:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "whitelistedAddress",
+                      "scope": 27264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27251,
+                        "name": "ElementaryTypeName",
+                        "src": "1331:7:43"
+                      }
+                    ],
+                    "id": 27252,
+                    "name": "VariableDeclaration",
+                    "src": "1331:26:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddresses",
+                      "scope": 27264,
+                      "stateVariable": false,
+                      "storageLocation": "memory",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27253,
+                            "name": "ElementaryTypeName",
+                            "src": "1361:7:43"
+                          }
+                        ],
+                        "id": 27254,
+                        "name": "ArrayTypeName",
+                        "src": "1361:9:43"
+                      }
+                    ],
+                    "id": 27255,
+                    "name": "VariableDeclaration",
+                    "src": "1361:32:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "holderContractAddress",
+                      "scope": 27264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27256,
+                        "name": "ElementaryTypeName",
+                        "src": "1397:7:43"
+                      }
+                    ],
+                    "id": 27257,
+                    "name": "VariableDeclaration",
+                    "src": "1397:29:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "lpContractAddress",
+                      "scope": 27264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27258,
+                        "name": "ElementaryTypeName",
+                        "src": "1430:7:43"
+                      }
+                    ],
+                    "id": 27259,
+                    "name": "VariableDeclaration",
+                    "src": "1430:25:43"
+                  }
+                ],
+                "id": 27260,
+                "name": "ParameterList",
+                "src": "1327:131:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 27264,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 27261,
+                        "name": "ElementaryTypeName",
+                        "src": "1477:4:43"
+                      }
+                    ],
+                    "id": 27262,
+                    "name": "VariableDeclaration",
+                    "src": "1477:12:43"
+                  }
+                ],
+                "id": 27263,
+                "name": "ParameterList",
+                "src": "1476:14:43"
+              }
+            ],
+            "id": 27264,
+            "name": "FunctionDefinition",
+            "src": "1297:194:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "530cd5ab",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "removeWhitelistedAddress",
+              "scope": 27321,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev remove whitelisted address"
+                },
+                "id": 27265,
+                "name": "StructuredDocumentation",
+                "src": "1494:44:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "whitelistedAddress",
+                      "scope": 27272,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27266,
+                        "name": "ElementaryTypeName",
+                        "src": "1574:7:43"
+                      }
+                    ],
+                    "id": 27267,
+                    "name": "VariableDeclaration",
+                    "src": "1574:26:43"
+                  }
+                ],
+                "id": 27268,
+                "name": "ParameterList",
+                "src": "1573:28:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 27272,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 27269,
+                        "name": "ElementaryTypeName",
+                        "src": "1624:4:43"
+                      }
+                    ],
+                    "id": 27270,
+                    "name": "VariableDeclaration",
+                    "src": "1624:12:43"
+                  }
+                ],
+                "id": 27271,
+                "name": "ParameterList",
+                "src": "1623:14:43"
+              }
+            ],
+            "id": 27272,
+            "name": "FunctionDefinition",
+            "src": "1540:98:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "8456cb59",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "pause",
+              "scope": 27321,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Triggers stopped state.\n Requirements:\n - The contract must not be paused."
+                },
+                "id": 27273,
+                "name": "StructuredDocumentation",
+                "src": "1641:106:43"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 27274,
+                "name": "ParameterList",
+                "src": "1763:2:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 27278,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 27275,
+                        "name": "ElementaryTypeName",
+                        "src": "1784:4:43"
+                      }
+                    ],
+                    "id": 27276,
+                    "name": "VariableDeclaration",
+                    "src": "1784:12:43"
+                  }
+                ],
+                "id": 27277,
+                "name": "ParameterList",
+                "src": "1783:14:43"
+              }
+            ],
+            "id": 27278,
+            "name": "FunctionDefinition",
+            "src": "1749:49:43"
+          },
+          {
+            "attributes": {
+              "functionSelector": "3f4ba83a",
+              "implemented": false,
+              "isConstructor": false,
+              "kind": "function",
+              "modifiers": [
+                null
+              ],
+              "name": "unpause",
+              "scope": 27321,
+              "stateMutability": "nonpayable",
+              "virtual": false,
+              "visibility": "external"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Returns to normal state.\n Requirements:\n - The contract must be paused."
+                },
+                "id": 27279,
+                "name": "StructuredDocumentation",
+                "src": "1801:103:43"
+              },
+              {
+                "attributes": {
+                  "parameters": [
+                    null
+                  ]
+                },
+                "children": [],
+                "id": 27280,
+                "name": "ParameterList",
+                "src": "1922:2:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "mutability": "mutable",
+                      "name": "success",
+                      "scope": 27284,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "bool",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "bool",
+                          "type": "bool"
+                        },
+                        "id": 27281,
+                        "name": "ElementaryTypeName",
+                        "src": "1943:4:43"
+                      }
+                    ],
+                    "id": 27282,
+                    "name": "VariableDeclaration",
+                    "src": "1943:12:43"
+                  }
+                ],
+                "id": 27283,
+                "name": "ParameterList",
+                "src": "1942:14:43"
+              }
+            ],
+            "id": 27284,
+            "name": "FunctionDefinition",
+            "src": "1906:51:43"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "SetWhitelistedAddress"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when address is whitelisted"
+                },
+                "id": 27285,
+                "name": "StructuredDocumentation",
+                "src": "1960:53:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "whitelistedAddress",
+                      "scope": 27298,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27286,
+                        "name": "ElementaryTypeName",
+                        "src": "2046:7:43"
+                      }
+                    ],
+                    "id": 27287,
+                    "name": "VariableDeclaration",
+                    "src": "2046:34:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddressesLocal",
+                      "scope": 27298,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27288,
+                            "name": "ElementaryTypeName",
+                            "src": "2084:7:43"
+                          }
+                        ],
+                        "id": 27289,
+                        "name": "ArrayTypeName",
+                        "src": "2084:9:43"
+                      }
+                    ],
+                    "id": 27290,
+                    "name": "VariableDeclaration",
+                    "src": "2084:30:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "holderContractAddress",
+                      "scope": 27298,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27291,
+                        "name": "ElementaryTypeName",
+                        "src": "2118:7:43"
+                      }
+                    ],
+                    "id": 27292,
+                    "name": "VariableDeclaration",
+                    "src": "2118:37:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "lpContractAddress",
+                      "scope": 27298,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27293,
+                        "name": "ElementaryTypeName",
+                        "src": "2159:7:43"
+                      }
+                    ],
+                    "id": 27294,
+                    "name": "VariableDeclaration",
+                    "src": "2159:33:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "timestamp",
+                      "scope": 27298,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 27295,
+                        "name": "ElementaryTypeName",
+                        "src": "2196:7:43"
+                      }
+                    ],
+                    "id": 27296,
+                    "name": "VariableDeclaration",
+                    "src": "2196:17:43"
+                  }
+                ],
+                "id": 27297,
+                "name": "ParameterList",
+                "src": "2042:174:43"
+              }
+            ],
+            "id": 27298,
+            "name": "EventDefinition",
+            "src": "2015:202:43"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "RemoveWhitelistedAddress"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when whitelisted address is removed"
+                },
+                "id": 27299,
+                "name": "StructuredDocumentation",
+                "src": "2220:61:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "whitelistedAddress",
+                      "scope": 27310,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27300,
+                        "name": "ElementaryTypeName",
+                        "src": "2317:7:43"
+                      }
+                    ],
+                    "id": 27301,
+                    "name": "VariableDeclaration",
+                    "src": "2317:34:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "sTokenAddressesLocal",
+                      "scope": 27310,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "address[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "address",
+                              "stateMutability": "nonpayable",
+                              "type": "address"
+                            },
+                            "id": 27302,
+                            "name": "ElementaryTypeName",
+                            "src": "2355:7:43"
+                          }
+                        ],
+                        "id": 27303,
+                        "name": "ArrayTypeName",
+                        "src": "2355:9:43"
+                      }
+                    ],
+                    "id": 27304,
+                    "name": "VariableDeclaration",
+                    "src": "2355:30:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "holderAddressLocal",
+                      "scope": 27310,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27305,
+                        "name": "ElementaryTypeName",
+                        "src": "2389:7:43"
+                      }
+                    ],
+                    "id": 27306,
+                    "name": "VariableDeclaration",
+                    "src": "2389:34:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": true,
+                      "mutability": "mutable",
+                      "name": "timestamp",
+                      "scope": 27310,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 27307,
+                        "name": "ElementaryTypeName",
+                        "src": "2427:7:43"
+                      }
+                    ],
+                    "id": 27308,
+                    "name": "VariableDeclaration",
+                    "src": "2427:25:43"
+                  }
+                ],
+                "id": 27309,
+                "name": "ParameterList",
+                "src": "2313:142:43"
+              }
+            ],
+            "id": 27310,
+            "name": "EventDefinition",
+            "src": "2283:173:43"
+          },
+          {
+            "attributes": {
+              "anonymous": false,
+              "name": "CalculateAllHolderRewards"
+            },
+            "children": [
+              {
+                "attributes": {
+                  "text": " @dev Emitted when holder rewards are calculated"
+                },
+                "id": 27311,
+                "name": "StructuredDocumentation",
+                "src": "2459:60:43"
+              },
+              {
+                "children": [
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "holderAddress",
+                      "scope": 27320,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "address",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "address",
+                          "stateMutability": "nonpayable",
+                          "type": "address"
+                        },
+                        "id": 27312,
+                        "name": "ElementaryTypeName",
+                        "src": "2556:7:43"
+                      }
+                    ],
+                    "id": 27313,
+                    "name": "VariableDeclaration",
+                    "src": "2556:21:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "holderRewards",
+                      "scope": 27320,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256[]",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "type": "uint256[]"
+                        },
+                        "children": [
+                          {
+                            "attributes": {
+                              "name": "uint256",
+                              "type": "uint256"
+                            },
+                            "id": 27314,
+                            "name": "ElementaryTypeName",
+                            "src": "2581:7:43"
+                          }
+                        ],
+                        "id": 27315,
+                        "name": "ArrayTypeName",
+                        "src": "2581:9:43"
+                      }
+                    ],
+                    "id": 27316,
+                    "name": "VariableDeclaration",
+                    "src": "2581:23:43"
+                  },
+                  {
+                    "attributes": {
+                      "constant": false,
+                      "indexed": false,
+                      "mutability": "mutable",
+                      "name": "timestamp",
+                      "scope": 27320,
+                      "stateVariable": false,
+                      "storageLocation": "default",
+                      "type": "uint256",
+                      "visibility": "internal"
+                    },
+                    "children": [
+                      {
+                        "attributes": {
+                          "name": "uint256",
+                          "type": "uint256"
+                        },
+                        "id": 27317,
+                        "name": "ElementaryTypeName",
+                        "src": "2608:7:43"
+                      }
+                    ],
+                    "id": 27318,
+                    "name": "VariableDeclaration",
+                    "src": "2608:17:43"
+                  }
+                ],
+                "id": 27319,
+                "name": "ParameterList",
+                "src": "2552:76:43"
+              }
+            ],
+            "id": 27320,
+            "name": "EventDefinition",
+            "src": "2521:108:43"
+          }
+        ],
+        "id": 27321,
+        "name": "ContractDefinition",
+        "src": "65:2566:43"
+      }
+    ],
+    "id": 27322,
+    "name": "SourceUnit",
+    "src": "39:2593:43"
+  },
+  "compiler": {
+    "name": "solc",
+    "version": "0.7.6+commit.7338295f.Emscripten.clang"
+  },
+  "networks": {},
+  "schemaVersion": "3.4.3",
+  "updatedAt": "2021-11-30T05:35:09.079Z",
+  "devdoc": {
+    "events": {
+      "CalculateAllHolderRewards(address,uint256[],uint256)": {
+        "details": "Emitted when holder rewards are calculated"
+      },
+      "RemoveWhitelistedAddress(address,address[],address,uint256)": {
+        "details": "Emitted when whitelisted address is removed"
+      },
+      "SetWhitelistedAddress(address,address[],address,address,uint256)": {
+        "details": "Emitted when address is whitelisted"
+      }
+    },
+    "kind": "dev",
+    "methods": {
+      "areContractsWhitelisted(address,address[])": {
+        "details": "check if contract is whitelsited"
+      },
+      "calculateAllHolderRewards(address)": {
+        "details": "Calculate pending rewards for the provided 'address'. The rate is the moving reward rate."
+      },
+      "calculateAllPendingHolderRewards(address)": {
+        "details": "Calculate pending rewards for the provided 'address'. The rate is the moving reward rate."
+      },
+      "getHolderData(address)": {
+        "details": "get holder data"
+      },
+      "pause()": {
+        "details": "Triggers stopped state. Requirements: - The contract must not be paused."
+      },
+      "removeWhitelistedAddress(address)": {
+        "details": "remove whitelisted address"
+      },
+      "setWhitelistedAddress(address,address[],address,address)": {
+        "details": "set whitelisted address"
+      },
+      "unpause()": {
+        "details": "Returns to normal state. Requirements: - The contract must be paused."
+      }
+    },
+    "version": 1
+  },
+  "userdoc": {
+    "kind": "user",
+    "methods": {},
+    "version": 1
+  }
+}
