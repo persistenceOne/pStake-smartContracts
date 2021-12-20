@@ -28,8 +28,6 @@ const HDWalletProvider = require("@truffle/hdwallet-provider");
 //
 // const fs = require('fs');
 // const mnemonic = fs.readFileSync(".secret").toString().trim();
-// 0x714d4CaF73a0F5dE755488D14f82e74232DAF5B7
-// 0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7
 const mnemonic = "";
 
 module.exports = {
@@ -54,7 +52,6 @@ module.exports = {
       host: "127.0.0.1", // Localhost (default: none)
       port: 8545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
-      // from: "0x466aF9ea44f2dEbbE4fd54a98CffA26A3674fBf7",
     },
     // Another network with more advanced options...
     // advanced: {
@@ -68,22 +65,12 @@ module.exports = {
     // Useful for deploying to a public network.
     // NB: It's important to wrap the provider as a function.
     ropsten: {
-      /* provider: () =>
-        new HDWalletProvider(
-          mnemonic,
-          `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-        ), */
-
-      // ROPSTEN GETH RPC URL
-      /* HTTPS: https://ropsten.eth.audit.one/rpc
-        WS: https://ropsten.eth.audit.one/ws */
-
       provider: () =>
         new HDWalletProvider({
           mnemonic: {
             phrase: mnemonic,
           },
-          providerOrUrl: `http://13.232.138.144:8545`,
+          providerOrUrl: ``,
         }),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
@@ -94,15 +81,10 @@ module.exports = {
     },
 
     mainnet: {
-      /* provider: () =>
-         new HDWalletProvider(
-           "ce0b4f52b909ed065181c5295632e398018bbe9d8be9aaab30ca0831dfef905c",
-           `https://eth-ropsten.alchemyapi.io/v2/07n2GnZCR4HhRPxa-RCMFStbjqW87Rbt`
-         ),*/
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          `https://eth-mainnet.alchemyapi.io/v2/vD3x9QX71JVFQhFTYPZa_3eP-RfkODNi`
+          ``
         ),
       network_id: 1, // Mainnet's id
       gas: 6000000,
@@ -116,10 +98,10 @@ module.exports = {
       provider: () =>
         new HDWalletProvider({
           mnemonic: mnemonic,
-          providerOrUrl: "http://15.206.124.254:8545",
+          providerOrUrl: "",
           numberOfAddresses: 10,
           shareNonce: true,
-          derivationPath: "m/44'/60'/0'/0/",
+          derivationPath: "",
         }),
       network_id: 5, // goerli's id
       // gas: 8000000, //
@@ -133,7 +115,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          `https://goerli.infura.io/v3/c1a795f858814218840034fe273cb040`
+          ``
         ),
       network_id: 5, // goerli's id
       // gas: 8000000, //
