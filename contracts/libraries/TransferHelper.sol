@@ -1,4 +1,7 @@
-// SPDX-License-Identifier: GPL-3.0-or-later
+/*
+ Copyright [2019] - [2021], PERSISTENCE TECHNOLOGIES PTE. LTD. and the pStake-smartContracts contributors
+ SPDX-License-Identifier: Apache-2.0
+*/
 
 pragma solidity >=0.7.0;
 
