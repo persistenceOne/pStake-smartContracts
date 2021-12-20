@@ -1,3 +1,8 @@
+/*
+ Copyright [2019] - [2021], PERSISTENCE TECHNOLOGIES PTE. LTD. and the pStake-smartContracts contributors
+ SPDX-License-Identifier: Apache-2.0
+*/
+
 const WhitelistedRewardEmissionArtifact = artifacts.require("WhitelistedRewardEmission");
 const WhitelistedRewardEmissionV2Artifact = artifacts.require("WhitelistedRewardEmissionV2");
 var networkID;

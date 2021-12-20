@@ -1,3 +1,8 @@
+/*
+ Copyright [2019] - [2021], PERSISTENCE TECHNOLOGIES PTE. LTD. and the pStake-smartContracts contributors
+ SPDX-License-Identifier: Apache-2.0
+*/
+
 const TokenWrapperArtifactV3 = artifacts.require("TokenWrapperV3");
 const TokenWrapperArtifactV2 = artifacts.require("TokenWrapperV2");
 
