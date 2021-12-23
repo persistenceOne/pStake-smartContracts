@@ -82,14 +82,5 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
   });
   console.log("setStakeLPContract() set for WhitelistedRewardEmission contract.");
 
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
-
   console.log("ALL DONE.");
 }

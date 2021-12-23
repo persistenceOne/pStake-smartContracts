@@ -227,7 +227,6 @@ AccessControlUpgradeable
     ) public virtual override returns (bool success) {
     require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
     require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
-    // require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
     if (unstakeEpoch == 0 && epochInterval != 0) revert("LQ9");
     _unstakeEpoch = unstakeEpoch;
     _unstakeEpochPrevious = unstakeEpochPrevious;
@@ -475,7 +474,6 @@ AccessControlUpgradeable
     // is amount since minval applies to number of uTokens to be withdrawn
     require(amount >= _minUnstake, "LQ18");
 
-    // require(_unstakeEpoch!=0 && _unstakeEpochPrevious!=0, "LQ16");
     // Check the current balance for sTokens is greater than the amount to be unStaked
     uint256 currentSTokenBalance = _sTokens.balanceOf(to);
     require(currentSTokenBalance >= amount, "LQ19");
@@ -583,7 +581,6 @@ AccessControlUpgradeable
     delete _unstakingExpiration[staker][i];
     delete _unstakingAmount[staker][i];
     counter2++;
-    // _withdrawCounters[staker] = _withdrawCounters[staker].add(1);
     }
     }
 

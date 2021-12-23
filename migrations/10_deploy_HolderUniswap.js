@@ -63,8 +63,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
   let from_defaultAdmin = accounts[0];
   let valueDivisor = new BN("1000000000");
 
-  // let WhitelistedDivisor = new BN("1000000000");
-
   HolderUniswapStkATOMEthInstance = await deployProxy(
     HolderUniswapStkATOMEthArtifact,
     [pauseAdmin, from_defaultAdmin, valueDivisor],
@@ -94,15 +92,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
         gas: gasLimit,
       });
   console.log("grantRole() set for WhitelistedRewardEmission contract in HolderUniswapStkATOMEth contract");
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetHolderUniswapStkATOMEthContract =
-    await PstakeInstance.setHolderUniswapStkATOMEthContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setHolderUniswapStkATOMEthContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

@@ -191,9 +191,6 @@ AccessControlUpgradeable
     _rewardSink[holderContractAddress][
     rewardTokenContractAddress
     ] = lastRewardAmount.add(rewardAmount);
-    /* _rewardSink[holderContractAddress][
-        rewardTokenContractAddress
-    ] += rewardAmount; */
     }
     }
 
@@ -316,8 +313,6 @@ AccessControlUpgradeable
     ] = updatedTimestamp;
     } else {
     // move the remnant reward amount to sink
-    // rewardSinkLocal = rewardSinkLocal.add(rewardAmount);
-    // rewardSinkLocal += rewardAmount;
     _rewardSink[holderContractAddress][
     rewardTokenContractAddress
     ] += rewardAmount;
@@ -403,10 +398,6 @@ AccessControlUpgradeable
     rewardTokenContractAddress
     ].push(updatedTimestamp);
     } else {
-    /* rewardSinkLocal = rewardSinkLocal.add(
-        remainingRewardAmount
-    ); */
-    // rewardSinkLocal += remainingRewardAmount;
     _rewardSink[holderContractAddress][
     rewardTokenContractAddress
     ] += remainingRewardAmount;
@@ -828,13 +819,8 @@ AccessControlUpgradeable
     {
     uint256 _startingCumulativeValue;
     uint256 _endingCumulativeValue;
-    // uint256 _rewardPoolUserTimestampLocal;
     uint256 _emissionEnd;
     uint256 _lpTimeShareTimestampEnd;
-
-    /* _rewardPoolUserTimestampLocal = _rewardPoolUserTimestamp[holderAddress][
-        rewardTokenAddress
-    ][accountAddress]; */
 
     if (
     _rewardEmissionTimestamp[holderAddress][rewardTokenAddress]

@@ -49,10 +49,6 @@ contract StakeLPV2 is
 	// last recorded timestamp when user's LPTimeShare was updated, for a user, for an LP Token
 	mapping(address => mapping(address => uint256))
 		public _lastLiquidityTimestamp;
-	// the last timestamp when the updated reward pool was calculated,
-	// for a user, for the reward token, for the holder contract
-	/* mapping(address => mapping(address => mapping(address => uint256)))
-		public _rewardPoolUserTimestamp; */
 
 	// -------------------------------------------------------------------------
 	// -------------------------------------------------------------------------
@@ -100,7 +96,6 @@ contract StakeLPV2 is
 			uint256[] memory rewardAmounts,
 			address[] memory rewardTokens,
 			address[] memory sTokenAddresses,
-			// address[] memory uTokenAddresses,
 			address lpTokenAddress,
 			uint256 updatedSupplyLPTimeshare,
 			uint256 newSupplyLPTimeShare
@@ -109,7 +104,6 @@ contract StakeLPV2 is
 		uint256 _userLPTimeShare;
 		uint256 _totalSupplyLPTimeShare;
 		uint256[] memory holderRewards;
-		// uint256 lastLPTimeShareTimestamp;
 
 		// CALCULTE LP TOKEN RATIOS OF USER AND SUPPLY
 		// CALCULATE PTOKENS REWARD EMISSION - CALCULATE (NOT TRIGGER) HOLDER REWARDS
@@ -215,11 +209,6 @@ contract StakeLPV2 is
 	{
 		uint256 i;
 		uint256 rewardPool;
-		// address uTokenAddress;
-		// uint256 cumulativeSupplyLPTimeShare;
-
-		/* uint256[] memory otherRewardAmounts;
-		address[] memory otherRewardTokens; */
 
 		// initialize rewardAmounts and rewardTokens as per the sum of the size of pSTAKE and other rewards
 		rewardAmounts = new uint256[](
@@ -232,7 +221,6 @@ contract StakeLPV2 is
 		// CALCULATE REWARD FOR EACH UTOKEN ADDRESS
 		for (i = 0; i < sTokenAddresses.length; i = i.add(1)) {
 			rewardTokens[i] = ISTokensV2(sTokenAddresses[i]).getUTokenAddress();
-			// uTokenAddress = ISTokensV2(sTokenAddresses[i]).getUTokenAddress();
 			if (totalSupplyLPTimeShare > 0) {
 				// calculated the updated rewardPool
 				rewardPool = IUTokensV2(rewardTokens[i]).balanceOf(
@@ -304,7 +292,6 @@ contract StakeLPV2 is
 
 		// DISBURSE THE MULTIPLE UTOKEN REWARDS TO USER (transfer)
 		for (i = 0; i < sTokenAddresses.length; i = i.add(1)) {
-			// uTokenAddress = ISTokensV2(sTokenAddresses[i]).getUTokenAddress();
 			if (RewardAmounts[i] > 0)
 				IHolderV2(holderAddress).safeTransfer(
 					RewardTokens[i],
@@ -319,11 +306,7 @@ contract StakeLPV2 is
 			i < RewardTokens.length;
 			i = i.add(1)
 		) {
-			// set the last 'updated reward pool' calculation timestamp to current time
-			// as per Checks-Effects-Interactions pattern to avoid re-entrancy
-			/* _rewardPoolUserTimestamp[holderAddress][RewardTokens[i]][
-				accountAddress
-			] = block.timestamp; */
+
 			IWhitelistedRewardEmissionV2(_whitelistedRewardEmissionContract)
 				.setRewardPoolUserTimestamp(
 					holderAddress,
