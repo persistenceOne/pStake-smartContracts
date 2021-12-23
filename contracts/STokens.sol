@@ -72,7 +72,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 	function isContractWhitelisted(address lpContractAddress) public view virtual override returns (bool result, address holderAddress){
 		// Get the time in number of blocks
 		address _lpContractAddressLocal;
-		// valueDivisor = _valueDivisor;
 		uint256 _whitelistedAddressesLength = _whitelistedAddresses.length();
 		for (uint256 i=0; i<_whitelistedAddressesLength; i=i.add(1)) {
 			//get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
@@ -315,17 +314,13 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 	function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual override {
 		require(!paused(), "ST7");
 		super._beforeTokenTransfer(from, to, amount);
-		// uint256 _sTokenSupply;
-		// uint256 _timePeriod;
 		if(from == address(0)){
 			// cannot have a scenario of transfer from address(0) to address(0)
-			// if(to == address(0)){}
 
 			if(!_whitelistedAddresses.contains(to)){
 				_calculateRewards(to);
 			}
 			else {
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to, from, amount);
 			}
 		}
@@ -343,7 +338,6 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 
 			if(to != address(0) && _whitelistedAddresses.contains(to)){
 				_calculateRewards(from);
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, from, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to, from, amount);
 			}
 
@@ -352,21 +346,16 @@ contract STokens is ERC20Upgradeable, ISTokens, PausableUpgradeable, AccessContr
 		if(from != address(0) && _whitelistedAddresses.contains(from)){
 
 			if(to == address(0)){
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(from, to, amount);
 			}
 
 			if(to != address(0) && !_whitelistedAddresses.contains(to)){
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, to, _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(from, to, amount);
 				_calculateRewards(to);
 			}
 
 			if(to != address(0) && _whitelistedAddresses.contains(to)){
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(from, address(0), _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(from, address(0), amount);
-
-				// IHolder(_holderContractAddress[to]).calculateHolderRewards(to, address(0), _rewardRate, _lastMovingRewardTimestamp);
 				_calculateHolderRewards(to, address(0), amount);
 			}
 

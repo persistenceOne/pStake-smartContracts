@@ -6,10 +6,6 @@
 const { admin } = require("@openzeppelin/truffle-upgrades");
 var StakeLPInstance;
 
-// This needs to be deployed separately after changing the mnemonic in the truffle-config.js to: 
-// baby year rocket october what surprise lab bag report swap game unveil
-// This is highly urgent to deploy. Deploy this at the end as the 11th migration file
-
 module.exports = async function (deployer, network, accounts) {
   if (network === "development") {
     let gasPriceGanache = 3e10;
@@ -64,7 +60,7 @@ async function transferOwnership(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
-  let new_owner = "0x7f5c7596748128fe72e6b353650094646f327569";
+  let new_owner = "";
 
   let from_defaultAdmin = accounts[0];
 

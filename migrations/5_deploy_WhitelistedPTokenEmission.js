@@ -6,7 +6,6 @@
 const WhitelistedPTokenEmissionArtifact = artifacts.require("WhitelistedPTokenEmission");
 var networkID;
 
-// const { BN } = web3.utils.BN;
 const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 var WhitelistedPTokenEmissionInstance;
 
@@ -54,8 +53,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
   );
   // init parameters
   let pauseAdmin = accounts[0];
-  let from_defaultAdmin = accounts[0];
-  // let WhitelistedDivisor = new BN("1000000000");
 
   WhitelistedPTokenEmissionInstance = await deployProxy(
     WhitelistedPTokenEmissionArtifact,
@@ -66,15 +63,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
     "WhitelistedPTokenEmission deployed: ",
     WhitelistedPTokenEmissionInstance.address
   );
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

@@ -151,7 +151,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
 	function setUnstakeEpoch(uint256 unstakeEpoch, uint256 unstakeEpochPrevious, uint256 epochInterval) public virtual returns (bool success){
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
 		require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
-		// require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
 		if(unstakeEpoch == 0 && epochInterval != 0) revert("LQ9");
 		_unstakeEpoch = unstakeEpoch;
 		_unstakeEpochPrevious = unstakeEpochPrevious;
@@ -230,7 +229,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
 	function unStake(address to, uint256 amount) public virtual override whenNotPaused returns(bool) {
 		// Check the supplied amount is greater than 0
 		require(to == _msgSender(), "LQ15");
-		// require(_unstakeEpoch!=0 && _unstakeEpochPrevious!=0, "LQ16");
 		// Check the current balance for sTokens is greater than the amount to be unStaked
 		uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
 		uint256 _unstakeFeeAmount = (amount.mulDiv(_unstakeFee, _valueDivisor)).div(100);

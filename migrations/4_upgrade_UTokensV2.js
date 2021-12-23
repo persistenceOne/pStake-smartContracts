@@ -48,8 +48,6 @@ async function upgradeUTokens(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
-  let from_defaultAdmin = accounts[0];
-
   UTokensInstance = await upgradeProxy(
     UTokensArtifact.address,
     UTokensArtifactV2,
@@ -57,17 +55,6 @@ async function upgradeUTokens(gasPrice, gasLimit, deployer, accounts) {
   );
 
   console.log("UTokens upgraded: ", UTokensInstance.address);
-
-  // set contract addresses in UTokens Contract
-  /*  const txReceipt = await UTokensInstance.setWhitelistedEmissionContract(
-    WhitelistedEmissionArtifactV2.address,
-    {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-  console.log("setWhitelistedEmissionContract() done"); */
 
   console.log("ALL DONE.");
 }
