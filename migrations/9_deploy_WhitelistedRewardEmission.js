@@ -54,7 +54,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
   );
   // init parameters
   let pauseAdmin = accounts[0];
-  let from_defaultAdmin = accounts[0];
   let WhitelistedDivisor = new BN("1000000000");
 
   WhitelistedRewardEmissionInstance = await deployProxy(
@@ -66,15 +65,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
     "WhitelistedRewardEmission deployed: ",
     WhitelistedRewardEmissionInstance.address
   );
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

@@ -64,7 +64,7 @@ async function transferOwnership(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
-  let new_owner = "0x7f5c7596748128fe72e6b353650094646f327569";
+  let new_owner = "";
 
   let from_defaultAdmin = accounts[0];
 

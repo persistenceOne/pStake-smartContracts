@@ -7,9 +7,7 @@ const StakeLPCoreArtifact = artifacts.require("StakeLP");
 const StakeLPCoreV2Artifact = artifacts.require("StakeLPV2");
 var networkID;
 
-// const { BN } = web3.utils.BN;
 const { upgradeProxy } = require("@openzeppelin/truffle-upgrades");
-const { BN } = web3.utils.BN;
 let StakeLPCoreInstance;
 
 module.exports = async function (deployer, network, accounts) {
@@ -54,12 +52,6 @@ async function upgradeContract(gasPrice, gasLimit, deployer, accounts) {
     " accounts: ",
     accounts
   );
-  // init parameters
-  let pauseAdmin = accounts[0];
-  let from_defaultAdmin = accounts[0];
-  let valueDivisor = new BN("1000000000");
-
-  // let WhitelistedDivisor = new BN("1000000000");
 
   StakeLPCoreInstance = await upgradeProxy(
     StakeLPCoreArtifact.address,
@@ -68,15 +60,6 @@ async function upgradeContract(gasPrice, gasLimit, deployer, accounts) {
   );
 
   console.log("StakeLP upgraded: ", StakeLPCoreInstance.address);
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

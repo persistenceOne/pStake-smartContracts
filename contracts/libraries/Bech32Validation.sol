@@ -264,7 +264,6 @@ contract Bech32Validation is Initializable {
 		);
 
 		// convert data slice bytes to uint[]
-		// uint[] memory dataSlice = toUintFromBytes(dataSliceBytes);
 		uint256[] memory dataSlice = decode(dataSliceBytes);
 		if (dataSlice.length == 0) return false;
 
@@ -274,8 +273,6 @@ contract Bech32Validation is Initializable {
 		// calculate checksummed data
 		checksummedDataBytes = encode(hrp, dataSlice);
 		isValid = dataBytes.equal(checksummedDataBytes);
-		// isValid = dataSliceBytes.equal(checksummedDataBytes);
-
 		return isValid;
 	}
 
@@ -511,7 +508,6 @@ contract Bech32Validation is Initializable {
 		returns (bytes memory)
 	{
 		uint256[] memory combined = concat(data, createChecksum(hrp, data));
-		// uint[] memory combined = data;
 
 		// TODO: prepend hrp
 

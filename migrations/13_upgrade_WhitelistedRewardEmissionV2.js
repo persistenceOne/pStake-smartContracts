@@ -7,7 +7,6 @@ const WhitelistedRewardEmissionArtifact = artifacts.require("WhitelistedRewardEm
 const WhitelistedRewardEmissionV2Artifact = artifacts.require("WhitelistedRewardEmissionV2");
 var networkID;
 
-const { BN } = web3.utils.BN;
 const { upgradeProxy } = require("@openzeppelin/truffle-upgrades");
 let WhitelistedRewardEmissionInstance;
 
@@ -53,10 +52,6 @@ async function upgradeContract(gasPrice, gasLimit, deployer, accounts) {
     " accounts: ",
     accounts
   );
-  // init parameters
-  let pauseAdmin = accounts[0];
-  let from_defaultAdmin = accounts[0];
-  let WhitelistedDivisor = new BN("1000000000");
 
   WhitelistedRewardEmissionInstance = await upgradeProxy(
     WhitelistedRewardEmissionArtifact.address,
@@ -65,15 +60,6 @@ async function upgradeContract(gasPrice, gasLimit, deployer, accounts) {
   );
 
   console.log("WhitelistedRewardEmission upgraded: ", WhitelistedRewardEmissionInstance.address);
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

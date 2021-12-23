@@ -7,15 +7,6 @@ pragma solidity >=0.7.0;
 
 import "./BytesLib.sol";
 
-// requirement: validate addresses like cosmosvaloper1susdz7trk9edeqf3qprkpunzqn4lyhvlduzncj
-/* 
-cosmos1dgtl8dqky0cucr9rlllw9cer9ysrkjnjagz5zp
-cosmospub1addwnpepq272xswjqka4wm6x8nvuwshdquh0q8xrxlafz7lj32snvtg2jswl6x5ywwu
-cosmosvaloper1susdz7trk9edeqf3qprkpunzqn4lyhvlduzncj
-cosmosvaloperpub1addwnpepq272xswjqka4wm6x8nvuwshdquh0q8xrxlafz7lj32snvtg2jswl60hprp0
-bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t4
-*/
-
 library Bech32 {
 	using BytesLib for bytes;
 
@@ -70,8 +61,6 @@ library Bech32 {
 		// calculate checksummed data
 		bytes memory checksummedDataBytes = encode(_hrp, _dataSlice);
 		bool isValid = _dataBytes.equal(checksummedDataBytes);
-		// isValid = _dataSliceBytes.equal(checksummedDataBytes);
-
 		return isValid;
 	}
 
@@ -258,11 +247,9 @@ library Bech32 {
 		returns (bytes memory)
 	{
 		uint256[] memory combined = concat(data, createChecksum(hrp, data));
-		// uint[] memory combined = data;
 
 		// TODO: prepend hrp
 
-		// convert uint[] to bytes
 		bytes memory ret = new bytes(combined.length);
 		for (uint256 p = 0; p < combined.length; p++) {
 			ret[p] = CHARSET[combined[p]];
