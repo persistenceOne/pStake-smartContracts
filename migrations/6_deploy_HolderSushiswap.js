@@ -8,7 +8,6 @@ const HolderSushiswapStkXPRTEthArtifact = artifacts.require(
 );
 var networkID;
 
-// const { BN } = web3.utils.BN;
 const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 const { BN } = web3.utils.BN;
 var HolderSushiswapStkXPRTEthInstance;
@@ -60,10 +59,8 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
   let from_defaultAdmin = accounts[0];
   let valueDivisor = new BN("1000000000");
 
-  let StakeLPAddress = "0xA1cF35f35031c0f2a27283793bE23a22fd615F58";
-  let WhitelistedRewardEmissionAddress = "0xdDa26973bB8a53BCb0b20a76Edf47474945784F2";
-
-  // let WhitelistedDivisor = new BN("1000000000");
+  let StakeLPAddress = "";
+  let WhitelistedRewardEmissionAddress = "";
 
   HolderSushiswapStkXPRTEthInstance = await deployProxy(
     HolderSushiswapStkXPRTEthArtifact,
@@ -94,15 +91,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
         gas: gasLimit,
       });
   console.log("grantRole() set for HolderSushiswapStkXPRTEth contract");
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetHolderSushiswapStkXPRTEthContract =
-    await PstakeInstance.setHolderSushiswapStkXPRTEthContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setHolderSushiswapStkXPRTEthContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }
