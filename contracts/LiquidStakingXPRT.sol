@@ -202,7 +202,6 @@ contract LiquidStakingXPRT is
 	) public virtual override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
 		require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
-		// require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
 		if (unstakeEpoch == 0 && epochInterval != 0) revert("LQ9");
 		_unstakeEpoch = unstakeEpoch;
 		_unstakeEpochPrevious = unstakeEpochPrevious;
@@ -295,7 +294,6 @@ contract LiquidStakingXPRT is
 	{
 		// Check the supplied amount is greater than 0
 		require(to == _msgSender(), "LQ15");
-		// require(_unstakeEpoch!=0 && _unstakeEpochPrevious!=0, "LQ16");
 		// Check the current balance for sTokens is greater than the amount to be unStaked
 		uint256 _currentSTokenBalance = _sTokens.balanceOf(to);
 		uint256 _unstakeFeeAmount = (amount.mulDiv(_unstakeFee, _valueDivisor))
@@ -411,7 +409,6 @@ contract LiquidStakingXPRT is
 				delete _unstakingExpiration[staker][i];
 				delete _unstakingAmount[staker][i];
 				_counter2 = _counter2.add(1);
-				// _withdrawCounters[staker] = _withdrawCounters[staker].add(1);
 			}
 		}
 

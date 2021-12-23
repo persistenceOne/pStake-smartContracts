@@ -52,7 +52,7 @@ async function deployUTokenXPRT(gasPrice, gasLimit, deployer, accounts) {
   );
 
   // PSTAKE ATTRIBUTES
-  let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
+  let bridgeAdmin = "";
   let pauseAdmin = accounts[0];
   // token name and symbol
   let pTokenName = "Persistence Pegged XPRT";

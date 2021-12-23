@@ -59,7 +59,7 @@ async function deployTokenWrapperXPRT(gasPrice, gasLimit, deployer, accounts) {
   );
 
   // PSTAKE ATTRIBUTES
-  let bridgeAdmin = "0x9b3DefB46804BD74518A52dC0cf4FA7280E0B673";
+  let bridgeAdmin = "";
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0];
   let rewardDivisor = new BN("1000000000");
