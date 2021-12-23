@@ -68,8 +68,6 @@ async function upgradeTokenWrapper(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
-  let from_defaultAdmin = accounts[0];
-
   TokenWrapperInstance = await upgradeProxy(
     TokenWrapperArtifact.address,
     TokenWrapperArtifactV2,
@@ -77,17 +75,6 @@ async function upgradeTokenWrapper(gasPrice, gasLimit, deployer, accounts) {
   );
 
   console.log("TokenWrapper upgraded: ", TokenWrapperInstance.address);
-
-  // set contract addresses in TokenWrapper Contract
-  /*  const txReceipt = await TokenWrapperInstance.setWhitelistedEmissionContract(
-    WhitelistedEmissionArtifactV2.address,
-    {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    }
-  );
-  console.log("setWhitelistedEmissionContract() done"); */
 
   console.log("ALL DONE.");
 }

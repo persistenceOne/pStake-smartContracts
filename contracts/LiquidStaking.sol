@@ -151,7 +151,6 @@ contract LiquidStaking is ILiquidStaking, PausableUpgradeable, AccessControlUpgr
 	function setUnstakeEpoch(uint256 unstakeEpoch, uint256 unstakeEpochPrevious, uint256 epochInterval) public virtual returns (bool success){
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
 		require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
-		// require((unstakeEpoch == 0 && unstakeEpochPrevious == 0 && epochInterval == 0) || (unstakeEpoch != 0 && unstakeEpochPrevious != 0 && epochInterval != 0), "LQ9");
 		if(unstakeEpoch == 0 && epochInterval != 0) revert("LQ9");
 		_unstakeEpoch = unstakeEpoch;
 		_unstakeEpochPrevious = unstakeEpochPrevious;

@@ -186,9 +186,6 @@ contract WhitelistedRewardEmission is
 				_rewardSink[holderContractAddress][
 					rewardTokenContractAddress
 				] = lastRewardAmount.add(rewardAmount);
-				/* _rewardSink[holderContractAddress][
-					rewardTokenContractAddress
-				] += rewardAmount; */
 			}
 		}
 
@@ -310,9 +307,6 @@ contract WhitelistedRewardEmission is
 							arrayLength.sub(1)
 						] = updatedTimestamp;
 					} else {
-						// move the remnant reward amount to sink
-						// rewardSinkLocal = rewardSinkLocal.add(rewardAmount);
-						// rewardSinkLocal += rewardAmount;
 						_rewardSink[holderContractAddress][
 							rewardTokenContractAddress
 						] += rewardAmount;
@@ -398,10 +392,6 @@ contract WhitelistedRewardEmission is
 							rewardTokenContractAddress
 						].push(updatedTimestamp);
 					} else {
-						/* rewardSinkLocal = rewardSinkLocal.add(
-							remainingRewardAmount
-						); */
-						// rewardSinkLocal += remainingRewardAmount;
 						_rewardSink[holderContractAddress][
 							rewardTokenContractAddress
 						] += remainingRewardAmount;

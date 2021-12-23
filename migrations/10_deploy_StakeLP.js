@@ -8,8 +8,6 @@ const WhitelistedRewardEmissionArtifact = artifacts.require("WhitelistedRewardEm
 
 const StakeLPCoreArtifact = artifacts.require("StakeLP");
 var networkID;
-
-// const { BN } = web3.utils.BN;
 const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 const { BN } = web3.utils.BN;
 var StakeLPCoreInstance;
@@ -81,15 +79,6 @@ async function deployContract(gasPrice, gasLimit, deployer, accounts) {
     gas: gasLimit,
   });
   console.log("setStakeLPContract() set for WhitelistedRewardEmission contract.");
-
-  // set contract addresses in UTokens Contract
-  /* const txReceiptSetStakeLPCoreContract =
-    await PstakeInstance.setStakeLPCoreContract(StakeLPInstance.address, {
-      from: from_defaultAdmin,
-      gasPrice: gasPrice,
-      gas: gasLimit,
-    });
-  console.log("setStakeLPCoreContract() set for StakeLP contract."); */
 
   console.log("ALL DONE.");
 }

@@ -189,9 +189,6 @@ contract WhitelistedRewardEmissionV2 is
 				_rewardSink[holderContractAddress][
 					rewardTokenContractAddress
 				] = lastRewardAmount.add(rewardAmount);
-				/* _rewardSink[holderContractAddress][
-                    rewardTokenContractAddress
-                ] += rewardAmount; */
 			}
 		}
 
@@ -316,9 +313,6 @@ contract WhitelistedRewardEmissionV2 is
 							arrayLength.sub(1)
 						] = updatedTimestamp;
 					} else {
-						// move the remnant reward amount to sink
-						// rewardSinkLocal = rewardSinkLocal.add(rewardAmount);
-						// rewardSinkLocal += rewardAmount;
 						_rewardSink[holderContractAddress][
 							rewardTokenContractAddress
 						] += rewardAmount;
@@ -404,10 +398,6 @@ contract WhitelistedRewardEmissionV2 is
 							rewardTokenContractAddress
 						].push(updatedTimestamp);
 					} else {
-						/* rewardSinkLocal = rewardSinkLocal.add(
-                            remainingRewardAmount
-                        ); */
-						// rewardSinkLocal += remainingRewardAmount;
 						_rewardSink[holderContractAddress][
 							rewardTokenContractAddress
 						] += remainingRewardAmount;
@@ -829,13 +819,8 @@ contract WhitelistedRewardEmissionV2 is
 	{
 		uint256 _startingCumulativeValue;
 		uint256 _endingCumulativeValue;
-		// uint256 _rewardPoolUserTimestampLocal;
 		uint256 _emissionEnd;
 		uint256 _lpTimeShareTimestampEnd;
-
-		/* _rewardPoolUserTimestampLocal = _rewardPoolUserTimestamp[holderAddress][
-            rewardTokenAddress
-        ][accountAddress]; */
 
 		if (
 			_rewardEmissionTimestamp[holderAddress][rewardTokenAddress]
