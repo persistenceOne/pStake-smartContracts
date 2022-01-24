@@ -23,8 +23,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "ropsten") {
-    let gasPriceRopsten = 1e11;
-    let gasLimitRopsten = 7000000;
+    let gasPriceRopsten = 8e10;
+    let gasLimitRopsten = 7900000;
     await upgradeLiquidStakingXPRT(
       gasPriceRopsten,
       gasLimitRopsten,

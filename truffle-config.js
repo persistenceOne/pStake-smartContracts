@@ -65,7 +65,7 @@ module.exports = {
         }),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
-      gasPrice: 30000000000,
+      gasPrice: 80000000000,
       networkCheckTimeout: 999999,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
