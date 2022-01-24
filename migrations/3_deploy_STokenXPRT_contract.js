@@ -65,7 +65,7 @@ async function deploySTokenXPRT(gasPrice, gasLimit, deployer, accounts) {
   // token name and symbol
   let stkTokenName = "Persistence Staked XPRT";
   let stkTokenSymbol = "stkXPRT";
-  let WhitelistedPTokenEmissionAddress = ""
+  let WhitelistedPTokenEmissionAddress = "0x6B53905D525d52eA7e016cA492BbAAD38aaCe8E9"
 
   UTokensXPRTInstance = await UTokensXPRTArtifact.deployed();
   console.log("UTokensXPRT address: ", UTokensXPRTInstance.address);
