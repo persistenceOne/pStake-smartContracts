@@ -5,7 +5,7 @@
 
 pragma solidity >=0.7.0;
 
-interface IWhitelistedRewardEmissionV3 {
+interface _IWhitelistedRewardEmissionV3 {
     /*
      * @dev add the rewards to the sender
      * @param holderContractAddress: contract address

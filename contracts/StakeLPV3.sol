@@ -5,6 +5,8 @@
 
 pragma solidity >=0.7.0;
 
+import "@openzeppelin/contracts-upgradeable/token/ERC20/SafeERC20Upgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
@@ -14,7 +16,6 @@ import "./interfaces/IUTokensV2.sol";
 import "./interfaces/IHolderV2.sol";
 import "./interfaces/ISTokensV2.sol";
 import "./interfaces/IStakeLP.sol";
-import "./libraries/TransferHelper.sol";
 import "./libraries/FullMath.sol";
 import "./interfaces/IWhitelistedPTokenEmissionV2.sol";
 import "./interfaces/IWhitelistedRewardEmissionV2.sol";
@@ -28,6 +29,7 @@ ReentrancyGuardUpgradeable
     using SafeMathUpgradeable for uint256;
     using FullMath for uint256;
     using EnumerableSetUpgradeable for EnumerableSetUpgradeable.AddressSet;
+    using SafeERC20Upgradeable for IERC20Upgradeable;
 
     // constant pertaining to access roles
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
@@ -311,7 +313,6 @@ ReentrancyGuardUpgradeable
             i < RewardTokens.length;
             i = i.add(1)
         ) {
-
             IWhitelistedRewardEmissionV2(_whitelistedRewardEmissionContract)
             .setRewardPoolUserTimestamp(
                 holderAddress,
@@ -416,8 +417,7 @@ ReentrancyGuardUpgradeable
         _lpSupply[lpTokenAddress] = _lpSupply[lpTokenAddress].add(amount);
 
         // finally transfer the new LP Tokens to the StakeLP contract as per Checks-Effects-Interactions pattern
-        TransferHelper.safeTransferFrom(
-            lpTokenAddress,
+        IERC20Upgradeable(address(lpTokenAddress)).safeTransferFrom(
             messageSender,
             address(this),
             amount
@@ -467,7 +467,10 @@ ReentrancyGuardUpgradeable
         _lpSupply[lpTokenAddress] = _lpSupply[lpTokenAddress].sub(amount);
 
         // finally transfer the LP Tokens to the user as per Checks-Effects-Interactions pattern
-        TransferHelper.safeTransfer(lpTokenAddress, messageSender, amount);
+        IERC20Upgradeable(address(lpTokenAddress)).safeTransfer(
+            messageSender,
+            amount
+        );
 
         emit RemoveLiquidity(
             holderAddress,

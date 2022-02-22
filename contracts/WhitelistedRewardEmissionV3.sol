@@ -15,9 +15,9 @@ import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
 contract WhitelistedRewardEmissionV3 is
-	IWhitelistedRewardEmissionV2,
-	PausableUpgradeable,
-	AccessControlUpgradeable
+IWhitelistedRewardEmissionV2,
+PausableUpgradeable,
+AccessControlUpgradeable
 {
 	using SafeMathUpgradeable for uint256;
 	using FullMath for uint256;
@@ -42,17 +42,17 @@ contract WhitelistedRewardEmissionV3 is
 	mapping(address => address[]) public _rewardTokenList;
 	// index of reward token address in the _rewardTokenList array, for the reward token, for the holder contract
 	mapping(address => mapping(address => uint256))
-		public _rewardTokenListIndex;
+	public _rewardTokenListIndex;
 	// emission (per second) of reward token into the 'reward pool', for the reward token, for the holder contract
 	mapping(address => mapping(address => uint256[]))
-		public _rewardTokenEmission;
+	public _rewardTokenEmission;
 	// cummulative reward amount at the reward emission timestamp, for the reward token, for the holder contract
 	mapping(address => mapping(address => uint256[]))
-		public _cumulativeRewardAmount;
+	public _cumulativeRewardAmount;
 	// timestamp recorded when the emission (per second) of reward token is changed, for the reward token,
 	// for the holder contract
 	mapping(address => mapping(address => uint256[]))
-		public _rewardEmissionTimestamp;
+	public _rewardEmissionTimestamp;
 	// reward sink refers to a sink variable where extra rewards dropped gets stored when the current emission rate is 0
 	// for the reward token, for the holder contract
 	mapping(address => mapping(address => uint256)) public _rewardSink;
@@ -67,16 +67,16 @@ contract WhitelistedRewardEmissionV3 is
 	// the last timestamp when the updated reward pool was calculated,
 	// for a user, for the reward token, for the holder contract
 	mapping(address => mapping(address => mapping(address => uint256)))
-		public _rewardPoolUserTimestamp;
+	public _rewardPoolUserTimestamp;
 
 	/**
 	 * @dev Constructor for initializing the SToken contract.
 	 * @param pauserAddress - address of the pauser admin.
 	 */
 	function initialize(address pauserAddress, uint256 valueDivisor)
-		public
-		virtual
-		initializer
+	public
+	virtual
+	initializer
 	{
 		__AccessControl_init();
 		__Pausable_init();
@@ -87,9 +87,11 @@ contract WhitelistedRewardEmissionV3 is
 	}
 
 	/*
-	 * @dev calculate liquidity and reward tokens and disburse to user
-	 * @param lpToken: lp token contract address
-	 * @param amount: token amount
+	 * @dev add one of the tokens as reward tokens for StakeLP
+	 * @param holderContractAddress: holder contract address where the reward tokens will be pooled
+	 * @param rewardTokenContractAddress: the address of the reward tokent to be added
+	 * @param rewardSender: the address from which rewards need to be transferred
+	 * @param rewardAmount: the amount of tokens to be transferred from the rewardSender
 	 */
 	function addRewards(
 		address holderContractAddress,
@@ -104,7 +106,7 @@ contract WhitelistedRewardEmissionV3 is
 		// require the reward token contract address be whitelisted for that holder contract
 		require(
 			_rewardTokenListIndex[holderContractAddress][
-				rewardTokenContractAddress
+			rewardTokenContractAddress
 			] != 0,
 			"WR3"
 		);
@@ -112,15 +114,15 @@ contract WhitelistedRewardEmissionV3 is
 		require(rewardSender != address(0) && rewardAmount != 0, "WR4");
 
 		uint256[]
-			storage _cumulativeRewardAmountArray = _cumulativeRewardAmount[
-				holderContractAddress
-			][rewardTokenContractAddress];
+		storage _cumulativeRewardAmountArray = _cumulativeRewardAmount[
+		holderContractAddress
+		][rewardTokenContractAddress];
 		uint256[]
-			storage _rewardEmissionTimestampArray = _rewardEmissionTimestamp[
-				holderContractAddress
-			][rewardTokenContractAddress];
+		storage _rewardEmissionTimestampArray = _rewardEmissionTimestamp[
+		holderContractAddress
+		][rewardTokenContractAddress];
 		uint256[] storage _rewardTokenEmissionArray = _rewardTokenEmission[
-			holderContractAddress
+		holderContractAddress
 		][rewardTokenContractAddress];
 		uint256 arrayLength = _cumulativeRewardAmountArray.length;
 		uint256 lastRewardAmount;
@@ -139,7 +141,7 @@ contract WhitelistedRewardEmissionV3 is
 			) {
 				// get the reward diff in the last interval block
 				lastRewardAmount = (
-					_cumulativeRewardAmountArray[arrayLength.sub(1)]
+				_cumulativeRewardAmountArray[arrayLength.sub(1)]
 				).sub(_cumulativeRewardAmountArray[arrayLength.sub(2)]);
 				// assert that the reward diff is more than zero,
 				// then add the diff to new amount and readjust timelines
@@ -149,28 +151,28 @@ contract WhitelistedRewardEmissionV3 is
 				// calculated updated timestamp which also includes any remainder emission at the end
 				// also consider what next timestamp entry should be
 				updatedTimestampRemainder = (
-					(lastRewardAmount.mul(_valueDivisor)).mod(
-						_rewardTokenEmissionArray[arrayLength.sub(2)]
-					)
+				(lastRewardAmount.mul(_valueDivisor)).mod(
+					_rewardTokenEmissionArray[arrayLength.sub(2)]
+				)
 				).div(_valueDivisor);
 				updatedTimestampRemainder = updatedTimestampRemainder > 0
-					? 1
-					: 0;
+				? 1
+				: 0;
 
 				updatedTimestamp = (
-					(lastRewardAmount.mul(_valueDivisor)).div(
-						_rewardTokenEmissionArray[arrayLength.sub(2)]
-					)
+				(lastRewardAmount.mul(_valueDivisor)).div(
+					_rewardTokenEmissionArray[arrayLength.sub(2)]
+				)
 				).add(updatedTimestampRemainder).add(
-						_rewardEmissionTimestampArray[arrayLength.sub(2)]
-					);
+					_rewardEmissionTimestampArray[arrayLength.sub(2)]
+				);
 				// update the timestamp endpoint for emission end to state variable
 				_rewardEmissionTimestampArray[
-					arrayLength.sub(1)
+				arrayLength.sub(1)
 				] = updatedTimestamp;
 				// update the cumulative reward amount for emission end to state variable
 				_cumulativeRewardAmountArray[
-					arrayLength.sub(1)
+				arrayLength.sub(1)
 				] = lastRewardAmount.add(
 					_cumulativeRewardAmountArray[arrayLength.sub(2)]
 				);
@@ -178,10 +180,10 @@ contract WhitelistedRewardEmissionV3 is
 				// if last timestamp is in the past, then it means the current emission rate is 0,
 				// so drop the reward in the sink and wait for emission rate to be set non-zero
 				lastRewardAmount = _rewardSink[holderContractAddress][
-					rewardTokenContractAddress
+				rewardTokenContractAddress
 				];
 				_rewardSink[holderContractAddress][
-					rewardTokenContractAddress
+				rewardTokenContractAddress
 				] = lastRewardAmount.add(rewardAmount);
 			}
 		}
@@ -223,21 +225,21 @@ contract WhitelistedRewardEmissionV3 is
 		// require the reward token contract address be whitelisted for that holder contract
 		require(
 			_rewardTokenListIndex[holderContractAddress][
-				rewardTokenContractAddress
+			rewardTokenContractAddress
 			] != 0,
 			"WR7"
 		);
 
 		uint256[]
-			storage _cumulativeRewardAmountArray = _cumulativeRewardAmount[
-				holderContractAddress
-			][rewardTokenContractAddress];
+		storage _cumulativeRewardAmountArray = _cumulativeRewardAmount[
+		holderContractAddress
+		][rewardTokenContractAddress];
 		uint256[]
-			storage _rewardEmissionTimestampArray = _rewardEmissionTimestamp[
-				holderContractAddress
-			][rewardTokenContractAddress];
+		storage _rewardEmissionTimestampArray = _rewardEmissionTimestamp[
+		holderContractAddress
+		][rewardTokenContractAddress];
 		uint256[] storage _rewardTokenEmissionArray = _rewardTokenEmission[
-			holderContractAddress
+		holderContractAddress
 		][rewardTokenContractAddress];
 		uint256 arrayLength = _cumulativeRewardAmountArray.length;
 		uint256 rewardAmount;
@@ -257,7 +259,7 @@ contract WhitelistedRewardEmissionV3 is
 				// if the provided new emission rate is same as previous then revert
 				require(
 					rewardTokenEmission !=
-						_rewardTokenEmissionArray[arrayLength.sub(2)],
+					_rewardTokenEmissionArray[arrayLength.sub(2)],
 					"WR8"
 				);
 				// if current time is equal to the penultimate marker then
@@ -268,57 +270,57 @@ contract WhitelistedRewardEmissionV3 is
 				) {
 					// get the reward diff in the last interval block
 					rewardAmount = (
-						_cumulativeRewardAmountArray[arrayLength.sub(1)]
+					_cumulativeRewardAmountArray[arrayLength.sub(1)]
 					).sub(_cumulativeRewardAmountArray[arrayLength.sub(2)]);
 					// assert that the reward diff is more than zero,
 					assert(rewardAmount > 0);
 
 					// set the penultimate emission value
 					_rewardTokenEmissionArray[
-						arrayLength.sub(2)
+					arrayLength.sub(2)
 					] = rewardTokenEmission;
 
 					if (rewardTokenEmission > 0) {
 						// calculate the time interval across which emission will happen
 						updatedTimestampRemainder = (
-							(rewardAmount.mul(_valueDivisor)).mod(
-								rewardTokenEmission
-							)
+						(rewardAmount.mul(_valueDivisor)).mod(
+							rewardTokenEmission
+						)
 						).div(_valueDivisor);
 						updatedTimestampRemainder = updatedTimestampRemainder >
-							0
-							? 1
-							: 0;
+						0
+						? 1
+						: 0;
 
 						updatedTimestamp = (
-							(
-								(rewardAmount.mul(_valueDivisor)).div(
-									rewardTokenEmission
-								)
-							).add(updatedTimestampRemainder)
+						(
+						(rewardAmount.mul(_valueDivisor)).div(
+							rewardTokenEmission
+						)
+						).add(updatedTimestampRemainder)
 						).add(block.timestamp);
 
 						// set the endpoint timestamp value
 						_rewardEmissionTimestampArray[
-							arrayLength.sub(1)
+						arrayLength.sub(1)
 						] = updatedTimestamp;
 					} else {
 						// move the remnant reward amount to sink
 						_rewardSink[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						] += rewardAmount;
 
 						// remove the endpoint reward amount
 						_cumulativeRewardAmount[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						].pop();
 						// remove the endpoint reward emission
 						_rewardTokenEmission[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						].pop();
 						// remove the endpoint reward timestamp
 						_rewardEmissionTimestamp[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						].pop();
 					}
 
@@ -335,22 +337,22 @@ contract WhitelistedRewardEmissionV3 is
 					);
 
 					remainingRewardAmount = _cumulativeRewardAmountArray[
-						arrayLength.sub(1)
+					arrayLength.sub(1)
 					].sub(rewardAmount);
 
 					// set the previous endpoint cumulative reward amount
 					_cumulativeRewardAmountArray[
-						arrayLength.sub(1)
+					arrayLength.sub(1)
 					] = _cumulativeRewardAmountArray[arrayLength.sub(2)].add(
 						rewardAmount
 					);
 					// set the previous endpoint reward emission
 					_rewardTokenEmissionArray[
-						arrayLength.sub(1)
+					arrayLength.sub(1)
 					] = rewardTokenEmission;
 					// set the previous endpoint reward timestamp
 					_rewardEmissionTimestampArray[arrayLength.sub(1)] = block
-						.timestamp;
+					.timestamp;
 
 					// above logic is common for both conditions of rewardTokenEmission being zero or not
 					// now if rewardEmission is not zero then create new array entry as endpoint, else
@@ -358,39 +360,39 @@ contract WhitelistedRewardEmissionV3 is
 					if (rewardTokenEmission > 0) {
 						// set the new endpoint cumulative reward amount
 						_cumulativeRewardAmount[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						].push(
-								_cumulativeRewardAmountArray[arrayLength.sub(1)]
-									.add(remainingRewardAmount)
-							);
+							_cumulativeRewardAmountArray[arrayLength.sub(1)]
+							.add(remainingRewardAmount)
+						);
 						// set the new endpoint reward emission
 						_rewardTokenEmission[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						].push(0);
 						// calculate the time interval across which emission will happen
 						updatedTimestampRemainder = (
-							(remainingRewardAmount.mul(_valueDivisor)).mod(
-								rewardTokenEmission
-							)
+						(remainingRewardAmount.mul(_valueDivisor)).mod(
+							rewardTokenEmission
+						)
 						).div(_valueDivisor);
 						updatedTimestampRemainder = updatedTimestampRemainder >
-							0
-							? 1
-							: 0;
+						0
+						? 1
+						: 0;
 
 						updatedTimestamp = (
-							(remainingRewardAmount.mul(_valueDivisor)).div(
-								rewardTokenEmission
-							)
+						(remainingRewardAmount.mul(_valueDivisor)).div(
+							rewardTokenEmission
+						)
 						).add(updatedTimestampRemainder).add(block.timestamp);
 
 						// set the new endpoint reward timestamp
 						_rewardEmissionTimestamp[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						].push(updatedTimestamp);
 					} else {
 						_rewardSink[holderContractAddress][
-							rewardTokenContractAddress
+						rewardTokenContractAddress
 						] += remainingRewardAmount;
 					}
 				}
@@ -398,61 +400,61 @@ contract WhitelistedRewardEmissionV3 is
 				// if the timestamp endpoint is in the past or exact present
 				// then check rewardSink and create two new entries in array
 				rewardAmount = _rewardSink[holderContractAddress][
-					rewardTokenContractAddress
+				rewardTokenContractAddress
 				];
 				if (rewardAmount == 0) revert("WR9");
 				else {
 					// clear the reward sink
 					delete _rewardSink[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					];
 					// set the new penultimate cumulative reward amount
 					_cumulativeRewardAmount[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(_cumulativeRewardAmountArray[arrayLength.sub(1)]);
 
 					// set the new endpoint cumulative reward amount
 					_cumulativeRewardAmount[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(
-							_cumulativeRewardAmountArray[arrayLength.sub(1)]
-								.add(rewardAmount)
-						);
+						_cumulativeRewardAmountArray[arrayLength.sub(1)]
+						.add(rewardAmount)
+					);
 
 					// set the new penultimate reward emission
 					_rewardTokenEmission[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(rewardTokenEmission);
 
 					// set the new endpoint reward emission
 					_rewardTokenEmission[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(0);
 
 					// set the new penultimate reward timestamp
 					_rewardEmissionTimestamp[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(block.timestamp);
 
 					// calculate the time interval across which emission will happen
 					updatedTimestampRemainder = (
-						(rewardAmount.mul(_valueDivisor)).mod(
-							rewardTokenEmission
-						)
+					(rewardAmount.mul(_valueDivisor)).mod(
+						rewardTokenEmission
+					)
 					).div(_valueDivisor);
 					updatedTimestampRemainder = updatedTimestampRemainder > 0
-						? 1
-						: 0;
+					? 1
+					: 0;
 
 					updatedTimestamp = (
-						(rewardAmount.mul(_valueDivisor)).div(
-							rewardTokenEmission
-						)
+					(rewardAmount.mul(_valueDivisor)).div(
+						rewardTokenEmission
+					)
 					).add(updatedTimestampRemainder).add(block.timestamp);
 
 					// set the new endpoint reward timestamp
 					_rewardEmissionTimestamp[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(updatedTimestamp);
 				}
 			}
@@ -461,48 +463,48 @@ contract WhitelistedRewardEmissionV3 is
 			// calculate the reward amount to be set in array
 			if (rewardTokenEmission > 0) {
 				rewardAmount = IERC20Upgradeable(rewardTokenContractAddress)
-					.balanceOf(holderContractAddress);
+				.balanceOf(holderContractAddress);
 				if (rewardAmount > 0) {
 					// calculate the time interval across which emission will happen
 					updatedTimestampRemainder = (
-						(rewardAmount.mul(_valueDivisor)).mod(
-							rewardTokenEmission
-						)
+					(rewardAmount.mul(_valueDivisor)).mod(
+						rewardTokenEmission
+					)
 					).div(_valueDivisor);
 					updatedTimestampRemainder = updatedTimestampRemainder > 0
-						? 1
-						: 0;
+					? 1
+					: 0;
 
 					updatedTimestamp = (
-						(rewardAmount.mul(_valueDivisor)).div(
-							rewardTokenEmission
-						)
+					(rewardAmount.mul(_valueDivisor)).div(
+						rewardTokenEmission
+					)
 					).add(updatedTimestampRemainder).add(block.timestamp);
 
 					// set the new penultimate reward amount
 					_cumulativeRewardAmount[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(0);
 					// set the new penultimate reward emission
 					_rewardTokenEmission[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(rewardTokenEmission);
 					// set the new penultimate reward timestamp
 					_rewardEmissionTimestamp[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(block.timestamp);
 
 					// set the new endpoint reward amount
 					_cumulativeRewardAmount[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(rewardAmount);
 					// set the new endpoint reward emission
 					_rewardTokenEmission[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(0);
 					// set the new endpoint reward timestamp
 					_rewardEmissionTimestamp[holderContractAddress][
-						rewardTokenContractAddress
+					rewardTokenContractAddress
 					].push(updatedTimestamp);
 				} else {
 					// if there is no reward balance then revert because one cannot
@@ -538,25 +540,25 @@ contract WhitelistedRewardEmissionV3 is
 		address holderContractAddress,
 		address rewardTokenContractAddress
 	)
-		public
-		view
-		override
-		returns (
-			uint256[] memory cummulativeRewardAmount,
-			uint256[] memory rewardTokenEmission,
-			uint256[] memory rewardEmissionTimestamp
-		)
+	public
+	view
+	override
+	returns (
+		uint256[] memory cummulativeRewardAmount,
+		uint256[] memory rewardTokenEmission,
+		uint256[] memory rewardEmissionTimestamp
+	)
 	{
 		return (
-			_cumulativeRewardAmount[holderContractAddress][
-				rewardTokenContractAddress
-			],
-			_rewardTokenEmission[holderContractAddress][
-				rewardTokenContractAddress
-			],
-			_rewardEmissionTimestamp[holderContractAddress][
-				rewardTokenContractAddress
-			]
+		_cumulativeRewardAmount[holderContractAddress][
+		rewardTokenContractAddress
+		],
+		_rewardTokenEmission[holderContractAddress][
+		rewardTokenContractAddress
+		],
+		_rewardEmissionTimestamp[holderContractAddress][
+		rewardTokenContractAddress
+		]
 		);
 	}
 
@@ -574,22 +576,22 @@ contract WhitelistedRewardEmissionV3 is
 		address accountAddress,
 		address rewardTokenContractAddress
 	)
-		public
-		view
-		returns (
-			uint256[] memory lastLPTimeShareTimestampArray,
-			uint256[] memory cumulativeNewSupplyLPTimeShare,
-			uint256 rewardPoolUserTimestamp
-		)
+	public
+	view
+	returns (
+		uint256[] memory lastLPTimeShareTimestampArray,
+		uint256[] memory cumulativeNewSupplyLPTimeShare,
+		uint256 rewardPoolUserTimestamp
+	)
 	{
 		lastLPTimeShareTimestampArray = _lastLPTimeShareTimestampArray[
-			lpTokenAddress
+		lpTokenAddress
 		];
 		cumulativeNewSupplyLPTimeShare = _cumulativeNewSupplyLPTimeShare[
-			lpTokenAddress
+		lpTokenAddress
 		];
 		rewardPoolUserTimestamp = _rewardPoolUserTimestamp[holderAddress][
-			rewardTokenContractAddress
+		rewardTokenContractAddress
 		][accountAddress];
 	}
 
@@ -600,9 +602,9 @@ contract WhitelistedRewardEmissionV3 is
 	 *
 	 */
 	function setStakeLPContract(address stakeLPContract)
-		public
-		virtual
-		override
+	public
+	virtual
+	override
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WR12");
 		_stakeLPContract = stakeLPContract;
@@ -627,12 +629,12 @@ contract WhitelistedRewardEmissionV3 is
 		// require the reward token contract address be whitelisted for that holder contract
 		require(
 			_rewardTokenListIndex[holderContractAddress][
-				rewardTokenContractAddress
+			rewardTokenContractAddress
 			] != 0,
 			"WR15"
 		);
 		_rewardPoolUserTimestamp[holderContractAddress][
-			rewardTokenContractAddress
+		rewardTokenContractAddress
 		][accountAddress] = timestampValue;
 
 		emit SetRewardPoolUserTimestamp(
@@ -660,7 +662,7 @@ contract WhitelistedRewardEmissionV3 is
 			accountAddress != address(0)
 		) {
 			rewardPoolUserTimestamp = _rewardPoolUserTimestamp[
-				holderContractAddress
+			holderContractAddress
 			][rewardTokenContractAddress][accountAddress];
 		}
 	}
@@ -684,10 +686,10 @@ contract WhitelistedRewardEmissionV3 is
 		} else {
 			if (
 				!(_lastLPTimeShareTimestampArray[lpTokenAddress][
-					(_lastLPTimeShareTimestampArray[lpTokenAddress].length).sub(
-						1
-					)
-				] == timestampValue)
+			(_lastLPTimeShareTimestampArray[lpTokenAddress].length).sub(
+				1
+			)
+			] == timestampValue)
 			) {
 				_lastLPTimeShareTimestampArray[lpTokenAddress].push(
 					timestampValue
@@ -707,18 +709,18 @@ contract WhitelistedRewardEmissionV3 is
 	 * @dev calculate liquidity and reward tokens and disburse to user
 	 */
 	function getLastLPTimeShareTimestamp(address lpTokenAddress)
-		public
-		view
-		override
-		returns (uint256 lastLPTimeShareTimestamp)
+	public
+	view
+	override
+	returns (uint256 lastLPTimeShareTimestamp)
 	{
 		lastLPTimeShareTimestamp = _lastLPTimeShareTimestampArray[
-			lpTokenAddress
+		lpTokenAddress
 		].length == 0
-			? 0
-			: _lastLPTimeShareTimestampArray[lpTokenAddress][
-				(_lastLPTimeShareTimestampArray[lpTokenAddress].length).sub(1)
-			];
+		? 0
+		: _lastLPTimeShareTimestampArray[lpTokenAddress][
+		(_lastLPTimeShareTimestampArray[lpTokenAddress].length).sub(1)
+		];
 	}
 
 	/*
@@ -742,24 +744,24 @@ contract WhitelistedRewardEmissionV3 is
 			);
 		} else {
 			lastCummulativeSupplyLPTimeShareIndex = (
-				_lastLPTimeShareTimestampArray[lpTokenAddress].length
+			_lastLPTimeShareTimestampArray[lpTokenAddress].length
 			).sub(1);
 			// if the value in the last index of _lastLPTimeShareTimestampArray equals current timestamp
 			// then only update the last index value of _cumulativeNewSupplyLPTimeShare else add new index value
 			if (
 				_lastLPTimeShareTimestampArray[lpTokenAddress][
-					lastCummulativeSupplyLPTimeShareIndex
+				lastCummulativeSupplyLPTimeShareIndex
 				] == block.timestamp
 			) {
 				_cumulativeNewSupplyLPTimeShare[lpTokenAddress][
-					lastCummulativeSupplyLPTimeShareIndex
+				lastCummulativeSupplyLPTimeShareIndex
 				] = _cumulativeNewSupplyLPTimeShare[lpTokenAddress][
-					lastCummulativeSupplyLPTimeShareIndex
+				lastCummulativeSupplyLPTimeShareIndex
 				].add(newSupplyLPTimeShare);
 			} else {
 				_cumulativeNewSupplyLPTimeShare[lpTokenAddress].push(
 					_cumulativeNewSupplyLPTimeShare[lpTokenAddress][
-						lastCummulativeSupplyLPTimeShareIndex
+					lastCummulativeSupplyLPTimeShareIndex
 					].add(newSupplyLPTimeShare)
 				);
 			}
@@ -784,14 +786,14 @@ contract WhitelistedRewardEmissionV3 is
 		address accountAddress,
 		uint256 lpSupplyBalance
 	)
-		public
-		view
-		override
-		returns (
-			uint256 updatedSupplyLPTimeShare,
-			uint256 userLPStartTimestamp,
-			uint256 userLPEndTimestamp
-		)
+	public
+	view
+	override
+	returns (
+		uint256 updatedSupplyLPTimeShare,
+		uint256 userLPStartTimestamp,
+		uint256 userLPEndTimestamp
+	)
 	{
 		uint256 _startingCumulativeValue;
 		uint256 _endingCumulativeValue;
@@ -801,41 +803,41 @@ contract WhitelistedRewardEmissionV3 is
 
 		if (
 			_rewardEmissionTimestamp[holderAddress][rewardTokenAddress]
-				.length ==
+			.length ==
 			0 ||
 			_lastLPTimeShareTimestampArray[lpTokenAddress].length == 0 ||
 			_cumulativeNewSupplyLPTimeShare[lpTokenAddress].length == 0
 		) {
 			return (
-				updatedSupplyLPTimeShare,
-				userLPStartTimestamp,
-				userLPEndTimestamp
+			updatedSupplyLPTimeShare,
+			userLPStartTimestamp,
+			userLPEndTimestamp
 			);
 		}
 
 		// calculate value of userLPEndTimestamp. For that first calculate the time of emission end
 		// and last LP Supply timeshare updated timestamp
 		_lpTimeShareTimestampEnd = _rewardEmissionTimestamp[holderAddress][
-			rewardTokenAddress
+		rewardTokenAddress
 		].length;
 		_emissionEnd = _rewardEmissionTimestamp[holderAddress][
-			rewardTokenAddress
+		rewardTokenAddress
 		][(_lpTimeShareTimestampEnd).sub(1)];
 		_lpTimeShareTimestampEnd = _lastLPTimeShareTimestampArray[
-			lpTokenAddress
+		lpTokenAddress
 		][(_lastLPTimeShareTimestampArray[lpTokenAddress].length).sub(1)];
 
 		// calculate the value of ending cumulative value. if the end of reward emission is smaller than last LP Supply
 		// timeshare updation then call the getCumulativeSupplyValue function, else manually calculate.
 		if (_emissionEnd <= _lpTimeShareTimestampEnd) {
 			(
-				_endingCumulativeValue,
-				userLPEndTimestamp
+			_endingCumulativeValue,
+			userLPEndTimestamp
 			) = getCumulativeSupplyValue(lpTokenAddress, _emissionEnd);
 		} else {
 			// store the value of array length in a variable
 			_startingCumulativeValue = _cumulativeNewSupplyLPTimeShare[
-				lpTokenAddress
+			lpTokenAddress
 			].length;
 			if (_emissionEnd <= block.timestamp) {
 				userLPEndTimestamp = _emissionEnd;
@@ -846,7 +848,7 @@ contract WhitelistedRewardEmissionV3 is
 
 				_endingCumulativeValue = _endingCumulativeValue.add(
 					_cumulativeNewSupplyLPTimeShare[lpTokenAddress][
-						_startingCumulativeValue.sub(1)
+					_startingCumulativeValue.sub(1)
 					]
 				);
 			} else {
@@ -858,7 +860,7 @@ contract WhitelistedRewardEmissionV3 is
 
 				_endingCumulativeValue = _endingCumulativeValue.add(
 					_cumulativeNewSupplyLPTimeShare[lpTokenAddress][
-						_startingCumulativeValue.sub(1)
+					_startingCumulativeValue.sub(1)
 					]
 				);
 			}
@@ -866,12 +868,12 @@ contract WhitelistedRewardEmissionV3 is
 
 		// calculate the value of starting cumulative value.
 		(
-			_startingCumulativeValue,
-			userLPStartTimestamp
+		_startingCumulativeValue,
+		userLPStartTimestamp
 		) = getCumulativeSupplyValue(
 			lpTokenAddress,
 			_rewardPoolUserTimestamp[holderAddress][rewardTokenAddress][
-				accountAddress
+			accountAddress
 			]
 		);
 
@@ -896,10 +898,10 @@ contract WhitelistedRewardEmissionV3 is
 		uint256 _rewardPoolUserTimestampLocal;
 
 		_rewardEmissionTimestampLength = _rewardEmissionTimestamp[
-			holderAddress
+		holderAddress
 		][rewardTokenAddress].length;
 		_rewardPoolUserTimestampLocal = _rewardPoolUserTimestamp[holderAddress][
-			rewardTokenAddress
+		rewardTokenAddress
 		][accountAddress];
 		// if no emission array is found or current time has crossed the last entry of _rewardEmissionTimestamp
 		// (reward endpoint timestamp) then set the updated reward pool to zero
@@ -907,7 +909,7 @@ contract WhitelistedRewardEmissionV3 is
 			_rewardEmissionTimestampLength == 0 ||
 			_rewardPoolUserTimestampLocal >
 			_rewardEmissionTimestamp[holderAddress][rewardTokenAddress][
-				_rewardEmissionTimestampLength.sub(1)
+			_rewardEmissionTimestampLength.sub(1)
 			]
 		) {
 			updatedRewardPool = 0;
@@ -939,13 +941,13 @@ contract WhitelistedRewardEmissionV3 is
 		uint256 userLPBalance,
 		uint256 lpSupplyBalance
 	)
-		public
-		view
-		override
-		returns (
-			uint256[] memory otherRewardAmounts,
-			address[] memory otherRewardTokens
-		)
+	public
+	view
+	override
+	returns (
+		uint256[] memory otherRewardAmounts,
+		address[] memory otherRewardTokens
+	)
 	{
 		if (
 			holderAddress == address(0) ||
@@ -988,9 +990,9 @@ contract WhitelistedRewardEmissionV3 is
 
 			// calculate the cummulative Supply LPTimeshare to be considered for user's reward share calculation
 			(
-				_updatedSupplyLPTimeShare,
-				userLPStartTimestamp,
-				userLPEndTimestamp
+			_updatedSupplyLPTimeShare,
+			userLPStartTimestamp,
+			userLPEndTimestamp
 			) = calculateUpdatedSupplyLPTimeShare(
 				holderAddress,
 				lpTokenAddress,
@@ -1025,15 +1027,15 @@ contract WhitelistedRewardEmissionV3 is
 		uint256 rewardTimestamp
 	) public view override returns (uint256 cumulativeRewardValue) {
 		uint256[]
-			storage _cumulativeRewardAmountArray = _cumulativeRewardAmount[
-				holderContractAddress
-			][rewardTokenContractAddress];
+		storage _cumulativeRewardAmountArray = _cumulativeRewardAmount[
+		holderContractAddress
+		][rewardTokenContractAddress];
 		uint256[]
-			storage _rewardEmissionTimestampArray = _rewardEmissionTimestamp[
-				holderContractAddress
-			][rewardTokenContractAddress];
+		storage _rewardEmissionTimestampArray = _rewardEmissionTimestamp[
+		holderContractAddress
+		][rewardTokenContractAddress];
 		uint256[] storage _rewardTokenEmissionArray = _rewardTokenEmission[
-			holderContractAddress
+		holderContractAddress
 		][rewardTokenContractAddress];
 
 		if (
@@ -1103,13 +1105,13 @@ contract WhitelistedRewardEmissionV3 is
 		address lpTokenAddress,
 		uint256 lpSupplyTimestamp
 	)
-		public
-		view
-		override
-		returns (
-			uint256 cumulativeSupplyValue,
-			uint256 updatedLPSupplyTimestamp
-		)
+	public
+	view
+	override
+	returns (
+		uint256 cumulativeSupplyValue,
+		uint256 updatedLPSupplyTimestamp
+	)
 	{
 		if (
 			lpTokenAddress == address(0) ||
@@ -1127,7 +1129,7 @@ contract WhitelistedRewardEmissionV3 is
 		uint256 supplyDiff;
 
 		higherIndex = (_lastLPTimeShareTimestampArray[lpTokenAddress].length)
-			.sub(1);
+		.sub(1);
 
 		// if the timestamp marker is more than the endpoint reward timestamp, then return
 		if (
@@ -1135,11 +1137,11 @@ contract WhitelistedRewardEmissionV3 is
 			_lastLPTimeShareTimestampArray[lpTokenAddress][higherIndex]
 		) {
 			cumulativeSupplyValue = _cumulativeNewSupplyLPTimeShare[
-				lpTokenAddress
+			lpTokenAddress
 			][higherIndex];
 			return (
-				cumulativeSupplyValue,
-				_lastLPTimeShareTimestampArray[lpTokenAddress][higherIndex]
+			cumulativeSupplyValue,
+			_lastLPTimeShareTimestampArray[lpTokenAddress][higherIndex]
 			);
 		}
 
@@ -1149,11 +1151,11 @@ contract WhitelistedRewardEmissionV3 is
 			_lastLPTimeShareTimestampArray[lpTokenAddress][lowerIndex]
 		) {
 			cumulativeSupplyValue = _cumulativeNewSupplyLPTimeShare[
-				lpTokenAddress
+			lpTokenAddress
 			][lowerIndex];
 			return (
-				cumulativeSupplyValue,
-				_lastLPTimeShareTimestampArray[lpTokenAddress][lowerIndex]
+			cumulativeSupplyValue,
+			_lastLPTimeShareTimestampArray[lpTokenAddress][lowerIndex]
 			);
 		}
 
@@ -1167,7 +1169,7 @@ contract WhitelistedRewardEmissionV3 is
 				_lastLPTimeShareTimestampArray[lpTokenAddress][midIndex]
 			) {
 				cumulativeSupplyValue = _cumulativeNewSupplyLPTimeShare[
-					lpTokenAddress
+				lpTokenAddress
 				][midIndex];
 				break;
 			} else if (
@@ -1181,17 +1183,17 @@ contract WhitelistedRewardEmissionV3 is
 		}
 		if (higherIndex.sub(lowerIndex) <= 1) {
 			cumulativeSupplyValue = (
-				_cumulativeNewSupplyLPTimeShare[lpTokenAddress][higherIndex]
+			_cumulativeNewSupplyLPTimeShare[lpTokenAddress][higherIndex]
 			).sub(_cumulativeNewSupplyLPTimeShare[lpTokenAddress][lowerIndex]);
 			timeDiff = lpSupplyTimestamp.sub(
 				_lastLPTimeShareTimestampArray[lpTokenAddress][lowerIndex]
 			);
 			timeInterval = (
-				_lastLPTimeShareTimestampArray[lpTokenAddress][higherIndex]
+			_lastLPTimeShareTimestampArray[lpTokenAddress][higherIndex]
 			).sub(_lastLPTimeShareTimestampArray[lpTokenAddress][lowerIndex]);
 			supplyDiff = cumulativeSupplyValue.mulDiv(timeDiff, timeInterval);
 			cumulativeSupplyValue = (
-				_cumulativeNewSupplyLPTimeShare[lpTokenAddress][lowerIndex]
+			_cumulativeNewSupplyLPTimeShare[lpTokenAddress][lowerIndex]
 			).add(supplyDiff);
 		}
 		updatedLPSupplyTimestamp = lpSupplyTimestamp;
@@ -1203,11 +1205,11 @@ contract WhitelistedRewardEmissionV3 is
 	 * @param holderAddress: holder contract address
 	 */
 	function isHolderContractWhitelisted(address holderAddress)
-		public
-		view
-		virtual
-		override
-		returns (bool result)
+	public
+	view
+	virtual
+	override
+	returns (bool result)
 	{
 		result = _holderContractList.contains(holderAddress);
 		return result;
@@ -1223,27 +1225,27 @@ contract WhitelistedRewardEmissionV3 is
 		address[] memory rewardTokenContractAddresses
 	) internal returns (bool success) {
 		// add the Holder Contract address if it isn't already available
-		if (!_holderContractList.contains(holderContractAddress)) {
+		if (!isHolderContractWhitelisted(holderContractAddress)) {
 			_holderContractList.add(holderContractAddress);
 		}
 
 		uint256 i;
 		uint256 _rewardTokenContractAddressesLength = rewardTokenContractAddresses
-				.length;
+		.length;
 		for (i = 0; i < _rewardTokenContractAddressesLength; i = i.add(1)) {
 			// add the Token Contract addresss to the reward tokens list for the Holder Contract
 			if (rewardTokenContractAddresses[i] != address(0)) {
 				// search if the reward token contract is already part of list
 				if (
 					_rewardTokenListIndex[holderContractAddress][
-						rewardTokenContractAddresses[i]
+					rewardTokenContractAddresses[i]
 					] == 0
 				) {
 					_rewardTokenList[holderContractAddress].push(
 						rewardTokenContractAddresses[i]
 					);
 					_rewardTokenListIndex[holderContractAddress][
-						rewardTokenContractAddresses[i]
+					rewardTokenContractAddresses[i]
 					] = _rewardTokenList[holderContractAddress].length;
 				}
 			}
@@ -1289,20 +1291,20 @@ contract WhitelistedRewardEmissionV3 is
 	 * @param amount: token amount
 	 */
 	function _removeHolderAddressForRewards(address holderContractAddress)
-		internal
-		returns (bool success)
+	internal
+	returns (bool success)
 	{
 		// delete holder contract from enumerable set
 		_holderContractList.remove(holderContractAddress);
 		// get the list of token contracts and remove the index values, and their emissions
 		address[] memory _rewardTokenListLocal = _rewardTokenList[
-			holderContractAddress
+		holderContractAddress
 		];
 		uint256 _rewardTokenListLength = _rewardTokenListLocal.length;
 		uint256 i;
 		for (i = 0; i < _rewardTokenListLength; i = i.add(1)) {
 			delete _rewardTokenListIndex[holderContractAddress][
-				_rewardTokenListLocal[i]
+			_rewardTokenListLocal[i]
 			];
 		}
 		// delete the list of token contract addresses
@@ -1349,12 +1351,12 @@ contract WhitelistedRewardEmissionV3 is
 	) internal returns (bool success) {
 		uint256 i;
 		uint256 _rewardTokenContractAddressesLength = rewardTokenContractAddresses
-				.length;
+		.length;
 		for (i = 0; i < _rewardTokenContractAddressesLength; i = i.add(1)) {
 			if (rewardTokenContractAddresses[i] != address(0)) {
 				// remove the token address from the list
 				uint256 rewardTokenListIndexLocal = _rewardTokenListIndex[
-					holderContractAddress
+				holderContractAddress
 				][rewardTokenContractAddresses[i]];
 				if (rewardTokenListIndexLocal > 0) {
 					if (
@@ -1364,18 +1366,18 @@ contract WhitelistedRewardEmissionV3 is
 						_rewardTokenList[holderContractAddress].pop();
 					} else {
 						_rewardTokenList[holderContractAddress][
-							rewardTokenListIndexLocal.sub(1)
+						rewardTokenListIndexLocal.sub(1)
 						] = _rewardTokenList[holderContractAddress][
-							_rewardTokenList[holderContractAddress].length.sub(
-								1
-							)
+						_rewardTokenList[holderContractAddress].length.sub(
+							1
+						)
 						];
 						_rewardTokenList[holderContractAddress].pop();
 					}
 
 					// delete the index value
 					delete _rewardTokenListIndex[holderContractAddress][
-						rewardTokenContractAddresses[i]
+					rewardTokenContractAddresses[i]
 					];
 				}
 			}
