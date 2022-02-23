@@ -1,8 +1,3 @@
-/*
- Copyright [2019] - [2021], PERSISTENCE TECHNOLOGIES PTE. LTD. and the pStake-smartContracts contributors
- SPDX-License-Identifier: Apache-2.0
-*/
-
 /**
  * Use this file to configure your truffle project. It's seeded with some
  * common settings for different networks and features like migrations,
@@ -22,13 +17,9 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-
+require('dotenv').config()
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-// const infuraKey = "fj4jll3k.....";
-//
-// const fs = require('fs');
-// const mnemonic = fs.readFileSync(".secret").toString().trim();
-const mnemonic = "";
+const mnemonic = process.env.MNEMONIC
 
 module.exports = {
   /**
@@ -70,11 +61,12 @@ module.exports = {
           mnemonic: {
             phrase: mnemonic,
           },
-          providerOrUrl: ``,
+          providerOrUrl: `https://eth-ropsten.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY_ROPSTEN}`,
         }),
       network_id: 3, // Ropsten's id
       gas: 7900000, // Ropsten has a lower block limit than mainnet
-      gasPrice: 30000000000,
+      gasPrice: 80000000000,
+      networkCheckTimeout: 999999,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )
@@ -84,7 +76,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          ``
+          `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY_MAINNET}`
         ),
       network_id: 1, // Mainnet's id
       gas: 4000000,
@@ -98,10 +90,10 @@ module.exports = {
       provider: () =>
         new HDWalletProvider({
           mnemonic: mnemonic,
-          providerOrUrl: "",
+          providerOrUrl: process.env.ALCHEMY_API_KEY_GOERLIGETH,
           numberOfAddresses: 10,
           shareNonce: true,
-          derivationPath: "",
+          derivationPath: "m/44'/60'/0'/0/",
         }),
       network_id: 5, // goerli's id
       // gas: 8000000, //
@@ -115,7 +107,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          ``
+          `https://goerli.infura.io/v3/${process.env.ALCHEMY_API_KEY_GOERLI}`
         ),
       network_id: 5, // goerli's id
       // gas: 8000000, //
