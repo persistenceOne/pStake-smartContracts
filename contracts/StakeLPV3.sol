@@ -21,10 +21,10 @@ import "./interfaces/IWhitelistedPTokenEmission.sol";
 import "./interfaces/IWhitelistedRewardEmissionV2.sol";
 
 contract StakeLPV3 is
-	IStakeLP,
-	PausableUpgradeable,
-	AccessControlUpgradeable,
-	ReentrancyGuardUpgradeable
+IStakeLP,
+PausableUpgradeable,
+AccessControlUpgradeable,
+ReentrancyGuardUpgradeable
 {
 	using SafeMathUpgradeable for uint256;
 	using FullMath for uint256;
@@ -50,7 +50,7 @@ contract StakeLPV3 is
 	mapping(address => uint256) public _lastLPTimeShare;
 	// last recorded timestamp when user's LPTimeShare was updated, for a user, for an LP Token
 	mapping(address => mapping(address => uint256))
-		public _lastLiquidityTimestamp;
+	public _lastLiquidityTimestamp;
 
 	// -------------------------------------------------------------------------
 	// -------------------------------------------------------------------------
@@ -91,18 +91,18 @@ contract StakeLPV3 is
 		address holderAddress,
 		address accountAddress
 	)
-		public
-		view
-		virtual
-		override
-		returns (
-			uint256[] memory rewardAmounts,
-			address[] memory rewardTokens,
-			address[] memory sTokenAddresses,
-			address lpTokenAddress,
-			uint256 updatedSupplyLPTimeshare,
-			uint256 newSupplyLPTimeShare
-		)
+	public
+	view
+	virtual
+	override
+	returns (
+		uint256[] memory rewardAmounts,
+		address[] memory rewardTokens,
+		address[] memory sTokenAddresses,
+		address lpTokenAddress,
+		uint256 updatedSupplyLPTimeshare,
+		uint256 newSupplyLPTimeShare
+	)
 	{
 		uint256 _userLPTimeShare;
 		uint256 _totalSupplyLPTimeShare;
@@ -115,12 +115,12 @@ contract StakeLPV3 is
 		// CALCULATE OTHER REWARDS SHARE OF USER - CALCULATE (NOT TRIGGER) REWARD CALC OF OTHER TOKENS
 
 		(
-			holderRewards,
-			sTokenAddresses,
-			,
-			lpTokenAddress
-		) = IWhitelistedPTokenEmissionV2(_whitelistedPTokenEmissionContract)
-			.calculateAllPendingHolderRewards(holderAddress);
+		holderRewards,
+		sTokenAddresses,
+		,
+		lpTokenAddress
+		) = IWhitelistedPTokenEmission(_whitelistedPTokenEmissionContract)
+		.calculateAllPendingHolderRewards(holderAddress);
 
 		if (
 			holderAddress == address(0) ||
@@ -128,12 +128,12 @@ contract StakeLPV3 is
 			accountAddress == address(0)
 		) {
 			return (
-				rewardAmounts,
-				rewardTokens,
-				sTokenAddresses,
-				lpTokenAddress,
-				updatedSupplyLPTimeshare,
-				newSupplyLPTimeShare
+			rewardAmounts,
+			rewardTokens,
+			sTokenAddresses,
+			lpTokenAddress,
+			updatedSupplyLPTimeshare,
+			newSupplyLPTimeShare
 			);
 		}
 
@@ -142,35 +142,35 @@ contract StakeLPV3 is
 
 		// calculate the amounts and token contracts of other reward tokens
 		(
-			uint256[] memory otherRewardAmounts,
-			address[] memory otherRewardTokens
+		uint256[] memory otherRewardAmounts,
+		address[] memory otherRewardTokens
 		) = IWhitelistedRewardEmissionV2(_whitelistedRewardEmissionContract)
-				.calculateOtherPendingRewards(
-					holderAddress,
-					lpTokenAddress,
-					accountAddress,
-					_userLPTimeShare,
-					_totalSupplyLPTimeShare
-				);
+		.calculateOtherPendingRewards(
+			holderAddress,
+			lpTokenAddress,
+			accountAddress,
+			_userLPTimeShare,
+			_totalSupplyLPTimeShare
+		);
 
 		// calculate the new LPTimeShare of the user's LP Token
 		_userLPTimeShare = (
-			(_lpBalance[lpTokenAddress][accountAddress]).mul(
-				block.timestamp.sub(
-					_lastLiquidityTimestamp[lpTokenAddress][accountAddress]
-				)
+		(_lpBalance[lpTokenAddress][accountAddress]).mul(
+			block.timestamp.sub(
+				_lastLiquidityTimestamp[lpTokenAddress][accountAddress]
 			)
+		)
 		);
 
 		// calculate the new LPTimeShare of the sum of supply of all LP Tokens
 		newSupplyLPTimeShare = (
-			(_lpSupply[lpTokenAddress]).mul(
-				block.timestamp.sub(
-					IWhitelistedRewardEmissionV2(
-						_whitelistedRewardEmissionContract
-					).getLastLPTimeShareTimestamp(lpTokenAddress)
-				)
+		(_lpSupply[lpTokenAddress]).mul(
+			block.timestamp.sub(
+				IWhitelistedRewardEmissionV2(
+					_whitelistedRewardEmissionContract
+				).getLastLPTimeShareTimestamp(lpTokenAddress)
 			)
+		)
 		);
 
 		// calculate the totalSupplyLPTimeShare by adding new LPTimeShare to the existing share
@@ -213,9 +213,9 @@ contract StakeLPV3 is
 		uint256[] memory otherRewardAmounts,
 		address[] memory otherRewardTokens
 	)
-		internal
-		view
-		returns (uint256[] memory rewardAmounts, address[] memory rewardTokens)
+	internal
+	view
+	returns (uint256[] memory rewardAmounts, address[] memory rewardTokens)
 	{
 		uint256 i;
 		uint256 rewardPool;
@@ -248,7 +248,7 @@ contract StakeLPV3 is
 		for (i = 0; i < otherRewardAmounts.length; i = i.add(1)) {
 			rewardTokens[i.add(sTokenAddresses.length)] = otherRewardTokens[i];
 			rewardAmounts[i.add(sTokenAddresses.length)] = otherRewardAmounts[
-				i
+			i
 			];
 		}
 	}
@@ -259,43 +259,43 @@ contract StakeLPV3 is
 	 * @param accountAddress: user address
 	 */
 	function _calculateRewards(address holderAddress, address accountAddress)
-		internal
-		returns (
-			uint256[] memory RewardAmounts,
-			address[] memory RewardTokens,
-			address[] memory sTokenAddresses,
-			address lpTokenAddress
-		)
+	internal
+	returns (
+		uint256[] memory RewardAmounts,
+		address[] memory RewardTokens,
+		address[] memory sTokenAddresses,
+		address lpTokenAddress
+	)
 	{
 		uint256 updatedSupplyLPTimeshare;
 		uint256 newSupplyLPTimeShare;
 		uint256 i;
 
 		(
-			RewardAmounts,
-			RewardTokens,
-			sTokenAddresses,
-			lpTokenAddress,
-			updatedSupplyLPTimeshare,
-			newSupplyLPTimeShare
+		RewardAmounts,
+		RewardTokens,
+		sTokenAddresses,
+		lpTokenAddress,
+		updatedSupplyLPTimeshare,
+		newSupplyLPTimeShare
 		) = calculatePendingRewards(holderAddress, accountAddress);
 
 		// update last timestamps and LPTimeShares as per Checks-Effects-Interactions pattern
 		_lastLiquidityTimestamp[lpTokenAddress][accountAddress] = block
-			.timestamp;
+		.timestamp;
 
 		_lastLPTimeShare[lpTokenAddress] = updatedSupplyLPTimeshare;
 
 		// update the cummulative new supply LP Timeshare value
 		IWhitelistedRewardEmissionV2(_whitelistedRewardEmissionContract)
-			.setLastCummulativeSupplyLPTimeShare(
-				lpTokenAddress,
-				newSupplyLPTimeShare
-			);
+		.setLastCummulativeSupplyLPTimeShare(
+			lpTokenAddress,
+			newSupplyLPTimeShare
+		);
 
 		// update the _lastLPTimeShareTimestampArray
 		IWhitelistedRewardEmissionV2(_whitelistedRewardEmissionContract)
-			.setLastLPTimeShareTimestamp(lpTokenAddress, block.timestamp);
+		.setLastLPTimeShareTimestamp(lpTokenAddress, block.timestamp);
 
 		// DISBURSE THE MULTIPLE UTOKEN REWARDS TO USER (transfer)
 		for (i = 0; i < sTokenAddresses.length; i = i.add(1)) {
@@ -314,12 +314,12 @@ contract StakeLPV3 is
 			i = i.add(1)
 		) {
 			IWhitelistedRewardEmissionV2(_whitelistedRewardEmissionContract)
-				.setRewardPoolUserTimestamp(
-					holderAddress,
-					RewardTokens[i],
-					accountAddress,
-					block.timestamp
-				);
+			.setRewardPoolUserTimestamp(
+				holderAddress,
+				RewardTokens[i],
+				accountAddress,
+				block.timestamp
+			);
 
 			// dispatch the rewards for that specific token
 			if (RewardAmounts[i] > 0) {
@@ -347,32 +347,32 @@ contract StakeLPV3 is
 	 * @param holderAddress: holder contract address
 	 */
 	function calculateSyncedRewards(address holderAddress)
-		public
-		virtual
-		override
-		whenNotPaused
-		returns (
-			uint256[] memory RewardAmounts,
-			address[] memory RewardTokens,
-			address[] memory sTokenAddresses,
-			address lpTokenAddress
-		)
+	public
+	virtual
+	override
+	whenNotPaused
+	returns (
+		uint256[] memory RewardAmounts,
+		address[] memory RewardTokens,
+		address[] memory sTokenAddresses,
+		address lpTokenAddress
+	)
 	{
 		// check for validity of arguments
 		require(holderAddress != address(0), "LP1");
 
 		// initiate calculateHolderRewards for all StokenAddress-whitelistedAddress pair that
 		// comes under the holder contract
-		IWhitelistedPTokenEmissionV2(_whitelistedPTokenEmissionContract)
-			.calculateAllHolderRewards(holderAddress);
+		IWhitelistedPTokenEmission(_whitelistedPTokenEmissionContract)
+		.calculateAllHolderRewards(holderAddress);
 
 		// now initiate the calculate Rewards to distribute to the user
 		// calculate liquidity and reward tokens and disburse to user
 		(
-			RewardAmounts,
-			RewardTokens,
-			sTokenAddresses,
-			lpTokenAddress
+		RewardAmounts,
+		RewardTokens,
+		sTokenAddresses,
+		lpTokenAddress
 		) = _calculateRewards(holderAddress, _msgSender());
 
 		require(lpTokenAddress != address(0), "LP2");
@@ -396,12 +396,12 @@ contract StakeLPV3 is
 	 *
 	 */
 	function addLiquidity(address holderAddress, uint256 amount)
-		public
-		virtual
-		override
-		whenNotPaused
-		nonReentrant
-		returns (bool success)
+	public
+	virtual
+	override
+	whenNotPaused
+	nonReentrant
+	returns (bool success)
 	{
 		// directly call calculate Synced Rewards since all the require conditions are checked there
 		(, , , address lpTokenAddress) = calculateSyncedRewards(holderAddress);
@@ -409,7 +409,7 @@ contract StakeLPV3 is
 
 		// update the user balance
 		_lpBalance[lpTokenAddress][messageSender] = _lpBalance[lpTokenAddress][
-			messageSender
+		messageSender
 		].add(amount);
 
 		// update the supply of lp tokens for reward and liquidity calculation
@@ -443,12 +443,12 @@ contract StakeLPV3 is
 	 *
 	 */
 	function removeLiquidity(address holderAddress, uint256 amount)
-		public
-		virtual
-		override
-		whenNotPaused
-		nonReentrant
-		returns (bool success)
+	public
+	virtual
+	override
+	whenNotPaused
+	nonReentrant
+	returns (bool success)
 	{
 		// directly call calculateSyncedRewards since all the require conditions are checked there
 		(, , , address lpTokenAddress) = calculateSyncedRewards(holderAddress);
@@ -459,7 +459,7 @@ contract StakeLPV3 is
 
 		// update the user balance
 		_lpBalance[lpTokenAddress][messageSender] = _lpBalance[lpTokenAddress][
-			messageSender
+		messageSender
 		].sub(amount);
 
 		// update the supply of lp tokens for reward and liquidity calculation
