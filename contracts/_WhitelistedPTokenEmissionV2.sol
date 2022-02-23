@@ -12,7 +12,7 @@ import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol"
 import "./interfaces/ISTokensV2.sol";
 import "./interfaces/IWhitelistedPTokenEmissionV2.sol";
 
-contract WhitelistedPTokenEmissionV2 is
+contract _WhitelistedPTokenEmissionV2 is
 IWhitelistedPTokenEmissionV2,
 PausableUpgradeable,
 AccessControlUpgradeable
