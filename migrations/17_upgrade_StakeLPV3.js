@@ -33,8 +33,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 15e10;
-    let gasLimitMainnet = 7000000;
+    let gasPriceMainnet = 30e10;
+    let gasLimitMainnet = 5000000;
     networkID = 1;
     await upgradeContract(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
   }
@@ -53,8 +53,10 @@ async function upgradeContract(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
+  let StakeLPV2Address = "0xA1cF35f35031c0f2a27283793bE23a22fd615F58"
+
   StakeLPCoreInstance = await upgradeProxy(
-    StakeLPCoreV2Artifact.address,
+    StakeLPV2Address,
     StakeLPCoreV3Artifact,
     { deployer }
   );

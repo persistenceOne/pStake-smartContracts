@@ -30,8 +30,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 15e10;
-    let gasLimitMainnet = 7000000;
+    let gasPriceMainnet = 30e10;
+    let gasLimitMainnet = 5000000;
     await LiquidStaking(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
   }
 };
@@ -51,9 +51,11 @@ async function LiquidStaking(gasPrice, gasLimit, deployer, accounts) {
 
   let from_defaultAdmin = accounts[0];
   let bridgeAdmin = "0xBbC32cFe20765120b33EC17b301E18D3e03FE543"
+  let tokenWrapperV2Address =  "0xA9739b5BdAfe956DEAa8b2e695c7d4f1DF7Bc1D6";
+  let liquidStakingV2Address =  "0xce3f57A8De9AA69da3289871b5FeE5E77fFCF480";
 
   LiquidStakingInstance = await upgradeProxy(
-    LiquidStakingArtifactV2.address,
+    liquidStakingV2Address,
     LiquidStakingArtifactV3,
     { deployer }
   );
@@ -62,7 +64,7 @@ async function LiquidStaking(gasPrice, gasLimit, deployer, accounts) {
 
   // set contract addresses in LiquidStaking Contract
   const txReceipt = await LiquidStakingInstance.setTokenWrapperContract(
-    TokenWrapperArtifactV3.address,
+    tokenWrapperV2Address,
     {
       from: from_defaultAdmin,
       gasPrice: gasPrice,

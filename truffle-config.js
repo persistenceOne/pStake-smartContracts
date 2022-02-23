@@ -79,8 +79,9 @@ module.exports = {
           `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY_MAINNET}`
         ),
       network_id: 1, // Mainnet's id
-      gas: 4000000,
-      gasPrice: 70000000000,
+      gas: 5000000,
+      gasPrice: 300000000000,
+      networkCheckTimeout: 999999,
       // confirmations: 1, // # of confs to wait between deployments. (default: 0)
       timeoutBlocks: 200, // # of blocks before a deployment times out  (minimum/default: 50)
       skipDryRun: false, // Skip dry run before migrations? (default: false for public nets )

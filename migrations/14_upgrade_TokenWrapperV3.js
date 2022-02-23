@@ -44,8 +44,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 5e10;
-    let gasLimitMainnet = 7000000;
+    let gasPriceMainnet = 30e10;
+    let gasLimitMainnet = 5000000;
     await upgradeTokenWrapper(
       gasPriceMainnet,
       gasLimitMainnet,
@@ -68,8 +68,10 @@ async function upgradeTokenWrapper(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
+  let tokenWrapperV2Address =  "0xA9739b5BdAfe956DEAa8b2e695c7d4f1DF7Bc1D6";
+
   TokenWrapperInstance = await upgradeProxy(
-    TokenWrapperArtifactV2.address,
+    tokenWrapperV2Address,
     TokenWrapperArtifactV3,
     { deployer }
   );

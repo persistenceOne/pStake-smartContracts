@@ -33,8 +33,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 15e10;
-    let gasLimitMainnet = 7000000;
+    let gasPriceMainnet = 30e10;
+    let gasLimitMainnet = 5000000;
     networkID = 1;
     await upgradeContract(gasPriceMainnet, gasLimitMainnet, deployer, accounts);
   }
@@ -53,8 +53,10 @@ async function upgradeContract(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
+  let WhitelistedPTokenEmissionAddress = "0x3EA53661B56DC93DfaC6A1a7E0895F2460B49Be7"
+
   WhitelistedPTokenEmissionInstance = await upgradeProxy(
-    WhitelistedPTokenEmissionArtifact.address,
+    WhitelistedPTokenEmissionAddress,
     WhitelistedPTokenEmissionV2Artifact,
     { deployer }
   );

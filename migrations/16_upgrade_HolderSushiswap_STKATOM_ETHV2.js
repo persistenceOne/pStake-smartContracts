@@ -44,8 +44,8 @@ module.exports = async function (deployer, network, accounts) {
   }
 
   if (network === "mainnet") {
-    let gasPriceMainnet = 5e10;
-    let gasLimitMainnet = 7000000;
+    let gasPriceMainnet = 30e10;
+    let gasLimitMainnet = 5000000;
     await upgradeHolderSushiswap_STKATOM_ETH(
       gasPriceMainnet,
       gasLimitMainnet,
@@ -68,8 +68,10 @@ async function upgradeHolderSushiswap_STKATOM_ETH(gasPrice, gasLimit, deployer, 
     accounts
   );
 
+  let HolderSushiswap_STKATOM_ETHAddress = "0x8ad5628DBf3740c0e30f412E5fF29C7C28f591cE"
+
   HolderSushiswap_STKATOM_ETHInstance = await upgradeProxy(
-    HolderSushiswap_STKATOM_ETHArtifact.address,
+    HolderSushiswap_STKATOM_ETHAddress,
     HolderSushiswap_STKATOM_ETHArtifactV2,
     { deployer }
   );
