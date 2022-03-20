@@ -10,12 +10,12 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "./interfaces/IWhitelistedRewardEmissionV2.sol";
+import "./interfaces/IWhitelistedRewardEmissionV3.sol";
 import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
 contract WhitelistedRewardEmissionV3 is
-	IWhitelistedRewardEmissionV2,
+	IWhitelistedRewardEmissionV3,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
