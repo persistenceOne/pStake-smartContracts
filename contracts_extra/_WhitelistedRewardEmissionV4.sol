@@ -10,12 +10,12 @@ import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/EnumerableSetUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/token/ERC20/IERC20Upgradeable.sol";
-import "./interfaces/IWhitelistedRewardEmissionV2.sol";
+import "./interfaces/_IWhitelistedRewardEmissionV3.sol";
 import "./interfaces/IHolderV2.sol";
 import "./libraries/FullMath.sol";
 
-contract WhitelistedRewardEmissionV3 is
-	IWhitelistedRewardEmissionV2,
+contract WhitelistedRewardEmissionV4 is
+	_IWhitelistedRewardEmissionV3,
 	PausableUpgradeable,
 	AccessControlUpgradeable
 {
@@ -69,6 +69,11 @@ contract WhitelistedRewardEmissionV3 is
 	mapping(address => mapping(address => mapping(address => uint256)))
 		public _rewardPoolUserTimestamp;
 
+	// -------------------------------------------------------------------------
+	// -------------------------------------------------------------------------
+
+	uint256 public override _batchingLimit;
+
 	/**
 	 * @dev Constructor for initializing the SToken contract.
 	 * @param pauserAddress - address of the pauser admin.
@@ -99,7 +104,7 @@ contract WhitelistedRewardEmissionV3 is
 		address rewardTokenContractAddress,
 		address rewardSender,
 		uint256 rewardAmount
-	) public override {
+	) public override returns (bool success) {
 		// require the message sender to be admin
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WR1");
 		// require the holder contract to be whitelisted for other reward tokens
@@ -205,6 +210,8 @@ contract WhitelistedRewardEmissionV3 is
 			rewardAmount,
 			block.timestamp
 		);
+
+		success = true;
 	}
 
 	/*
@@ -217,7 +224,7 @@ contract WhitelistedRewardEmissionV3 is
 		address holderContractAddress,
 		address rewardTokenContractAddress,
 		uint256 rewardTokenEmission
-	) public override {
+	) public override returns (bool success) {
 		// require the message sender to be admin
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WR5");
 		// require the holder contract to be whitelisted for other reward tokens
@@ -525,6 +532,7 @@ contract WhitelistedRewardEmissionV3 is
 			_valueDivisor,
 			block.timestamp
 		);
+		success = true;
 	}
 
 	/*
@@ -620,7 +628,7 @@ contract WhitelistedRewardEmissionV3 is
 		address rewardTokenContractAddress,
 		address accountAddress,
 		uint256 timestampValue
-	) public override {
+	) public override returns (bool success) {
 		// require the message sender to be admin
 		require(_msgSender() == _stakeLPContract, "WR13");
 		// require the holder contract to be whitelisted for other reward tokens
@@ -643,6 +651,8 @@ contract WhitelistedRewardEmissionV3 is
 			timestampValue,
 			block.timestamp
 		);
+
+		success = true;
 	}
 
 	/*
@@ -678,7 +688,7 @@ contract WhitelistedRewardEmissionV3 is
 	function setLastLPTimeShareTimestamp(
 		address lpTokenAddress,
 		uint256 timestampValue
-	) public override {
+	) public override returns (bool success) {
 		// require the message sender to be admin
 		require(_msgSender() == _stakeLPContract, "WR16");
 		// require the arguments to be valid
@@ -705,6 +715,7 @@ contract WhitelistedRewardEmissionV3 is
 			timestampValue,
 			block.timestamp
 		);
+		success = true;
 	}
 
 	/*
@@ -737,7 +748,7 @@ contract WhitelistedRewardEmissionV3 is
 	function setLastCummulativeSupplyLPTimeShare(
 		address lpTokenAddress,
 		uint256 newSupplyLPTimeShare
-	) public override {
+	) public override returns (bool success) {
 		// require the message sender to be admin
 		require(_msgSender() == _stakeLPContract, "WR18");
 		// require the arguments to be valid
@@ -778,6 +789,8 @@ contract WhitelistedRewardEmissionV3 is
 			newSupplyLPTimeShare,
 			block.timestamp
 		);
+
+		success = true;
 	}
 
 	/*
@@ -1247,9 +1260,9 @@ contract WhitelistedRewardEmissionV3 is
 	function _setHolderAddressForRewards(
 		address holderContractAddress,
 		address[] memory rewardTokenContractAddresses
-	) internal {
+	) internal returns (bool success) {
 		// add the Holder Contract address if it isn't already available
-		if (!isHolderContractWhitelisted(holderContractAddress)) {
+		if (!_holderContractList.contains(holderContractAddress)) {
 			_holderContractList.add(holderContractAddress);
 		}
 
@@ -1275,6 +1288,8 @@ contract WhitelistedRewardEmissionV3 is
 				}
 			}
 		}
+		success = true;
+		return success;
 	}
 
 	/*
@@ -1288,7 +1303,7 @@ contract WhitelistedRewardEmissionV3 is
 	function setHolderAddressesForRewards(
 		address[] memory holderContractAddresses,
 		address[] memory rewardTokenContractAddresses
-	) public override {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WR20");
 		uint256 _holderContractAddressesLength = holderContractAddresses.length;
 		uint256 i;
@@ -1306,6 +1321,9 @@ contract WhitelistedRewardEmissionV3 is
 			rewardTokenContractAddresses,
 			block.timestamp
 		);
+
+		success = true;
+		return success;
 	}
 
 	/*
@@ -1314,6 +1332,7 @@ contract WhitelistedRewardEmissionV3 is
 	 */
 	function _removeHolderAddressForRewards(address holderContractAddress)
 		internal
+		returns (bool success)
 	{
 		// delete holder contract from enumerable set
 		_holderContractList.remove(holderContractAddress);
@@ -1330,6 +1349,9 @@ contract WhitelistedRewardEmissionV3 is
 		}
 		// delete the list of token contract addresses
 		delete _rewardTokenList[holderContractAddress];
+
+		success = true;
+		return success;
 	}
 
 	/*
@@ -1340,7 +1362,7 @@ contract WhitelistedRewardEmissionV3 is
 	 */
 	function removeHolderAddressesForRewards(
 		address[] memory holderContractAddresses
-	) public override {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WR22");
 		uint256 _holderContractAddressesLength = holderContractAddresses.length;
 		uint256 i;
@@ -1354,6 +1376,9 @@ contract WhitelistedRewardEmissionV3 is
 			holderContractAddresses,
 			block.timestamp
 		);
+
+		success = true;
+		return success;
 	}
 
 	/*
@@ -1364,40 +1389,49 @@ contract WhitelistedRewardEmissionV3 is
 	function _removeTokenContractForRewards(
 		address holderContractAddress,
 		address[] memory rewardTokenContractAddresses
-	) internal {
+	) internal returns (bool success) {
 		uint256 i;
 		uint256 _rewardTokenContractAddressesLength = rewardTokenContractAddresses
 				.length;
+		uint256 rewardTokenListIndexLocal;
+		address lastRewardToken = _rewardTokenList[holderContractAddress][
+			_rewardTokenList[holderContractAddress].length.sub(1)
+		];
+		// iterate through the array of provided token addresses and remove them one by one
 		for (i = 0; i < _rewardTokenContractAddressesLength; i = i.add(1)) {
+			// check if the provided token address is not zero
 			if (rewardTokenContractAddresses[i] != address(0)) {
 				// remove the token address from the list
-				uint256 rewardTokenListIndexLocal = _rewardTokenListIndex[
+				rewardTokenListIndexLocal = _rewardTokenListIndex[
 					holderContractAddress
 				][rewardTokenContractAddresses[i]];
-				if (rewardTokenListIndexLocal > 0) {
-					if (
-						rewardTokenListIndexLocal ==
-						_rewardTokenList[holderContractAddress].length
-					) {
-						_rewardTokenList[holderContractAddress].pop();
-					} else {
-						_rewardTokenList[holderContractAddress][
-							rewardTokenListIndexLocal.sub(1)
-						] = _rewardTokenList[holderContractAddress][
-							_rewardTokenList[holderContractAddress].length.sub(
-								1
-							)
-						];
-						_rewardTokenList[holderContractAddress].pop();
-					}
-
-					// delete the index value
-					delete _rewardTokenListIndex[holderContractAddress][
-						rewardTokenContractAddresses[i]
-					];
+				// if the token list index is zero then abort and iterate to the next value
+				if (rewardTokenListIndexLocal == 0) continue;
+				// if the token list index is the last one, simply pop the value
+				if (
+					rewardTokenListIndexLocal ==
+					_rewardTokenList[holderContractAddress].length
+				) {
+					_rewardTokenList[holderContractAddress].pop();
+				} else {
+					// if the value to be removed is not the last index, switch it with last index value,
+					_rewardTokenList[holderContractAddress][
+						rewardTokenListIndexLocal.sub(1)
+					] = lastRewardToken;
+					// update the index of the newly switched token contract
+					_rewardTokenListIndex[holderContractAddress][
+						lastRewardToken
+					] = rewardTokenListIndexLocal;
 				}
+				// reset the reward tokenList index to zero
+				delete _rewardTokenListIndex[holderContractAddress][
+					rewardTokenContractAddresses[i]
+				];
 			}
 		}
+
+		success = true;
+		return success;
 	}
 
 	/*
@@ -1411,7 +1445,7 @@ contract WhitelistedRewardEmissionV3 is
 	function removeTokenContractsForRewards(
 		address[] memory holderContractAddresses,
 		address[] memory rewardTokenContractAddresses
-	) public override {
+	) public override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WR24");
 		uint256 _holderContractAddressesLength = holderContractAddresses.length;
 		uint256 i;
@@ -1429,6 +1463,27 @@ contract WhitelistedRewardEmissionV3 is
 			rewardTokenContractAddresses,
 			block.timestamp
 		);
+
+		success = true;
+		return success;
+	}
+
+	/**
+	 * @dev Set 'batching limit', called from admin
+	 * Emits a {SetBatchingLimit} event.
+	 *
+	 */
+	function setBatchingLimit(uint256 batchingLimit)
+		public
+		virtual
+		override
+		returns (bool success)
+	{
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "WP10");
+		_batchingLimit = batchingLimit;
+		emit SetBatchingLimit(batchingLimit, block.timestamp);
+		success = true;
+		return success;
 	}
 
 	/**
@@ -1438,9 +1493,10 @@ contract WhitelistedRewardEmissionV3 is
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() public virtual override {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "ST14");
 		_pause();
+		return true;
 	}
 
 	/**
@@ -1450,8 +1506,9 @@ contract WhitelistedRewardEmissionV3 is
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() public virtual override {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "ST15");
 		_unpause();
+		return true;
 	}
 }

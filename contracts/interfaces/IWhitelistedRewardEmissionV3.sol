@@ -5,7 +5,7 @@
 
 pragma solidity >=0.7.0;
 
-interface IWhitelistedRewardEmissionV2 {
+interface IWhitelistedRewardEmissionV3 {
 	/*
 	 * @dev add the rewards to the sender
 	 * @param holderContractAddress: contract address
@@ -18,7 +18,7 @@ interface IWhitelistedRewardEmissionV2 {
 		address rewardTokenContractAddress,
 		address rewardSender,
 		uint256 rewardAmount
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev set reward emission
@@ -30,7 +30,7 @@ interface IWhitelistedRewardEmissionV2 {
 		address holderContractAddress,
 		address rewardTokenContractAddress,
 		uint256 rewardTokenEmission
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev get emission data
@@ -67,7 +67,7 @@ interface IWhitelistedRewardEmissionV2 {
 		address rewardTokenContractAddress,
 		address accountAddress,
 		uint256 timestampValue
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev get reward pool for user
@@ -89,7 +89,7 @@ interface IWhitelistedRewardEmissionV2 {
 	function setLastLPTimeShareTimestamp(
 		address lpTokenAddress,
 		uint256 timestampValue
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev get last LP time share
@@ -108,7 +108,7 @@ interface IWhitelistedRewardEmissionV2 {
 	function setLastCummulativeSupplyLPTimeShare(
 		address lpTokenAddress,
 		uint256 newSupplyLPTimeShare
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev calculate updated supply time share
@@ -199,7 +199,7 @@ interface IWhitelistedRewardEmissionV2 {
 		view
 		returns (bool result);
 
-	/*
+	/*removeTokenContractsForRewards
 	 * @dev set holder addresses for rewards
 	 * @param holderContractAddresses:  contract address in array
 	 * @param rewardTokenContractAddresses: token amount in array
@@ -207,7 +207,7 @@ interface IWhitelistedRewardEmissionV2 {
 	function setHolderAddressesForRewards(
 		address[] memory holderContractAddresses,
 		address[] memory rewardTokenContractAddresses
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev remove holder addresses for rewards
@@ -215,7 +215,7 @@ interface IWhitelistedRewardEmissionV2 {
 	 */
 	function removeHolderAddressesForRewards(
 		address[] memory holderContractAddresses
-	) external returns (bool success);
+	) external;
 
 	/*
 	 * @dev remove token contract for rewards
@@ -225,7 +225,7 @@ interface IWhitelistedRewardEmissionV2 {
 	function removeTokenContractsForRewards(
 		address[] memory holderContractAddresses,
 		address[] memory rewardTokenContractAddresses
-	) external returns (bool success);
+	) external;
 
 	/**
 	 * @dev Triggers stopped state.
@@ -234,7 +234,7 @@ interface IWhitelistedRewardEmissionV2 {
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() external returns (bool success);
+	function pause() external;
 
 	/**
 	 * @dev Returns to normal state.
@@ -243,7 +243,7 @@ interface IWhitelistedRewardEmissionV2 {
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() external returns (bool success);
+	function unpause() external;
 
 	/**
 	 * @dev Emitted when rewards are added

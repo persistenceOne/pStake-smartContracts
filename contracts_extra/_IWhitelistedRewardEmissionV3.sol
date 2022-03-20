@@ -5,7 +5,7 @@
 
 pragma solidity >=0.7.0;
 
-interface IWhitelistedRewardEmissionV2 {
+interface _IWhitelistedRewardEmissionV3 {
 	/*
 	 * @dev add the rewards to the sender
 	 * @param holderContractAddress: contract address
@@ -228,6 +228,21 @@ interface IWhitelistedRewardEmissionV2 {
 	) external returns (bool success);
 
 	/**
+	 * @dev getter for _batchingLimit
+	 *
+	 */
+	function _batchingLimit() external returns (uint256 batchingLimit);
+
+	/**
+	 * @dev Set 'batchingLimit', called from admin
+	 * Emits a {SetBatchingLimit} event
+	 *
+	 */
+	function setBatchingLimit(uint256 batchingLimit)
+		external
+		returns (bool success);
+
+	/**
 	 * @dev Triggers stopped state.
 	 *
 	 * Requirements:
@@ -326,4 +341,9 @@ interface IWhitelistedRewardEmissionV2 {
 	 * @dev Emitted when contract addresses are set
 	 */
 	event SetStakeLPContract(address indexed stakeLPContract);
+
+	/**
+	 * @dev Emitted when batching limit is set
+	 */
+	event SetBatchingLimit(uint256 indexed batchingLimit, uint256 timestamp);
 }

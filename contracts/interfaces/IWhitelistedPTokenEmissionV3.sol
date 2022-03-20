@@ -5,7 +5,7 @@
 
 pragma solidity >=0.7.0;
 
-interface IWhitelistedPTokenEmission {
+interface IWhitelistedPTokenEmissionV3 {
 	/**
 	 * @dev get holder data
 	 */
@@ -60,14 +60,12 @@ interface IWhitelistedPTokenEmission {
 		address[] memory sTokenAddresses,
 		address holderContractAddress,
 		address lpContractAddress
-	) external returns (bool success);
+	) external;
 
 	/**
 	 * @dev remove whitelisted address
 	 */
-	function removeWhitelistedAddress(address whitelistedAddress)
-		external
-		returns (bool success);
+	function removeWhitelistedAddress(address whitelistedAddress) external;
 
 	/**
 	 * @dev Triggers stopped state.
@@ -76,7 +74,7 @@ interface IWhitelistedPTokenEmission {
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() external returns (bool success);
+	function pause() external;
 
 	/**
 	 * @dev Returns to normal state.
@@ -85,7 +83,7 @@ interface IWhitelistedPTokenEmission {
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() external returns (bool success);
+	function unpause() external;
 
 	/**
 	 * @dev Emitted when address is whitelisted
