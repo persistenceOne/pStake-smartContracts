@@ -107,7 +107,7 @@ module.exports = {
       provider: () =>
         new HDWalletProvider(
           mnemonic,
-          `https://goerli.infura.io/v3/${process.env.ALCHEMY_API_KEY_GOERLI}`
+          `https://eth-goerli.alchemyapi.io/v2/${process.env.ALCHEMY_API_KEY_GOERLI}`
         ),
       network_id: 5, // goerli's id
       // gas: 8000000, //

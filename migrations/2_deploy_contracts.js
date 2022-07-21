@@ -56,7 +56,7 @@ async function deployAll(gasPrice, gasLimit, deployer, accounts) {
     accounts
   );
 
-  let bridgeAdmin = "";
+  let bridgeAdmin = "0x8AAD3Ce382A5793D6B97E72b87598823ea7940CB";
   let pauseAdmin = accounts[0];
   let from_defaultAdmin = accounts[0]
   let rewardRate = new BN(222) // 222 * 10^-5
