@@ -8,23 +8,23 @@ pragma solidity >=0.7.0;
 import "@openzeppelin/contracts-upgradeable/math/SafeMathUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol";
-import "./interfaces/ISTokensV3.sol";
-import "./interfaces/IUTokensV3.sol";
-import "./interfaces/ILiquidStakingV4.sol";
-import "./interfaces/ITokenWrapperV4.sol";
+import "./interfaces/ISTokensV2.sol";
+import "./interfaces/IUTokensV2.sol";
+import "./interfaces/ILiquidStakingV3.sol";
+import "./interfaces/ITokenWrapperV3.sol";
 import "./libraries/FullMath.sol";
 
 contract LiquidStakingV4 is
-	ILiquidStakingV4,
-	PausableUpgradeable,
-	AccessControlUpgradeable
+ILiquidStakingV3,
+PausableUpgradeable,
+AccessControlUpgradeable
 {
 	using SafeMathUpgradeable for uint256;
 	using FullMath for uint256;
 
 	//Private instances of contracts to handle Utokens and Stokens
-	IUTokensV3 public _uTokens;
-	ISTokensV3 public _sTokens;
+	IUTokensV2 public _uTokens;
+	ISTokensV2 public _sTokens;
 
 	// defining the fees and minimum values
 	uint256 private _minStake;
@@ -62,6 +62,14 @@ contract LiquidStakingV4 is
 
 	// BRIDGE_ADMIN role constant (needs to be set)
 	bytes32 public constant BRIDGE_ADMIN_ROLE = keccak256("BRIDGE_ADMIN_ROLE");
+
+	//variable to disable functions
+	bool _isActive = true;
+
+	modifier checkActive() {
+		require (_isActive);
+		_;
+	}
 
 	/**
 	 * @dev Constructor for initializing the LiquidStaking contract.
@@ -101,21 +109,23 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function setFees(uint256 stakeFee, uint256 unstakeFee)
-		public
-		virtual
-		override
+	public
+	virtual
+	override
+	returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ1");
 		// range checks for fees. Since fee cannot be more than 100%, the max cap
 		// is _valueDivisor * 100, which then brings the fees to 100 (percentage)
 		require(
 			(stakeFee <= _valueDivisor.mul(100)) &&
-				(unstakeFee <= _valueDivisor.mul(100)),
+			(unstakeFee <= _valueDivisor.mul(100)),
 			"LQ2"
 		);
 		_stakeFee = stakeFee;
 		_unstakeFee = unstakeFee;
 		emit SetFees(stakeFee, unstakeFee);
+		return true;
 	}
 
 	/**
@@ -126,13 +136,15 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function setUnstakingLockTime(uint256 unstakingLockTime)
-		public
-		virtual
-		override
+	public
+	virtual
+	override
+	returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ3");
 		_unstakingLockTime = unstakingLockTime;
 		emit SetUnstakingLockTime(unstakingLockTime);
+		return true;
 	}
 
 	/**
@@ -140,11 +152,11 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function getTokens()
-		public
-		view
-		virtual
-		override
-		returns (address sTokenAddress, address uTokenAddress)
+	public
+	view
+	virtual
+	override
+	returns (address sTokenAddress, address uTokenAddress)
 	{
 		sTokenAddress = address(_sTokens);
 		uTokenAddress = address(_uTokens);
@@ -155,21 +167,21 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function getStakeUnstakeProps()
-		public
-		view
-		virtual
-		override
-		returns (
-			uint256 stakeFee,
-			uint256 unstakeFee,
-			uint256 minStake,
-			uint256 minUnstake,
-			uint256 valueDivisor,
-			uint256 epochInterval,
-			uint256 unstakeEpoch,
-			uint256 unstakeEpochPrevious,
-			uint256 unstakingLockTime
-		)
+	public
+	view
+	virtual
+	override
+	returns (
+		uint256 stakeFee,
+		uint256 unstakeFee,
+		uint256 minStake,
+		uint256 minUnstake,
+		uint256 valueDivisor,
+		uint256 epochInterval,
+		uint256 unstakeEpoch,
+		uint256 unstakeEpochPrevious,
+		uint256 unstakingLockTime
+	)
 	{
 		stakeFee = _stakeFee;
 		unstakeFee = _unstakeFee;
@@ -192,9 +204,10 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function setMinimumValues(uint256 minStake, uint256 minUnstake)
-		public
-		virtual
-		override
+	public
+	virtual
+	override
+	returns (bool success)
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ4");
 		require(minStake >= 1, "LQ5");
@@ -203,6 +216,7 @@ contract LiquidStakingV4 is
 		_minStake = minStake;
 		_minUnstake = minUnstake;
 		emit SetMinimumValues(minStake, minUnstake);
+		return true;
 	}
 
 	/**
@@ -218,7 +232,7 @@ contract LiquidStakingV4 is
 		uint256 unstakeEpoch,
 		uint256 unstakeEpochPrevious,
 		uint256 epochInterval
-	) public virtual override {
+	) public virtual override returns (bool success) {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ7");
 		require(unstakeEpochPrevious <= unstakeEpoch, "LQ8");
 		if (unstakeEpoch == 0 && epochInterval != 0) revert("LQ9");
@@ -226,6 +240,7 @@ contract LiquidStakingV4 is
 		_unstakeEpochPrevious = unstakeEpochPrevious;
 		_epochInterval = epochInterval;
 		emit SetUnstakeEpoch(unstakeEpoch, unstakeEpochPrevious, epochInterval);
+		return true;
 	}
 
 	/**
@@ -237,7 +252,7 @@ contract LiquidStakingV4 is
 	 */
 	function setUTokensContract(address uAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ10");
-		_uTokens = IUTokensV3(uAddress);
+		_uTokens = IUTokensV2(uAddress);
 		emit SetUTokensContract(uAddress);
 	}
 
@@ -250,7 +265,7 @@ contract LiquidStakingV4 is
 	 */
 	function setSTokensContract(address sAddress) public virtual override {
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ11");
-		_sTokens = ISTokensV3(sAddress);
+		_sTokens = ISTokensV2(sAddress);
 		emit SetSTokensContract(sAddress);
 	}
 
@@ -262,9 +277,9 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function setTokenWrapperContract(address tokenWrapperContract)
-		public
-		virtual
-		override
+	public
+	virtual
+	override
 	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ27");
 		_tokenWrapperContract = tokenWrapperContract;
@@ -300,13 +315,13 @@ contract LiquidStakingV4 is
 		amountStaked = stakingAmount.sub(stakeFeeAmount);
 
 		// get the deposit fee from the TokenWrapper contract
-		(depositFee, , , , valueDivisor) = ITokenWrapperV4(
+		(depositFee, , , , valueDivisor) = ITokenWrapperV3(
 			_tokenWrapperContract
 		).getProps();
 
 		// factor the fee component and find the resultant UTokens to be minted
 		depositFeeAmount = (wrappingAmount.mulDiv(depositFee, valueDivisor))
-			.div(100);
+		.div(100);
 		amountWrapped = wrappingAmount.sub(depositFeeAmount);
 
 		// perform the mint for the staked and the wrapped amounts
@@ -326,10 +341,11 @@ contract LiquidStakingV4 is
 		uint256 stakingAmount,
 		uint256 wrappingAmount
 	)
-		public
-		virtual
-		override
-		returns (uint256 amountStaked, uint256 amountWrapped)
+	checkActive
+	public
+	virtual
+	override
+	returns (uint256 amountStaked, uint256 amountWrapped)
 	{
 		// only bridge admin is allowed to execute this function
 		require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "LQ25");
@@ -363,13 +379,14 @@ contract LiquidStakingV4 is
 		uint256[] calldata stakingAmounts,
 		uint256[] calldata wrappingAmounts
 	)
-		external
-		virtual
-		override
-		returns (
-			uint256[] memory amountsStaked,
-			uint256[] memory amountsWrapped
-		)
+	checkActive
+	external
+	virtual
+	override
+	returns (
+		uint256[] memory amountsStaked,
+		uint256[] memory amountsWrapped
+	)
 	{
 		// only bridge admin is allowed to execute this function
 		require(hasRole(BRIDGE_ADMIN_ROLE, _msgSender()), "LQ28");
@@ -377,7 +394,7 @@ contract LiquidStakingV4 is
 		// require the array sizes to be equal
 		require(
 			toAddressses.length == stakingAmounts.length &&
-				stakingAmounts.length == wrappingAmounts.length,
+			stakingAmounts.length == wrappingAmounts.length,
 			"LQ29"
 		);
 
@@ -411,15 +428,15 @@ contract LiquidStakingV4 is
 	/**
 	 * @dev Stake utokens over the platform with address 'to' for desired 'amount'(Burn uTokens and Mint sTokens)
 	 * @param to: user address for staking, amount: number of tokens to stake
-	 * @param amount: amount of tokens to be deducted for staking, including the fee component if any
 	 *
 	 */
 	function stake(address to, uint256 amount)
-		public
-		virtual
-		override
-		whenNotPaused
-		returns (uint256 amountStaked)
+	checkActive
+	public
+	virtual
+	override
+	whenNotPaused
+	returns (uint256 amountStaked)
 	{
 		// Check the supplied amount is greater than minimum stake value
 		require(to == _msgSender(), "LQ12");
@@ -455,11 +472,11 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function unStake(address to, uint256 amount)
-		public
-		virtual
-		override
-		whenNotPaused
-		returns (uint256 amountUnstaked)
+	public
+	virtual
+	override
+	whenNotPaused
+	returns (uint256 amountUnstaked)
 	{
 		// Check the supplied amount is greater than 0
 		require(to == _msgSender(), "LQ15");
@@ -474,7 +491,7 @@ contract LiquidStakingV4 is
 
 		// calculate the amountUnstaked by deducting fee
 		uint256 unstakeFeeAmount = (amount.mulDiv(_unstakeFee, _valueDivisor))
-			.div(100);
+		.div(100);
 		amountUnstaked = amount.sub(unstakeFeeAmount);
 
 		// the event needs to capture both amountUnstaked and  amount
@@ -490,14 +507,13 @@ contract LiquidStakingV4 is
 
 	/**
 	 * @dev returns the nearest epoch milestone in the future
-	 * @param _unstakeTimestamp: timestamp for which the nearest epoch milestone needs to be calculated
 	 */
 	function getUnstakeEpochMilestone(uint256 _unstakeTimestamp)
-		public
-		view
-		virtual
-		override
-		returns (uint256 unstakeEpochMilestone)
+	public
+	view
+	virtual
+	override
+	returns (uint256 unstakeEpochMilestone)
 	{
 		if (_unstakeTimestamp == 0) return 0;
 		// if epoch values are not relevant, then the epoch milestone is the unstake timestamp itself (backward compatibility)
@@ -518,18 +534,17 @@ contract LiquidStakingV4 is
 
 	/**
 	 * @dev returns the time left for unbonding to finish
-	 * @param _unstakeTimestamp: timestamp for which the time left for unbonding needs to be calculated
 	 */
 	function getUnstakeTime(uint256 _unstakeTimestamp)
-		public
-		view
-		virtual
-		override
-		returns (
-			uint256 unstakeTime,
-			uint256 unstakeEpoch,
-			uint256 unstakeEpochPrevious
-		)
+	public
+	view
+	virtual
+	override
+	returns (
+		uint256 unstakeTime,
+		uint256 unstakeEpoch,
+		uint256 unstakeEpochPrevious
+	)
 	{
 		uint256 _unstakeEpochMilestone = getUnstakeEpochMilestone(
 			_unstakeTimestamp
@@ -550,18 +565,19 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function withdrawUnstakedTokens(address staker)
-		public
-		virtual
-		override
-		whenNotPaused
-		returns (uint256 withdrawBalance)
+	public
+	virtual
+	override
+	whenNotPaused
+	returns (uint256 withdrawBalance)
 	{
 		require(staker == _msgSender(), "LQ20");
 		uint256 counter = _withdrawCounters[staker];
+		uint256 counter2 = _withdrawCounters[staker];
 		uint256 unstakingExpirationLength = _unstakingExpiration[staker]
-			.length > _batchingLimit.add(counter)
-			? _batchingLimit.add(counter)
-			: _unstakingExpiration[staker].length;
+		.length > _batchingLimit.add(counter)
+		? _batchingLimit.add(counter)
+		: _unstakingExpiration[staker].length;
 
 		for (uint256 i = counter; i < unstakingExpirationLength; i = i.add(1)) {
 			//get getUnstakeTime and compare it with current timestamp to check if 21 days + epoch difference has passed
@@ -575,7 +591,7 @@ contract LiquidStakingV4 is
 				);
 				delete _unstakingExpiration[staker][i];
 				delete _unstakingAmount[staker][i];
-				counter++;
+				counter2++;
 			}
 		}
 
@@ -586,7 +602,7 @@ contract LiquidStakingV4 is
 		emit WithdrawUnstakeTokens(staker, withdrawBalance, block.timestamp);
 
 		// update _withdrawCounters[staker] only once outside for loop to save gas
-		_withdrawCounters[staker] = counter;
+		_withdrawCounters[staker] = counter2;
 		_uTokens.mint(staker, withdrawBalance);
 	}
 
@@ -596,14 +612,14 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function getTotalUnbondedTokens(address staker)
-		public
-		view
-		virtual
-		override
-		returns (uint256 unbondingTokens)
+	public
+	view
+	virtual
+	override
+	returns (uint256 unbondingTokens)
 	{
 		uint256 _unstakingExpirationLength = _unstakingExpiration[staker]
-			.length;
+		.length;
 		uint256 _counter = _withdrawCounters[staker];
 		for (
 			uint256 i = _counter;
@@ -630,14 +646,14 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function getTotalUnbondingTokens(address staker)
-		public
-		view
-		virtual
-		override
-		returns (uint256 unbondingTokens)
+	public
+	view
+	virtual
+	override
+	returns (uint256 unbondingTokens)
 	{
 		uint256 _unstakingExpirationLength = _unstakingExpiration[staker]
-			.length;
+		.length;
 		uint256 _counter = _withdrawCounters[staker];
 		for (
 			uint256 i = _counter;
@@ -663,10 +679,17 @@ contract LiquidStakingV4 is
 	 * Emits a {SetBatchingLimit} event.
 	 *
 	 */
-	function setBatchingLimit(uint256 batchingLimit) public virtual override {
+	function setBatchingLimit(uint256 batchingLimit)
+	public
+	virtual
+	override
+	returns (bool success)
+	{
 		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ24");
 		_batchingLimit = batchingLimit;
 		emit SetBatchingLimit(batchingLimit, block.timestamp);
+		success = true;
+		return success;
 	}
 
 	/**
@@ -674,11 +697,11 @@ contract LiquidStakingV4 is
 	 *
 	 */
 	function getBatchingLimit()
-		public
-		view
-		virtual
-		override
-		returns (uint256 batchingLimit)
+	public
+	view
+	virtual
+	override
+	returns (uint256 batchingLimit)
 	{
 		batchingLimit = _batchingLimit;
 	}
@@ -687,17 +710,29 @@ contract LiquidStakingV4 is
 	 * @dev Triggers stopped state.
 	 *
 	 */
-	function pause() public virtual override {
+	function pause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LQ22");
 		_pause();
+		return true;
 	}
 
 	/**
 	 * @dev Returns to normal state.
 	 *
 	 */
-	function unpause() public virtual override {
+	function unpause() public virtual override returns (bool success) {
 		require(hasRole(PAUSER_ROLE, _msgSender()), "LQ23");
 		_unpause();
+		return true;
+	}
+
+	/**
+	 * @dev Triggers active state.
+	 *
+	 */
+	function setActivity(bool isActive) public {
+		// restrict access to this function
+		require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "LQ24");
+		_isActive = isActive;
 	}
 }
