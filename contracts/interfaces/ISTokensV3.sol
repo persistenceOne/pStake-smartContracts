@@ -18,7 +18,7 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 *
 	 * Emits a {Transfer} event.
 	 */
-	function mint(address to, uint256 tokens) external;
+	function mint(address to, uint256 tokens) external returns (bool);
 
 	/**
 	 * @dev Burns `amount` tokens to the caller's address `from`.
@@ -27,16 +27,15 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 *
 	 * Emits a {Transfer} event.
 	 */
-	function burn(address from, uint256 tokens) external;
+	function burn(address from, uint256 tokens) external returns (bool);
 
 	/**
 	 * @dev checks if given contract address is whitelisted
 	 *
 	 */
 	function isContractWhitelisted(address whitelistedAddress)
-		external
-		view
-		returns (bool result);
+	external view
+	returns (bool result);
 
 	/**
 	 * @dev Emitted when a new whitelisted address is removed
@@ -44,21 +43,20 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
 	function getWhitelistData(address whitelistedAddress)
-		external
-		view
-		returns (
-			address holderAddress,
-			address lpAddress,
-			address uTokenAddress,
-			uint256 lastHolderRewardTimestamp
-		);
+	external view
+	returns (
+		address holderAddress,
+		address lpAddress,
+		address uTokenAddress,
+		uint256 lastHolderRewardTimestamp
+	);
 
 	/**
 	 * @dev Sets `reward rate`.
 	 *
 	 * Returns a boolean value indicating whether the operation succeeded.
 	 */
-	function setRewardRate(uint256 rewardRate) external;
+	function setRewardRate(uint256 rewardRate) external returns (bool success);
 
 	/**
 	 * @dev calculates the reward that is pending to be received.
@@ -66,9 +64,9 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * Returns pending reward.
 	 */
 	function calculatePendingRewards(address to)
-		external
-		view
-		returns (uint256 pendingRewards);
+	external
+	view
+	returns (uint256 pendingRewards);
 
 	/**
 	 * @dev Calculates rewards `amount` tokens to the caller's address `to`.
@@ -87,12 +85,12 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * Emits a {TriggeredCalculateRewards} event.
 	 */
 	function calculateHolderRewards(address to)
-		external
-		returns (
-			uint256 rewards,
-			address holderAddress,
-			address lpTokenAddress
-		);
+	external
+	returns (
+		uint256 rewards,
+		address holderAddress,
+		address lpTokenAddress
+	);
 
 	/**
 	 * @dev Set UTokens smart contract.
@@ -110,6 +108,16 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * @dev Emitted when contract addresses are set
 	 */
 	event SetUTokensContract(address indexed _contract);
+
+	/**
+	 * @dev Set migration admin smart contract.
+	 */
+	function setMigrationAdminContract(address migrationAdminContract) external;
+
+	/**
+	 * @dev Emitted when contract addresses are set
+	 */
+	event SetMigrationAdminContract(address indexed _contract);
 
 	/**
 	 * @dev Emitted when contract addresses are set
@@ -133,13 +141,13 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * @param to: account address
 	 */
 	function calculatePendingHolderRewards(address to)
-		external
-		view
-		returns (
-			uint256 pendingRewards,
-			address holderAddress,
-			address lpAddress
-		);
+	external
+	view
+	returns (
+		uint256 pendingRewards,
+		address holderAddress,
+		address lpAddress
+	);
 
 	/**
 	 * @dev get reward rate and value divisor
@@ -157,7 +165,7 @@ interface ISTokensV3 is IERC20Upgradeable {
 		address whitelistedAddress,
 		address holderContractAddress,
 		address lpContractAddress
-	) external;
+	) external returns (bool success);
 
 	/**
 	 * @dev Emitted when `rewards` tokens are moved to account
@@ -201,7 +209,9 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * Emits a {RemoveWhitelistedAddress} event
 	 *
 	 */
-	function removeWhitelistedAddress(address whitelistedAddress) external;
+	function removeWhitelistedAddress(address whitelistedAddress)
+	external
+	returns (bool success);
 
 	/**
 	 * @dev Emitted when contract addresses are set
@@ -214,13 +224,13 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 * @dev get reward rate and value divisor
 	 */
 	function getRewardRate()
-		external
-		view
-		returns (
-			uint256[] memory rewardRate,
-			uint256[] memory lastMovingRewardTimestamp,
-			uint256 valueDivisor
-		);
+	external
+	view
+	returns (
+		uint256[] memory rewardRate,
+		uint256[] memory lastMovingRewardTimestamp,
+		uint256 valueDivisor
+	);
 
 	/**
 	 * @dev Triggers stopped state.
@@ -229,7 +239,7 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 *
 	 * - The contract must not be paused.
 	 */
-	function pause() external;
+	function pause() external returns (bool success);
 
 	/**
 	 * @dev Returns to normal state.
@@ -238,7 +248,7 @@ interface ISTokensV3 is IERC20Upgradeable {
 	 *
 	 * - The contract must be paused.
 	 */
-	function unpause() external;
+	function unpause() external returns (bool success);
 
 	/**
 	 * @dev Emitted when `rewards` tokens are moved to holder account
