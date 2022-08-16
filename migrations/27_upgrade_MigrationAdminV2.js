@@ -78,16 +78,5 @@ async function upgradeMigrationAdmin(gasPrice, gasLimit, deployer, accounts) {
 
     console.log("MigrationAdminV2 upgraded: ", MigrationAdminInstance.address);
 
-    /*// set contract addresses in LiquidStaking Contract
-    const txReceipt = await MigrationAdminInstance.setHRPBytes(
-        "persistence",
-        {
-            from: from_defaultAdmin,
-            gasPrice: gasPrice,
-            gas: gasLimit,
-        }
-    );
-    console.log("setHRPBytes() done");*/
-
     console.log("ALL DONE.");
 }
