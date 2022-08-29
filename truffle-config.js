@@ -17,9 +17,9 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-require('dotenv').config()
+require("dotenv").config();
 const HDWalletProvider = require("@truffle/hdwallet-provider");
-const mnemonic = process.env.MNEMONIC
+const mnemonic = process.env.MNEMONIC;
 
 module.exports = {
   /**
@@ -41,7 +41,7 @@ module.exports = {
     //
     development: {
       host: "127.0.0.1", // Localhost (default: none)
-      port: 8545, // Standard Ethereum port (default: none)
+      port: 7545, // Standard Ethereum port (default: none)
       network_id: "*", // Any network (default: none)
     },
     // Another network with more advanced options...
