@@ -6,7 +6,7 @@
 pragma solidity >=0.7.0;
 
 /**
- * @dev Interface of the ITokenWrapper.
+ * @dev Interface of the IMigrationAdmin.
  */
 interface IMigrationAdminV4 {
 
@@ -55,35 +55,34 @@ interface IMigrationAdminV4 {
     event SetLiquidStakingContract(address indexed _contract);
 
     /**
-     * @dev Call SToken, TokenWrapper, LiquidStaking contract function.
+     * @dev Calls SToken, TokenWrapper, LiquidStaking contract function.
 	 * Emits a {ClaimPendingRewardsEvent} event.
 	 * Emits a {ClaimUnbondedRewardsEvent} event.
-	 * Emits a {BurnSTokensEvent} event.
 	 */
     function Migrate(address accountAddress, string memory toCosmosChainAddress) external returns (bool success);
 
     /**
-     * @dev Emitted when contract addresses are set
+     * @dev Emitted when unclaimed staking rewards are claimed
 	 */
     event ClaimPendingRewardsEvent(address indexed accountAddress);
 
     /**
-     * @dev Emitted when contract addresses are set
+     * @dev Emitted when unclaimed unbonded tokens are claimed
 	 */
     event ClaimUnbondedRewardsEvent(address indexed accountAddress);
 
     /**
-     * @dev Emitted when contract addresses are set
+     * @dev Emitted when UTokens are burned
 	 */
     event WithdrawUTokensEvent(address indexed accountAddress, uint256 currentUTokenBalance, string toCosmosChainAddress);
 
     /**
-     * @dev Emitted when contract addresses are set
+     * @dev Emitted when STokens are burned
 	 */
     event BurnSTokensEvent(address indexed accountAddress, uint256 currentSTokenBalance);
 
     /**
-     * @dev Emitted when contract addresses are set
+     * @dev Emitted when all the migration step is complete
 	 */
     event SetMigrationCompleteEvent(address indexed accountAddress, uint256 currentUTokenBalance, string toCosmosChainAddress);
 
@@ -106,7 +105,7 @@ interface IMigrationAdminV4 {
     function unpause() external returns (bool success);
 
     /**
-     * @dev Add hrp bytes
+     * @dev Add hrp bytes for persistence prefix
 	 *
 	 * Requirements:
 	 *
@@ -115,7 +114,7 @@ interface IMigrationAdminV4 {
     function setHRPBytes(bytes memory hrpBytes) external returns (bool success);
 
     /**
-     * @dev Add hrp bytes
+     * @dev Add hrp bytes for cosmos prefix
 	 *
 	 * Requirements:
 	 *
