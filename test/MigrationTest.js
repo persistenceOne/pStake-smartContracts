@@ -11,25 +11,25 @@ const { web3 } = require("@openzeppelin/test-helpers/src/setup");
 const { deployProxy } = require("@openzeppelin/truffle-upgrades");
 
 const { accounts, contract } = require("@openzeppelin/test-environment");
-const { BN, expectRevert } = require("@openzeppelin/test-helpers");
+const { BN, expectRevert, expectEvent } = require("@openzeppelin/test-helpers");
 const { TestHelper } = require("zos");
 // const { Contracts, ZWeb3 } = require("zos-lib");
 
 // ZWeb3.initialize(web3.currentProvider);
-const LiquidStaking = artifacts.require("LiquidStakingV3");
+const LiquidStaking = artifacts.require("LiquidStakingV4");
 const TokenWrapper = artifacts.require("TokenWrapperV6");
-const sTokens = artifacts.require("STokensV3");
+const sTokens = artifacts.require("STokensV5");
 const uTokens = artifacts.require("UTokensV2");
-const MigrationAdmin = artifacts.require("MigrationAdminV4");
+const MigrationAdmin = artifacts.require("MigrationAdminV6");
 
 // let defaultAdmin = "0xD796aD3ADAf2809EDB36e7E215b54Fee663F4DA3";
-let defaultAdmin = "0xF023fBe07cb9Bb5F9A307FDCdf34D88b325CadB5";
+let defaultAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
 // 0x98E58Ab9647B9f394AD0b79A069eCa350FD3fD09
-let bridgeAdmin = "0x76C5411eBcf4c3D9511AD0b3aeb2a06D2c4415dF";
-let pauseAdmin = "0xF023fBe07cb9Bb5F9A307FDCdf34D88b325CadB5";
+let bridgeAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
+let pauseAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
 
-let userAddress = "0x23A065FCd2c176e0AefDB7b3c94fA2D9B9E3e915";
-let persistenceAddress = "cosmos12zjl6nn5zuhdz2quhw3vm8pue2g085kvqy3lt8";
+let userAddress = "0x8Ce9260b463D82bE50Febed422f09F413d5BE13e";
+let persistenceAddress = "persistence1mr92rv0rfag82wzxq4qynpxtvjerwcgyx7z6vs";
 let cosmosAddress = "cosmos12zjl6nn5zuhdz2quhw3vm8pue2g085kvqy3lt8";
 let unknownAddress = "0x98EB5E11e8b587DA1E19E3173fFc3a7961943e12";
 
@@ -38,6 +38,8 @@ describe("Migration Admin", () => {
   let rewardRate = new BN(3000000);
   let _rewardRate = new BN(3000000);
   let rewardDivisor = new BN(1000000000);
+  let HRPBytesPersistence = "0x70657273697374656e6365";
+  let HRPBytesCosmos = "0x636f736d6f73";
   let epochInterval = "259200"; //3 days
   let unstakingLockTime = "1814400"; // 21 days
   let utokens;
@@ -95,16 +97,28 @@ describe("Migration Admin", () => {
       from: defaultAdmin,
     });
     await stokens.setRewardRate(rewardRate, { from: defaultAdmin });
+    await stokens.setMigrationAdminContract(migrationAdmin.address, {
+      from: defaultAdmin,
+    });
+    await tokenWrapper.setMigrationAdminContract(migrationAdmin.address, {
+      from: defaultAdmin,
+    });
+    await liquidStaking.setMigrationAdminContract(migrationAdmin.address, {
+      from: defaultAdmin,
+    });
   });
 
   describe("Migrate", function () {
     it("Only user can call this function", async function () {
-      await migrationAdmin.Migrate(
-        userAddress,
-        persistenceAddress,
-        cosmosAddress,
-        { from: userAddress }
-      );
+      await migrationAdmin.setCosmosHRPBytes(HRPBytesCosmos, {
+        from: defaultAdmin,
+      });
+      await migrationAdmin.setHRPBytes(HRPBytesPersistence, {
+        from: defaultAdmin,
+      });
+      await migrationAdmin.Migrate(userAddress, cosmosAddress, {
+        from: userAddress,
+      });
     });
     it("Unauthorized user calling this function", async function () {
       await expectRevert(
@@ -114,43 +128,46 @@ describe("Migration Admin", () => {
         "MA5"
       );
     });
-    it("Bech32 validation for persistence address", async function () {
-      await expectRevert(
-        migrationAdmin.Migrate(
-          migrationAdmin.Migrate(userAddress, unknownAddress, cosmosAddress, {
-            from: userAddress,
-          }),
-          "MA6"
-        )
-      );
-    });
     it("Bech32 validation for cosmos address", async function () {
+      await migrationAdmin.setCosmosHRPBytes(HRPBytesCosmos, {
+        from: defaultAdmin,
+      });
+      await migrationAdmin.setHRPBytes(HRPBytesPersistence, {
+        from: defaultAdmin,
+      });
       await expectRevert(
-        migrationAdmin.Migrate(
-          migrationAdmin.Migrate(
-            userAddress,
-            persistenceAddress,
-            unknownAddress,
-            {
-              from: userAddress,
-            }
-          ),
-          "MA11"
-        )
+        migrationAdmin.Migrate(userAddress, unknownAddress, {
+          from: userAddress,
+        }),
+        "MA11"
       );
     });
-    it("After migration is successful, fetch balances and compare them with returned token amount", async function () {});
+    it("After migration is successful, fetch balances and compare them with returned token amount", async function () {
+      const sTokenBalance = await stokens.balanceOf(userAddress);
+      const uTokenBalance = await utokens.balanceOf(userAddress);
+      await migrationAdmin.setCosmosHRPBytes(HRPBytesCosmos, {
+        from: defaultAdmin,
+      });
+      await migrationAdmin.setHRPBytes(HRPBytesPersistence, {
+        from: defaultAdmin,
+      });
+      let migrationCompleteEvent = await migrationAdmin.Migrate(
+        userAddress,
+        cosmosAddress,
+        {
+          from: userAddress,
+        }
+      );
+      expectEvent(migrationCompleteEvent, "SetMigrationCompleteEvent", {});
+    });
     it("Calling this function if all balances are 0", async function () {
       const sTokenBalance = await stokens.balanceOf(userAddress);
       const uTokenBalance = await utokens.balanceOf(userAddress);
       if (sTokenBalance === 0 && uTokenBalance === 0) {
         expectRevert.unspecified(
-          migrationAdmin.Migrate(
-            userAddress,
-            persistenceAddress,
-            cosmosAddress,
-            { from: userAddress }
-          )
+          migrationAdmin.Migrate(userAddress, cosmosAddress, {
+            from: userAddress,
+          })
         );
       }
     });
@@ -178,6 +195,13 @@ describe("Migration Admin", () => {
       // TEST SCENARIO END
     }, 200000);
 
+    it("Only admin can set liquid staking contract address: ", async function () {
+      await migrationAdmin.setLiquidStakingContract(liquidStaking.address, {
+        from: defaultAdmin,
+      });
+      // TEST SCENARIO END
+    }, 200000);
+
     it("Non admin can set uToken contract address: ", async function () {
       await expectRevert(
         migrationAdmin.setUTokensContract(utokens.address, {
@@ -198,12 +222,22 @@ describe("Migration Admin", () => {
       // TEST SCENARIO END
     }, 200000);
 
-    it("Non owner can set wrapper contract address: ", async function () {
+    it("Non admin can set wrapper contract address: ", async function () {
       await expectRevert(
         migrationAdmin.setTokenWrapperContract(tokenWrapper.address, {
           from: unknownAddress,
         }),
         "MA3"
+      );
+      // TEST SCENARIO END
+    }, 200000);
+
+    it("Non admin can set liquid staking contract address: ", async function () {
+      await expectRevert(
+        migrationAdmin.setLiquidStakingContract(liquidStaking.address, {
+          from: unknownAddress,
+        }),
+        "MA12"
       );
       // TEST SCENARIO END
     }, 200000);
@@ -250,14 +284,14 @@ describe("Migration Admin", () => {
 
   describe("Set HRP Bytes", function () {
     it("Only admin can call this function", async function () {
-      await migrationAdmin.setHRPBytes(web3.utils.asciiToHex("cosmos"), {
+      await migrationAdmin.setHRPBytes(HRPBytesPersistence, {
         from: defaultAdmin,
       });
     });
 
     it("Unknown address calling this function", async function () {
       await expectRevert(
-        migrationAdmin.setHRPBytes(web3.utils.asciiToHex("cosmos"), {
+        migrationAdmin.setHRPBytes(HRPBytesPersistence, {
           from: unknownAddress,
         }),
         "MA9"
@@ -267,14 +301,14 @@ describe("Migration Admin", () => {
 
   describe("Set CosmosHRP Bytes", function () {
     it("Only admin can call this function", async function () {
-      await migrationAdmin.setCosmosHRPBytes(web3.utils.asciiToHex("cosmos"), {
+      await migrationAdmin.setCosmosHRPBytes(HRPBytesCosmos, {
         from: defaultAdmin,
       });
     });
 
     it("Unknown address calling this function", async function () {
       await expectRevert(
-        migrationAdmin.setCosmosHRPBytes(web3.utils.asciiToHex("cosmos"), {
+        migrationAdmin.setCosmosHRPBytes(HRPBytesCosmos, {
           from: unknownAddress,
         }),
         "MA10"
