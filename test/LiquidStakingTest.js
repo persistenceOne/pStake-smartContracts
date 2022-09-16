@@ -35,13 +35,13 @@ const sTokens = artifacts.require("STokensV5");
 const uTokens = artifacts.require("UTokensV2");
 
 const toAtomAddress = "cosmos1dgtl8dqky0cucr9rlllw9cer9ysrkjnjagz5zp";
-let defaultAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
-let bridgeAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
-let pauseAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
-let to = "0x267D924c5869bB85A2078Da07Be6F462CA469215";
+let defaultAdmin = "0x8Ac7B40083a9935B1d28f78D17Dd86F47686B62B";
+let bridgeAdmin = "0x8Ac7B40083a9935B1d28f78D17Dd86F47686B62B";
+let pauseAdmin = "0x8Ac7B40083a9935B1d28f78D17Dd86F47686B62B";
+let to = "0xdeC25B5f0fF67b7Bf2098e1b6951c60192a7F372";
 let toAddresses = [
-  "0x8edc5b01b881B3F018135Cf4f13F631CB3843BB8",
-  "0x8Ce9260b463D82bE50Febed422f09F413d5BE13e",
+  "0xA7A2eD98B257CCa7187e793f01B00786718B4aBf",
+  "0xdeC25B5f0fF67b7Bf2098e1b6951c60192a7F372",
 ];
 let unknownAddress = "0x98EB5E11e8b587DA1E19E3173fFc3a7961943e12";
 
@@ -108,14 +108,22 @@ describe("Liquid Staking", function () {
   });
 
   describe("Generate UTokens in Batch", function () {
-    it("Only bridge admin can call this function", async function () {
-      await liquidStaking.stakeDirectInBatch(
-        toAddresses,
-        [new BN(100), new BN(200)],
-        [new BN(100), new BN(200)],
-        {
-          from: bridgeAdmin,
-        }
+    it("Bridge admin wont be able to deposit any ATOM", async function () {
+      await liquidStaking.revokeRole(
+        "0x751b795d24b92e3d92d1d0d8f2885f4e9c9c269da350af36ae6b49069babf4bf",
+        "0x8AAD3Ce382A5793D6B97E72b87598823ea7940CB",
+        { from: defaultAdmin }
+      );
+      await expectRevert(
+        liquidStaking.stakeDirectInBatch(
+          toAddresses,
+          [new BN(100), new BN(200)],
+          [new BN(100), new BN(200)],
+          {
+            from: bridgeAdmin,
+          }
+        ),
+        "LQ28"
       );
     }, 200000);
     it("Any other address calling this function", async function () {
@@ -132,6 +140,11 @@ describe("Liquid Staking", function () {
       );
     }, 200000);
     it("Address and token length mismatch", async function () {
+      await liquidStaking.grantRole(
+        "0x751b795d24b92e3d92d1d0d8f2885f4e9c9c269da350af36ae6b49069babf4bf",
+        bridgeAdmin,
+        { from: defaultAdmin }
+      );
       await expectRevert(
         liquidStaking.stakeDirectInBatch(
           toAddresses,
@@ -182,28 +195,28 @@ describe("Liquid Staking", function () {
       expect(_rate == rate);
     });
 
-    it("Get Staked Block", async function () {
-      let generate = await tokenWrapper.generateUTokens(to, amount, {
-        from: bridgeAdmin,
-      });
-      let balance = await utokens.balanceOf(to);
-      expect(balance == amount);
-      expectEvent(generate, "GenerateUTokens", {
-        accountAddress: to,
-        tokens: amount,
-      });
-      let stake = await liquidStaking.stake(to, amt, { from: to });
-      balance = await stokens.balanceOf(to);
-      expect(balance >= amt);
-      expectEvent(stake, "StakeTokens", {
-        accountAddress: to,
-        tokens: amt,
-      });
-      let stakedBlock = await stokens.getLastUserRewardTimestamp(to, {
-        from: defaultAdmin,
-      });
-      expect(stakedBlock > 0);
-    });
+    // it("Get Staked Block", async function () {
+    //   let generate = await tokenWrapper.generateUTokens(to, amount, {
+    //     from: bridgeAdmin,
+    //   });
+    //   let balance = await utokens.balanceOf(to);
+    //   expect(balance == amount);
+    //   expectEvent(generate, "GenerateUTokens", {
+    //     accountAddress: to,
+    //     tokens: amount,
+    //   });
+    //   let stake = await liquidStaking.stake(to, amt, { from: to });
+    //   balance = await stokens.balanceOf(to);
+    //   expect(balance >= amt);
+    //   expectEvent(stake, "StakeTokens", {
+    //     accountAddress: to,
+    //     tokens: amt,
+    //   });
+    //   let stakedBlock = await stokens.getLastUserRewardTimestamp(to, {
+    //     from: defaultAdmin,
+    //   });
+    //   expect(stakedBlock > 0);
+    // });
   });
 
   describe("Staking", function () {

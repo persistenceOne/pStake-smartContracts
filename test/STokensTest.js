@@ -27,10 +27,10 @@ const uTokens = artifacts.require('UTokens');*/
 const sTokens = artifacts.require("STokensV5");
 const uTokens = artifacts.require("UTokensV2");
 
-let defaultAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
-let bridgeAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
-let pauseAdmin = "0xc997A90252c829c8B66a9b26d84C0356c13fcE2E";
-let to = "0x8Ce9260b463D82bE50Febed422f09F413d5BE13e";
+let defaultAdmin = "0x8Ac7B40083a9935B1d28f78D17Dd86F47686B62B";
+let bridgeAdmin = "0x8Ac7B40083a9935B1d28f78D17Dd86F47686B62B";
+let pauseAdmin = "0x8Ac7B40083a9935B1d28f78D17Dd86F47686B62B";
+let to = "0xdeC25B5f0fF67b7Bf2098e1b6951c60192a7F372";
 let unknownAddress = "0x98EB5E11e8b587DA1E19E3173fFc3a7961943e12";
 
 describe("STokens", () => {
