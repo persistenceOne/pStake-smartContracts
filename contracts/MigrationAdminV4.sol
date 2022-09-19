@@ -11,6 +11,7 @@ import "./interfaces/IUTokensV3.sol";
 import "./interfaces/ISTokensV3.sol";
 import "./interfaces/ITokenWrapperV5.sol";
 import "./interfaces/IMigrationAdminV3.sol";
+import "./interfaces/ILiquidStakingV4.sol";
 import "./libraries/Bech32.sol";
 
 contract MigrationAdminV4 is
@@ -33,6 +34,9 @@ AccessControlUpgradeable
     bytes public controlDigitBytes;
     uint256 public dataBytesSize;
     bytes public cosmosHrpBytes;
+
+    // Liquid staking contract address
+    address public override _liquidStakingContract;
 
     /*
      * @dev Constructor for initializing the TokenWrapper contract.
@@ -99,6 +103,19 @@ AccessControlUpgradeable
         emit SetTokenWrapperContract(tokenWrapperAddress);
     }
 
+    /*
+     * @dev Set 'contract address', called for liquid staking smart contract
+	 * @param liquidStakingAddress: liquid staking contract address
+	 *
+	 * Emits a {SetLiquidStakingContract} event with '_contract' set to the liquid staking contract address.
+	 *
+	 */
+    function setLiquidStakingContract(address liquidStakingAddress) public virtual override {
+        require(hasRole(DEFAULT_ADMIN_ROLE, _msgSender()), "MA12");
+        _liquidStakingContract = liquidStakingAddress;
+        emit SetLiquidStakingContract(liquidStakingAddress);
+    }
+
     /**
 	 * @dev Migrating tokens
 	 * @param accountAddress: users address
@@ -127,17 +144,32 @@ AccessControlUpgradeable
             controlDigitBytes,
             dataBytesSize
         );
-        require(isAddressValid == true, "MA11");
+        require(isCosmosAddressValid == true, "MA11");
 
         //claim pending rewards
         _sTokens.calculateRewards(accountAddress);
         emit ClaimPendingRewardsEvent(accountAddress);
+
+        //claim unbonded tokens only when token amount is greater than 0
+        uint256 currentUnbondedTokens = ILiquidStakingV4(_liquidStakingContract).getTotalUnbondedTokens(accountAddress);
+        if(currentUnbondedTokens > 0){
+            ILiquidStakingV4(_liquidStakingContract).withdrawUnstakedTokens(accountAddress);
+            emit ClaimUnbondedRewardsEvent(accountAddress);
+        }
 
         //withdraw uTokens
         // require user to hold enough UTokens balance
         uint256 currentUTokenBalance = _uTokens.balanceOf(accountAddress);
         _tokenWrapper.withdrawUTokens(accountAddress, currentUTokenBalance, toCosmosChainAddress);
         emit WithdrawUTokensEvent(accountAddress, currentUTokenBalance, toChainAddress);
+
+        //burn sTokens
+        // require user to hold enough STokens balance
+        uint256 currentSTokenBalance = _sTokens.balanceOf(accountAddress);
+        _sTokens.burn(accountAddress, currentSTokenBalance);
+        emit BurnSTokensEvent(accountAddress, currentSTokenBalance);
+
+        emit SetMigrationCompleteEvent(accountAddress, currentSTokenBalance, currentUTokenBalance, toCosmosChainAddress, toChainAddress);
         return true;
     }
 

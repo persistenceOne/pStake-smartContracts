@@ -8,7 +8,7 @@ pragma solidity >=0.7.0;
 /**
  * @dev Interface of the ITokenWrapper.
  */
-interface IMigrationAdminV2 {
+interface IMigrationAdminV3 {
 
     /**
      * @dev Set UTokens smart contract.
@@ -44,6 +44,17 @@ interface IMigrationAdminV2 {
     event SetTokenWrapperContract(address indexed _contract);
 
     /**
+     * @dev Set liquid staking smart contract.
+	 * Emits a {SetLiquidStakingContract} event.
+	 */
+    function setLiquidStakingContract(address liquidStaking) external;
+
+    /**
+     * @dev Emitted when contract addresses are set
+	 */
+    event SetLiquidStakingContract(address indexed _contract);
+
+    /**
      * @dev Call SToken, TokenWrapper, LiquidStaking contract function.
 	 * Emits a {ClaimPendingRewardsEvent} event.
 	 * Emits a {ClaimUnbondedRewardsEvent} event.
@@ -69,7 +80,7 @@ interface IMigrationAdminV2 {
     /**
      * @dev Emitted when contract addresses are set
 	 */
-    event BurnSTokensEvent(address indexed accountAddress, uint256 currentSTokenBalance, string toPersistenceChainAddress);
+    event BurnSTokensEvent(address indexed accountAddress, uint256 currentSTokenBalance);
 
     /**
      * @dev Emitted when contract addresses are set
@@ -111,4 +122,7 @@ interface IMigrationAdminV2 {
 	 * Can be called by admin only
 	 */
     function setCosmosHRPBytes(bytes memory hrpBytes) external returns (bool success);
+
+    // liquid staking contract address
+    function _liquidStakingContract() external returns (address);
 }

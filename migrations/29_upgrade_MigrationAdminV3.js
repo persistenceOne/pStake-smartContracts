@@ -70,6 +70,7 @@ async function upgradeMigrationAdmin(gasPrice, gasLimit, deployer, accounts) {
 
     let from_defaultAdmin = accounts[0];
     let HRPBytes = 0x70657273697374656e6365;
+    let HRPBytesCosmos = 0x636f736d6f73;
 
     MigrationAdminInstance = await upgradeProxy(
         MigrationAdminArtifactV2.address,

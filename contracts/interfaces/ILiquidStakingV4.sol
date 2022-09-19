@@ -13,21 +13,21 @@ interface ILiquidStakingV4 {
 	function _tokenWrapperContract() external returns (address);
 
 	/**
-	 * @dev get the SToken and UToken address
-	 *
-	 */
+     * @dev get the SToken and UToken address
+     *
+     */
 	function getTokens()
-		external
-		view
-		returns (address sTokenAddress, address uTokenAddress);
+	external
+	view
+	returns (address sTokenAddress, address uTokenAddress);
 
 	/**
-	 * @dev Stake utokens over the platform with address 'to' for desired 'amount'(Burn uTokens and Mint sTokens)
-	 * @param to: user address for staking, amount: number of tokens to stake
-	 * @param stakingAmount: amount to be converted to stkToken
-	 * @param wrappingAmount: amount to be converted to pToken
-	 *
-	 */
+     * @dev Stake utokens over the platform with address 'to' for desired 'amount'(Burn uTokens and Mint sTokens)
+     * @param to: user address for staking, amount: number of tokens to stake
+     * @param stakingAmount: amount to be converted to stkToken
+     * @param wrappingAmount: amount to be converted to pToken
+     *
+     */
 	function stakeDirect(
 		address to,
 		uint256 stakingAmount,
@@ -35,139 +35,138 @@ interface ILiquidStakingV4 {
 	) external returns (uint256 amountStaked, uint256 amountWrapped);
 
 	/**
-	 * @dev Stake utokens over the platform with address 'to' for desired 'amount'(Burn uTokens and Mint sTokens)
-	 * @param toAddressses: user addresses for staking, amount: number of tokens to stake
-	 * @param stakingAmounts: amounts to be converted to stkToken
-	 * @param wrappingAmounts: amounts to be converted to pToken
-	 *
-	 */
+     * @dev Stake utokens over the platform with address 'to' for desired 'amount'(Burn uTokens and Mint sTokens)
+     * @param toAddressses: user addresses for staking, amount: number of tokens to stake
+     * @param stakingAmounts: amounts to be converted to stkToken
+     * @param wrappingAmounts: amounts to be converted to pToken
+     *
+     */
 	function stakeDirectInBatch(
 		address[] calldata toAddressses,
 		uint256[] calldata stakingAmounts,
 		uint256[] calldata wrappingAmounts
 	)
-		external
-		returns (
-			uint256[] memory amountsStaked,
-			uint256[] memory amountsWrapped
-		);
+	external
+	returns (
+		uint256[] memory amountsStaked,
+		uint256[] memory amountsWrapped
+	);
 
 	/**
-	 * @dev Stake utokens over the platform with address 'to' for desired 'amount'(Burn uTokens and Mint sTokens)
-	 * @param to: user address for staking, amount: number of tokens to stake
-	 * @param amount: amount of tokens to be deducted for staking, including the fee component if any
-	 *
-	 */
+     *  @dev Stake utokens over the platform with address 'to' for desired 'utok'(Burn uTokens and Mint sTokens)
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {StakeTokens} event.
+     */
 	function stake(address to, uint256 amount)
-		external
-		returns (uint256 amountStaked);
+	external
+	returns (uint256 amountStaked);
 
 	/**
-	 * @dev UnStake stokens over the platform with address 'to' for desired 'amount'
-	 * @param to: user address for staking, amount: number of tokens to unstake
-	 * @param amount: cumulative amount of STokens to be burned
-	 *
-	 */
+     *  @dev UnStake stokens over the platform with address 'to' for desired 'stok' (Burn sTokens and Mint uTokens with 21 days locking period)
+     *
+     * Returns a boolean value indicating whether the operation succeeded.
+     *
+     * Emits a {UnstakeTokens} event.
+     */
 	function unStake(address to, uint256 amount)
-		external
-		returns (uint256 amountUnstaked);
+	external
+	returns (uint256 amountUnstaked);
 
 	/**
-	 * @dev returns the nearest epoch milestone in the future
-	 * @param _unstakeTimestamp: timestamp for which the nearest epoch milestone needs to be calculated
-	 */
+     * @dev returns the nearest epoch milestone in the future
+     */
 	function getUnstakeEpochMilestone(uint256 _unstakeTimestamp)
-		external
-		view
-		returns (uint256 unstakeEpochMilestone);
+	external
+	view
+	returns (uint256 unstakeEpochMilestone);
 
 	/**
-	 * @dev returns the time left for unbonding to finish
-	 * @param _unstakeTimestamp: timestamp for which the time left for unbonding needs to be calculated
-	 */
+     * @dev returns the time left for unbonding to finish
+     */
 	function getUnstakeTime(uint256 _unstakeTimestamp)
-		external
-		view
-		returns (
-			uint256 unstakeTime,
-			uint256 unstakeEpoch,
-			uint256 unstakeEpochPrevious
-		);
+	external
+	view
+	returns (
+		uint256 unstakeTime,
+		uint256 unstakeEpoch,
+		uint256 unstakeEpochPrevious
+	);
 
 	/**
-	 * @dev Lock the unstaked tokens for 21 days, user can withdraw the same (Mint uTokens with 21 days locking period)
-	 *
-	 * @param staker: user address for withdraw
-	 *
-	 */
+     * @dev Lock the unstaked tokens for 21 days, user can withdraw the same (Mint uTokens with 21 days locking period)
+     *
+     * Emits a {WithdrawUnstakeTokens} event.
+     */
 	function withdrawUnstakedTokens(address staker)
-		external
-		returns (uint256 withdrawBalance);
+	external
+	returns (uint256 withdrawBalance);
 
 	/**
-	 * @dev get Total Unbonded Tokens
-	 * @param staker: account address
-	 *
-	 */
+     * @dev get Total Unbonded Tokens
+     * @param staker: account address
+     *
+     */
 	function getTotalUnbondedTokens(address staker)
-		external
-		view
-		returns (uint256 unbondingTokens);
+	external
+	view
+	returns (uint256 unbondingTokens);
 
 	/**
-	 * @dev get Total Unbonding Tokens
-	 * @param staker: account address
-	 *
-	 */
+     * @dev get Total Unbonding Tokens
+     * @param staker: account address
+     *
+     */
 	function getTotalUnbondingTokens(address staker)
-		external
-		view
-		returns (uint256 unbondingTokens);
+	external
+	view
+	returns (uint256 unbondingTokens);
 
 	/**
-	 * @dev Set UTokens smart contract.
-	 * Emits a {SetContract} event.
-	 */
+     * @dev Set UTokens smart contract.
+     * Emits a {SetContract} event.
+     */
 	function setUTokensContract(address uAddress) external;
 
 	/**
-	 * @dev Set STokens smart contract.
-	 *
-	 *
-	 * Emits a {SetContract} event.
-	 */
+     * @dev Set STokens smart contract.
+     *
+     *
+     * Emits a {SetContract} event.
+     */
 	function setSTokensContract(address sAddress) external;
 
 	/**
-	 * @dev Set 'contract address', called from constructor
-	 * @param tokenWrapperContract: stoken contract address
-	 *
-	 * Emits a {SetTokenWrapperContract} event with '_contract' set to the stoken contract address.
-	 *
-	 */
+     * @dev Set 'contract address', called from constructor
+     * @param tokenWrapperContract: stoken contract address
+     *
+     * Emits a {SetTokenWrapperContract} event with '_contract' set to the stoken contract address.
+     *
+     */
 	function setTokenWrapperContract(address tokenWrapperContract) external;
 
 	/**
-	 * @dev Emitted when fees are set
-	 */
+     * @dev Emitted when fees are set
+     */
 	event SetFees(uint256 indexed stakeFee, uint256 indexed unstakeFee);
 
 	/**
-	 * @dev Emitted when unstaking lock time is set
-	 */
+     * @dev Emitted when unstaking lock time is set
+     */
 	event SetUnstakingLockTime(uint256 indexed unstakingLockTime);
 
 	/**
-	 * @dev Emitted when minimum values are set
-	 */
+     * @dev Emitted when minimum values are set
+     */
 	event SetMinimumValues(
 		uint256 indexed minStake,
 		uint256 indexed minUnstake
 	);
 
 	/**
-	 * @dev Emitted when unstakeEpoch is set
-	 */
+     * @dev Emitted when unstakeEpoch is set
+     */
 	event SetUnstakeEpoch(
 		uint256 indexed unstakeEpoch,
 		uint256 indexed unstakeEpochPrevious,
@@ -175,23 +174,23 @@ interface ILiquidStakingV4 {
 	);
 
 	/**
-	 * @dev Emitted when contract addresses are set
-	 */
+     * @dev Emitted when contract addresses are set
+     */
 	event SetUTokensContract(address indexed _contract);
 
 	/**
-	 * @dev Emitted when contract addresses are set
-	 */
+     * @dev Emitted when contract addresses are set
+     */
 	event SetSTokensContract(address indexed _contract);
 
 	/**
-	 * @dev Emitted when contract addresses are set
-	 */
+     * @dev Emitted when contract addresses are set
+     */
 	event SetTokenWrapperContract(address indexed _contract);
 
 	/**
-	 * @dev Emitted when uTokens are staked
-	 */
+     * @dev Emitted when uTokens are staked
+     */
 	event StakeTokens(
 		address indexed accountAddress,
 		uint256 indexed tokens,
@@ -200,8 +199,8 @@ interface ILiquidStakingV4 {
 	);
 
 	/**
-	 * @dev Emitted when sTokens are unstaked
-	 */
+     * @dev Emitted when sTokens are unstaked
+     */
 	event UnstakeTokens(
 		address indexed accountAddress,
 		uint256 indexed tokens,
@@ -210,8 +209,8 @@ interface ILiquidStakingV4 {
 	);
 
 	/**
-	 * @dev Emitted when unstaked tokens are withdrawn
-	 */
+     * @dev Emitted when unstaked tokens are withdrawn
+     */
 	event WithdrawUnstakeTokens(
 		address indexed accountAddress,
 		uint256 indexed tokens,
@@ -219,107 +218,115 @@ interface ILiquidStakingV4 {
 	);
 
 	/**
-	 * @dev get batching limit
-	 *
-	 */
+     * @dev get batching limit
+     *
+     */
 	function getBatchingLimit() external view returns (uint256 batchingLimit);
 
 	/**
-	 * @dev get fees, min values, value divisor and epoch props
-	 *
-	 */
+     * @dev get fees, min values, value divisor and epoch props
+     *
+     */
 	function getStakeUnstakeProps()
-		external
-		view
-		returns (
-			uint256 stakeFee,
-			uint256 unstakeFee,
-			uint256 minStake,
-			uint256 minUnstake,
-			uint256 valueDivisor,
-			uint256 epochInterval,
-			uint256 unstakeEpoch,
-			uint256 unstakeEpochPrevious,
-			uint256 unstakingLockTime
-		);
+	external
+	view
+	returns (
+		uint256 stakeFee,
+		uint256 unstakeFee,
+		uint256 minStake,
+		uint256 minUnstake,
+		uint256 valueDivisor,
+		uint256 epochInterval,
+		uint256 unstakeEpoch,
+		uint256 unstakeEpochPrevious,
+		uint256 unstakingLockTime
+	);
 
 	/**
-	 * @dev Set 'fees', called from admin
-	 * @param stakeFee: stake fee
-	 * @param unstakeFee: unstake fee
-	 *
-	 * Emits a {SetFees} event with 'fee' set to the stake and unstake.
-	 *
-	 */
-	function setFees(uint256 stakeFee, uint256 unstakeFee) external;
+     * @dev Set 'fees', called from admin
+     * @param stakeFee: stake fee
+     * @param unstakeFee: unstake fee
+     *
+     * Emits a {SetFees} event with 'fee' set to the stake and unstake.
+     *
+     */
+	function setFees(uint256 stakeFee, uint256 unstakeFee)
+	external
+	returns (bool success);
 
 	/**
-	 * @dev Set 'unstake props', called from admin
-	 * @param unstakingLockTime: varies from 21 hours to 21 days
-	 *
-	 * Emits a {SetUnstakeProps} event with 'fee' set to the stake and unstake.
-	 *
-	 */
-	function setUnstakingLockTime(uint256 unstakingLockTime) external;
+     * @dev Set 'unstake props', called from admin
+     * @param unstakingLockTime: varies from 21 hours to 21 days
+     *
+     * Emits a {SetUnstakeProps} event with 'fee' set to the stake and unstake.
+     *
+     */
+	function setUnstakingLockTime(uint256 unstakingLockTime)
+	external
+	returns (bool success);
 
 	/**
-	 * @dev Set 'unstake epoch', called from admin
-	 * @param unstakeEpoch: unstake epoch
-	 * @param unstakeEpochPrevious: unstake epoch previous(initially set to same value as unstakeEpoch)
-	 * @param epochInterval: varies from 3 hours to 3 days
-	 *
-	 * Emits a {SetUnstakeEpoch} event with 'unstakeEpoch'
-	 *
-	 */
+     * @dev Set 'unstake epoch', called from admin
+     * @param unstakeEpoch: unstake epoch
+     * @param unstakeEpochPrevious: unstake epoch previous(initially set to same value as unstakeEpoch)
+     * @param epochInterval: varies from 3 hours to 3 days
+     *
+     * Emits a {SetUnstakeEpoch} event with 'unstakeEpoch'
+     *
+     */
 	function setUnstakeEpoch(
 		uint256 unstakeEpoch,
 		uint256 unstakeEpochPrevious,
 		uint256 epochInterval
-	) external;
+	) external returns (bool success);
 
 	/**
-	 * @dev Set 'minimum values', called from admin
-	 * @param minStake: stake minimum value
-	 * @param minUnstake: unstake minimum value
-	 *
-	 * Emits a {SetMinimumValues} event with 'minimum value' set to the stake and unstake.
-	 *
-	 */
-	function setMinimumValues(uint256 minStake, uint256 minUnstake) external;
+     * @dev Set 'minimum values', called from admin
+     * @param minStake: stake minimum value
+     * @param minUnstake: unstake minimum value
+     *
+     * Emits a {SetMinimumValues} event with 'minimum value' set to the stake and unstake.
+     *
+     */
+	function setMinimumValues(uint256 minStake, uint256 minUnstake)
+	external
+	returns (bool success);
 
 	/**
-	 * @dev Triggers stopped state.
-	 *
-	 * Requirements:
-	 *
-	 * - The contract must not be paused.
-	 */
-	function pause() external;
+     * @dev Triggers stopped state.
+     *
+     * Requirements:
+     *
+     * - The contract must not be paused.
+     */
+	function pause() external returns (bool success);
 
 	/**
-	 * @dev Returns to normal state.
-	 *
-	 * Requirements:
-	 *
-	 * - The contract must be paused.
-	 */
-	function unpause() external;
+     * @dev Returns to normal state.
+     *
+     * Requirements:
+     *
+     * - The contract must be paused.
+     */
+	function unpause() external returns (bool success);
 
 	/**
-	 * @dev Set 'batchingLimit', called from admin
-	 * Emits a {SetBatchingLimit} event
-	 *
-	 */
-	function setBatchingLimit(uint256 batchingLimit) external;
+     * @dev Set 'batchingLimit', called from admin
+     * Emits a {SetBatchingLimit} event
+     *
+     */
+	function setBatchingLimit(uint256 batchingLimit)
+	external
+	returns (bool success);
 
 	/**
-	 * @dev Emitted when batching limit is set
-	 */
+     * @dev Emitted when batching limit is set
+     */
 	event SetBatchingLimit(uint256 indexed batchingLimit, uint256 timestamp);
 
 	/**
-	 * @dev Emitted when batching limit is set
-	 */
+     * @dev Emitted when batching limit is set
+     */
 	event StakeDirect(
 		address to,
 		uint256 stakingAmount,
@@ -337,4 +344,35 @@ interface ILiquidStakingV4 {
 		uint256[] amountsWrapped,
 		uint256 timestamp
 	);
+
+	/**
+     * @dev Set 'contract address', called from admin
+     * @param migrationAdminContract: migration admin contract address
+     *
+     * Emits a {SetMigrationAdminContract} event with '_contract' set to the migration admin contract address.
+     *
+     */
+	function setMigrationAdminContract(address migrationAdminContract) external;
+
+	/**
+     * @dev Emitted when migration admin contract address is set
+     */
+	event SetMigrationAdminContract(address indexed _contract);
+
+	/**
+     * @dev Set 'function pause', called from pauser admin
+     * @param ifPause: if the functions are to be paused
+     *
+     * Emits a {SetFunctionPause} event with true/false
+     *
+     */
+	function setFunctionPause(bool ifPause) external;
+
+	/**
+     * @dev Emitted when migration admin contract address is set
+     */
+	event SetFunctionPause(bool ifPause);
+
+	// migration admin contract address
+	function _migrationAdminContract() external returns (address);
 }
